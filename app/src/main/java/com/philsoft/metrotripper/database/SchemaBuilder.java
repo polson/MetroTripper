@@ -1,0 +1,49 @@
+package com.philsoft.metrotripper.database;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import com.philsoft.metrotripper.database.contracts.StopContract;
+
+public class SchemaBuilder {
+
+	public static LinkedHashMap<String, String> buildCreateTableSql() {
+
+		LinkedHashMap<String, String> tableNamesToCreateStatements = new LinkedHashMap<String, String>();
+
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append("CREATE TABLE " + StopContract.TABLE_NAME + " (");
+		sqlBuilder.append(StopContract.STOP_ID + " INTEGER NOT NULL PRIMARY KEY, ");
+		sqlBuilder.append(StopContract.STOP_NAME + " VARCHAR(49), ");
+		sqlBuilder.append(StopContract.STOP_DESC + " VARCHAR(13), ");
+		sqlBuilder.append(StopContract.STOP_LAT + " NUMERIC(11,6), ");
+		sqlBuilder.append(StopContract.STOP_LON + " NUMERIC(11,6), ");
+		sqlBuilder.append(StopContract.STOP_STREET + " VARCHAR(35), ");
+		sqlBuilder.append(StopContract.STOP_CITY + " VARCHAR(19), ");
+		sqlBuilder.append(StopContract.STOP_REGION + " VARCHAR(1), ");
+		sqlBuilder.append(StopContract.STOP_POSTCODE + " VARCHAR(1), ");
+		sqlBuilder.append(StopContract.STOP_COUNTRY + " VARCHAR(1), ");
+		sqlBuilder.append(StopContract.ZONE_ID + " VARCHAR(1), ");
+		sqlBuilder.append(StopContract.WHEELCHAIR_BOARDING + " INTEGER(1), ");
+		sqlBuilder.append(StopContract.STOP_URL + " VARCHAR(62) ");
+		sqlBuilder.append(");\n");
+		tableNamesToCreateStatements.put(StopContract.TABLE_NAME, sqlBuilder.toString());
+		return tableNamesToCreateStatements;
+	}
+
+	/**
+	 * {@link http://www.sqlite.org/optoverview.html}
+	 */
+	public static List<String> buildCreateIndexSql() {
+
+		List<String> indexCreateStatements = new ArrayList<String>();
+		StringBuilder sqlBuilder = new StringBuilder();
+		// t_file_download
+		sqlBuilder = new StringBuilder();
+		sqlBuilder.append("CREATE INDEX S1 ON " + StopContract.TABLE_NAME + " (");
+		sqlBuilder.append(StopContract.STOP_ID + ")");
+		indexCreateStatements.add(sqlBuilder.toString());
+		return indexCreateStatements;
+	}
+}

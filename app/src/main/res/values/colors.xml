@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sidebar_bg">#333</color>
+    <color name="blue">#FF223E99</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="light_blue">#FF3259D9</color>
+    <color name="dark_blue">#FF101E4D</color>
+    <color name="green">#FF40AD99</color>
+    <color name="darkest_gray">#222</color>
+    <color name="darker_gray">#333</color>
+    <color name="dark_gray">#555</color>
+    <color name="gray">#666</color>
+    <color name="light_gray">#999</color>
+    <color name="lighter_gray">#ccc</color>
+    <color name="black">#000</color>
+    <color name="hyperlink_blue">#00A6FF</color>
+</resources>
