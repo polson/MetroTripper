@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/search_drawer_item_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="20dip"
+        android:paddingRight="20dip"
+        android:paddingTop="20dip"
+        android:paddingBottom="20dip"
+        android:background="@color/sidebar_bg">
+
+        <EditText
+            android:id="@+id/search_drawer_item_entry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Stop Number"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:inputType="number"
+            android:maxLength="5"
+            android:layout_toLeftOf="@+id/search_drawer_item_button"
+            android:imeOptions="actionGo"
+            android:textColorHint="@color/light_gray" />
+
+        <ImageView
+            android:id="@+id/search_drawer_item_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_search"
+            android:layout_alignParentRight="true"
+            android:paddingLeft="10dip" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/search_drawer_item_layout">
+
+
+        <View
+            style="@style/horizontal_line"
+            android:background="@color/darkest_gray"
+            android:layout_below="@+id/search_drawer_item_layout" />
+
+        <View
+            style="@style/horizontal_line"
+            android:background="@color/dark_gray" />
+
+    </LinearLayout>
+</RelativeLayout>

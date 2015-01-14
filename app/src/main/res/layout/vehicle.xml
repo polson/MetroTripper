@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--Need an extra RelativeLayout here so that creating a bitmap of this view works correctly -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:background="@drawable/vehicle_bg">
+
+        <TextView
+            android:id="@+id/vehicle_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:text="6U"
+            android:textSize="9sp"
+            android:layout_centerInParent="true" />
+
+    </RelativeLayout>
+</RelativeLayout>

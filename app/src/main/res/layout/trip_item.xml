@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/blue">
+
+    <RelativeLayout
+        android:id="@+id/trip_item_main_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dip"
+        android:paddingRight="20dip"
+        android:paddingTop="5dip"
+        android:paddingBottom="5dip">
+
+        <TextView
+            android:layout_toLeftOf="@+id/trip_item_time_layout"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/trip_item_route"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4P"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_toLeftOf="@+id/trip_item_time_layout"
+            android:layout_below="@+id/trip_item_route"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/trip_item_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Southbound B to France Av"
+            android:textColor="@color/white" />
+
+        <LinearLayout
+            android:id="@+id/trip_item_time_layout"
+            android:layout_width="80dip"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true">
+
+            <TextView
+                android:id="@+id/trip_item_time_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_gravity="center" />
+
+            <TextView
+                android:id="@+id/trip_item_time_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="minutes"
+                android:textSize="11sp"
+                android:layout_marginTop="-5dip"
+                android:layout_gravity="center" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <View
+        style="@style/horizontal_line"
+        android:background="@color/light_blue"
+        android:layout_alignParentTop="true" />
+
+    <View
+        android:id="@+id/trip_item_black_line"
+        style="@style/horizontal_line"
+        android:background="@color/dark_blue"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
