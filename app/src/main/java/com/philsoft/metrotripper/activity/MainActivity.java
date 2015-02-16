@@ -41,6 +41,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
 		GoogleMap.OnMarkerClickListener {
 
 	private static final String KEY_PANEL_STATE = "KEY_PANEL_STATE";
+	private static final LatLng MINNEAPOLIS_LATLNG = new LatLng(44.9799700, -93.2638400);
 
 	private ActionBarDrawerToggle drawerToggle;
 	private AppHub appHub;
@@ -249,7 +250,11 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
 	@Override
 	public void onLocationReady(Location location) {
 		if (mapHelper != null) {
-			mapHelper.centerCameraOnLatLng(new LatLng(location.getLatitude(), location.getLongitude()), false);
+			if (location != null) {
+				mapHelper.centerCameraOnLatLng(new LatLng(location.getLatitude(), location.getLongitude()), false);
+			} else {
+				mapHelper.centerCameraOnLatLng(MINNEAPOLIS_LATLNG, false);
+			}
 		}
 	}
 
