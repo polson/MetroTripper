@@ -1,10 +1,10 @@
 package com.philsoft.metrotripper.database;
 
+import com.philsoft.metrotripper.database.contracts.StopContract;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import com.philsoft.metrotripper.database.contracts.StopContract;
 
 public class SchemaBuilder {
 
@@ -32,14 +32,10 @@ public class SchemaBuilder {
 		return tableNamesToCreateStatements;
 	}
 
-	/**
-	 * {@link http://www.sqlite.org/optoverview.html}
-	 */
 	public static List<String> buildCreateIndexSql() {
 
 		List<String> indexCreateStatements = new ArrayList<String>();
 		StringBuilder sqlBuilder = new StringBuilder();
-		// t_file_download
 		sqlBuilder = new StringBuilder();
 		sqlBuilder.append("CREATE INDEX S1 ON " + StopContract.TABLE_NAME + " (");
 		sqlBuilder.append(StopContract.STOP_ID + ")");

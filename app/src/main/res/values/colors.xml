@@ -14,4 +14,11 @@
     <color name="lighter_gray">#ccc</color>
     <color name="black">#000</color>
     <color name="hyperlink_blue">#00A6FF</color>
+    <color name="kelly_green">#719F23</color>
+    <color name="dark_green">#425E13</color>
+    <color name="light_green">#83BA25</color>
+    <color name="paprika_red">#8A002E</color>
+    <color name="dark_red">#54001C</color>
+    <color name="light_red">#BD003F</color>
+
 </resources>

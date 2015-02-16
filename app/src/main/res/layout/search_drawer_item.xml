@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/search_drawer_item_layout"
@@ -26,7 +26,7 @@
             android:maxLength="5"
             android:layout_toLeftOf="@+id/search_drawer_item_button"
             android:imeOptions="actionGo"
-            android:textColorHint="@color/light_gray" />
+            android:textColorHint="@color/light_gray"/>
 
         <ImageView
             android:id="@+id/search_drawer_item_button"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_search"
             android:layout_alignParentRight="true"
-            android:paddingLeft="10dip" />
+            android:paddingLeft="10dip"/>
     </RelativeLayout>
 
     <LinearLayout
@@ -47,11 +47,11 @@
         <View
             style="@style/horizontal_line"
             android:background="@color/darkest_gray"
-            android:layout_below="@+id/search_drawer_item_layout" />
+            android:layout_below="@+id/search_drawer_item_layout"/>
 
         <View
             style="@style/horizontal_line"
-            android:background="@color/dark_gray" />
+            android:background="@color/dark_gray"/>
 
     </LinearLayout>
 </RelativeLayout>

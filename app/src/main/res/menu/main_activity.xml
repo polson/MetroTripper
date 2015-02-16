@@ -4,5 +4,5 @@
         android:id="@+id/about"
         android:showAsAction="always"
         android:title="@string/about"
-        android:icon="@drawable/ic_info" />
+        android:icon="@drawable/ic_info"/>
 </menu>

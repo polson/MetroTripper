@@ -41,56 +41,56 @@ import java.io.InputStream;
 
 public class AboutDialog extends DialogFragment {
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+	}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Get app version
-        String versionName = EZ.getAppVersion(getActivity());
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		// Get app version
+		String versionName = EZ.getAppVersion(getActivity());
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        ScrollView aboutLayout = (ScrollView) inflater.inflate(R.layout.dialog_about, null);
+		LayoutInflater inflater = getActivity().getLayoutInflater();
+		ScrollView aboutLayout = (ScrollView) inflater.inflate(R.layout.dialog_about, null);
 
-        TextView version = Ui.findView(aboutLayout, R.id.dialog_about_version);
-        version.setText(getString(R.string.about_version, versionName));
+		TextView version = Ui.findView(aboutLayout, R.id.dialog_about_version);
+		version.setText(getString(R.string.about_version, versionName));
 
-        TextView licensesLink = Ui.findView(aboutLayout, R.id.dialog_about_licenses);
-        licensesLink.setOnClickListener(new OnClickListener() {
+		TextView licensesLink = Ui.findView(aboutLayout, R.id.dialog_about_licenses);
+		licensesLink.setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                showOpenSourceLicenses(getActivity());
-            }
-        });
+			@Override
+			public void onClick(View v) {
+				showOpenSourceLicenses(getActivity());
+			}
+		});
 
-        TextView description = Ui.findView(aboutLayout, R.id.dialog_about_description);
-        try {
-            InputStream inputStream = getResources().getAssets().open("description.html");
-            String html = IOUtils.toString(inputStream);
-            description.setText(Html.fromHtml(html));
-        } catch (IOException exception) {
-            description.setText("");
-        }
+		TextView description = Ui.findView(aboutLayout, R.id.dialog_about_description);
+		try {
+			InputStream inputStream = getResources().getAssets().open("description.html");
+			String html = IOUtils.toString(inputStream);
+			description.setText(Html.fromHtml(html));
+		} catch (IOException exception) {
+			description.setText("");
+		}
 
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(aboutLayout)
-                .setInverseBackgroundForced(true)
-                .setPositiveButton(R.string.ok,
-                        new DialogInterface.OnClickListener() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setView(aboutLayout)
+				.setInverseBackgroundForced(true)
+				.setPositiveButton(R.string.ok,
+						new DialogInterface.OnClickListener() {
 
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                dialog.dismiss();
-                            }
-                        });
-        AlertDialog dialog = builder.create();
-        return dialog;
-    }
+							public void onClick(DialogInterface dialog, int whichButton) {
+								dialog.dismiss();
+							}
+						});
+		AlertDialog dialog = builder.create();
+		return dialog;
+	}
 
-    public static void showOpenSourceLicenses(Activity activity) {
-        new OpenSourceLicensesDialog().show(activity.getFragmentManager(), "dialog_licenses");
-    }
+	public static void showOpenSourceLicenses(Activity activity) {
+		new OpenSourceLicensesDialog().show(activity.getFragmentManager(), "dialog_licenses");
+	}
 }

@@ -2,5 +2,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:title="@string/routes"
-        android:key="key_route_settings" />
+        android:key="key_route_settings"/>
 </PreferenceScreen>

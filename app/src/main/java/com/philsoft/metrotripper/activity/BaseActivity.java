@@ -13,13 +13,13 @@ import com.philsoft.metrotripper.app.MetroTripperApplication;
  */
 public class BaseActivity extends Activity {
 
-    protected final Logger log = LoggerManager.getLogger(getClass());
-    protected RequestQueue requestQueue;
+	protected final Logger log = LoggerManager.getLogger(getClass());
+	protected RequestQueue requestQueue;
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestQueue = ((MetroTripperApplication) getApplication()).getRequestQueue();
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		requestQueue = ((MetroTripperApplication) getApplication()).getRequestQueue();
+	}
 }

@@ -82,7 +82,7 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
 	private void removeAllStopsButSelected() {
 		Stop selectedStop = stopProvider.getSelectedStop();
 		Long selectedStopId = selectedStop != null ? selectedStop.stopId : -1;
-		for (Iterator<Long> markerStopIdIter = stopMarkers.keySet().iterator(); markerStopIdIter.hasNext();) {
+		for (Iterator<Long> markerStopIdIter = stopMarkers.keySet().iterator(); markerStopIdIter.hasNext(); ) {
 			long stopId = markerStopIdIter.next();
 			boolean isMarkerSelected = (stopId == selectedStopId);
 			if (!isMarkerSelected) {

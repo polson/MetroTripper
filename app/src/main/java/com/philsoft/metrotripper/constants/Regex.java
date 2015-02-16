@@ -5,5 +5,5 @@ package com.philsoft.metrotripper.constants;
  */
 public class Regex {
 
-    public final static String LOCATION_TIME = "\\/Date\\(([^-]*).*\\)\\/";
+	public final static String LOCATION_TIME = "\\/Date\\(([^-]*).*\\)\\/";
 }
