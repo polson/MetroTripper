@@ -8,19 +8,19 @@ import android.text.format.DateUtils;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.noveogroup.android.log.Logger;
-import com.noveogroup.android.log.LoggerManager;
 import com.philsoft.metrotripper.constants.Regex;
 
 import java.util.Date;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 /**
  * Created by polson on 10/14/14.
  */
 public class EZ {
-	private final static Logger log = LoggerManager.getLogger(EZ.class);
 	private final static int METERS_PER_DEGREE = 110500; //Approximate number of meters in 1 degree of longitude
 
 	public static String formatRelativeTime(Date timestamp) {
@@ -33,7 +33,7 @@ public class EZ {
 		if (m.matches()) {
 			return Long.valueOf(m.group(1));
 		}
-		log.w("Unable to parse location time");
+		Timber.w("Unable to parse location time");
 		return 0;
 	}
 

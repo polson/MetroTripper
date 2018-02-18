@@ -11,8 +11,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.noveogroup.android.log.Logger;
-import com.noveogroup.android.log.LoggerManager;
 import com.philsoft.metrotripper.R;
 import com.philsoft.metrotripper.app.nextrip.NexTripManager;
 import com.philsoft.metrotripper.model.Trip;
@@ -22,6 +20,9 @@ import com.philsoft.metrotripper.utils.ui.Ui;
 
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
+
+import timber.log.Timber;
 
 /**
  * Created by polson on 1/28/15.
@@ -30,8 +31,6 @@ public class MapVehicleHelper implements NexTripManager.NexTripListener {
 
 	private static final int FADE_DURATION = 1000;
 	public static final int LOCATION_UPDATE_INTERVAL_MS = 31 * 1000; // ms
-
-	Logger log = LoggerManager.getLogger();
 
 	private Activity activity;
 	private GoogleMap map;
@@ -92,7 +91,7 @@ public class MapVehicleHelper implements NexTripManager.NexTripListener {
 
 	@Override
 	public void onNexTripLoadFailed(String message) {
-		log.w("Unable to load nexTrip: " + message);
+		Timber.w("Unable to load nexTrip: " + message);
 		Toast.makeText(activity, R.string.unable_to_load_trips, Toast.LENGTH_SHORT);
 	}
 

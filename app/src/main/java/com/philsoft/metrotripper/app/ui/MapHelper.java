@@ -12,8 +12,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.common.collect.Sets;
-import com.noveogroup.android.log.Logger;
-import com.noveogroup.android.log.LoggerManager;
 import com.philsoft.metrotripper.utils.EZ;
 
 import java.util.Set;
@@ -27,7 +25,6 @@ public class MapHelper implements GoogleMap.OnCameraChangeListener {
 	private static final String KEY_CAMERA_POSITION = "KEY_CAMERA_POSITION";
 	private static final int CAMERA_CHECKER_MAX_DISTANCE = 10; //meters
 
-	private Logger log = LoggerManager.getLogger();
 	private Activity activity;
 	private GoogleMap map;
 	private CameraPosition lastCameraPosition;

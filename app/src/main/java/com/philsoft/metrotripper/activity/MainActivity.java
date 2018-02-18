@@ -37,6 +37,8 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.apache.commons.lang.StringUtils;
 
+import timber.log.Timber;
+
 public class MainActivity extends BaseActivity implements OnMapReadyCallback, LocationHelper.LocationReadyListener, SelectedStopProvider,
 		GoogleMap.OnMarkerClickListener {
 
@@ -271,7 +273,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
 
 	@Override
 	public void onMapReady(GoogleMap map) {
-		log.d("OnMapReady");
+		Timber.d("OnMapReady");
 		map.setMyLocationEnabled(true); // show location button
 		mapHelper = new MapHelper(this, map);
 		mapVehicleHelper = new MapVehicleHelper(this, map);
@@ -307,7 +309,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
 
 	public void showStop(Stop stop) {
 		if (!stop.equals(selectedStop)) {
-			log.d("New stop selected: " + stop.stopId);
+			Timber.d("New stop selected: " + stop.stopId);
 			restorePanelHeight();
 			selectedStop = stop;
 			stopHelper.selectStopMarker(stop);
@@ -327,7 +329,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
 
 	@Override
 	protected void onStop() {
-		log.d("onStop");
+		Timber.d("onStop");
 		if (mapHelper != null && appHub.getNexTripManager() != null) {
 			mapHelper.removeListener(stopHelper);
 			appHub.getNexTripManager().removeListener(stopInfoHelper);

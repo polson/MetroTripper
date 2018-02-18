@@ -27,7 +27,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation appCompat
     implementation recyclerView
-    implementation androidLogger
+    implementation timber
     implementation volley
     implementation appCompat
     implementation playServicesMaps

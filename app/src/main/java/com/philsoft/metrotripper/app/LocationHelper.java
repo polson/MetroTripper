@@ -9,12 +9,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.noveogroup.android.log.Logger;
-import com.noveogroup.android.log.LoggerManager;
 
 public class LocationHelper {
-
-    private final Logger log = LoggerManager.getLogger(getClass());
 
     public interface LocationReadyListener {
         void onLocationReady(Location location);
