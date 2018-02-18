@@ -19,12 +19,6 @@ public class SchemaBuilder {
 		sqlBuilder.append(StopContract.STOP_DESC + " VARCHAR(13), ");
 		sqlBuilder.append(StopContract.STOP_LAT + " NUMERIC(11,6), ");
 		sqlBuilder.append(StopContract.STOP_LON + " NUMERIC(11,6), ");
-		sqlBuilder.append(StopContract.STOP_STREET + " VARCHAR(35), ");
-		sqlBuilder.append(StopContract.STOP_CITY + " VARCHAR(19), ");
-		sqlBuilder.append(StopContract.STOP_REGION + " VARCHAR(1), ");
-		sqlBuilder.append(StopContract.STOP_POSTCODE + " VARCHAR(1), ");
-		sqlBuilder.append(StopContract.STOP_COUNTRY + " VARCHAR(1), ");
-		sqlBuilder.append(StopContract.ZONE_ID + " VARCHAR(1), ");
 		sqlBuilder.append(StopContract.WHEELCHAIR_BOARDING + " INTEGER(1), ");
 		sqlBuilder.append(StopContract.STOP_URL + " VARCHAR(62) ");
 		sqlBuilder.append(");\n");

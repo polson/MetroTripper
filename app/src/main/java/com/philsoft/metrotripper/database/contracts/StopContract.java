@@ -16,12 +16,6 @@ public class StopContract {
 				StopContract.STOP_DESC,
 				StopContract.STOP_LAT,
 				StopContract.STOP_LON,
-				StopContract.STOP_STREET,
-				StopContract.STOP_CITY,
-				StopContract.STOP_REGION,
-				StopContract.STOP_POSTCODE,
-				StopContract.STOP_COUNTRY,
-				StopContract.ZONE_ID,
 				StopContract.WHEELCHAIR_BOARDING,
 				StopContract.STOP_URL
 		};
@@ -67,54 +61,6 @@ public class StopContract {
 	 * </P>
 	 */
 	public static final String STOP_LON = "stop_lon";
-
-	/**
-	 * None
-	 * <p/>
-	 * Type: VARCHAR(35)
-	 * </P>
-	 */
-	public static final String STOP_STREET = "stop_street";
-
-	/**
-	 * None
-	 * <p/>
-	 * Type: VARCHAR(19)
-	 * </P>
-	 */
-	public static final String STOP_CITY = "stop_city";
-
-	/**
-	 * None
-	 * <p/>
-	 * Type: VARCHAR(1)
-	 * </P>
-	 */
-	public static final String STOP_REGION = "stop_region";
-
-	/**
-	 * None
-	 * <p/>
-	 * Type: VARCHAR(1)
-	 * </P>
-	 */
-	public static final String STOP_POSTCODE = "stop_postcode";
-
-	/**
-	 * None
-	 * <p/>
-	 * Type: VARCHAR(1)
-	 * </P>
-	 */
-	public static final String STOP_COUNTRY = "stop_country";
-
-	/**
-	 * None
-	 * <p/>
-	 * Type: VARCHAR(1)
-	 * </P>
-	 */
-	public static final String ZONE_ID = "zone_id";
 
 	/**
 	 * None

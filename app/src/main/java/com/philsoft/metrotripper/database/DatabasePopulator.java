@@ -63,15 +63,9 @@ public class DatabasePopulator {
                     .append(StopContract.STOP_DESC).append(",")
                     .append(StopContract.STOP_LAT).append(",")
                     .append(StopContract.STOP_LON).append(",")
-                    .append(StopContract.STOP_STREET).append(",")
-                    .append(StopContract.STOP_CITY).append(",")
-                    .append(StopContract.STOP_REGION).append(",")
-                    .append(StopContract.STOP_POSTCODE).append(",")
-                    .append(StopContract.STOP_COUNTRY).append(",")
-                    .append(StopContract.ZONE_ID).append(",")
                     .append(StopContract.WHEELCHAIR_BOARDING).append(",")
                     .append(StopContract.STOP_URL)
-                    .append(")").append("values").append("(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                    .append(")").append("values").append("(?,?,?,?,?,?,?)");
 
             String sql = builder.toString();
             SQLiteStatement insert = db.compileStatement(sql);
@@ -82,14 +76,8 @@ public class DatabasePopulator {
                 insert.bindString(3, record.get("stop_desc"));
                 insert.bindDouble(4, Double.valueOf(record.get("stop_lat")));
                 insert.bindDouble(5, Double.valueOf(record.get("stop_lon")));
-                insert.bindString(6, record.get("stop_street"));
-                insert.bindString(7, record.get("stop_city"));
-                insert.bindString(8, record.get("stop_region"));
-                insert.bindString(9, record.get("stop_postcode"));
-                insert.bindString(10, record.get("stop_country"));
-                insert.bindString(11, record.get("zone_id"));
-                insert.bindLong(12, Long.valueOf(record.get("wheelchair_boarding")));
-                insert.bindString(13, record.get("stop_url"));
+                insert.bindLong(6, Long.valueOf(record.get("wheelchair_boarding")));
+                insert.bindString(7, record.get("stop_url"));
                 insert.execute();
             }
             db.setTransactionSuccessful();

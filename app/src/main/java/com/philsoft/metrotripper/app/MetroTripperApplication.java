@@ -6,6 +6,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 
+import timber.log.Timber;
+
 public class MetroTripperApplication extends MultiDexApplication {
 
     private HurlStack hurlStack;
@@ -14,6 +16,8 @@ public class MetroTripperApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        Timber.plant(new Timber.DebugTree());
+        Timber.d("Planted!");
     }
 
     public RequestQueue getRequestQueue() {
