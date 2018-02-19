@@ -134,7 +134,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	private void buildStopRow(StopViewHolder holder, long stopId) {
 		final Stop stop = dataProvider.getStopById(stopId);
 		holder.header.setText(String.valueOf(stopId));
-		holder.text.setText(String.valueOf(stop.stopName));
+		holder.text.setText(String.valueOf(stop.getStopName()));
 		holder.root.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -149,7 +149,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	private boolean isStopSelected(long stopId) {
-		return stopProvider.getSelectedStop() != null && stopId == stopProvider.getSelectedStop().stopId;
+		return stopProvider.getSelectedStop() != null && stopId == stopProvider.getSelectedStop().getStopId();
 	}
 
 	public void selectStopOnMap(Stop stop, boolean animate) {

@@ -38,4 +38,5 @@ dependencies {
     implementation commonsLang
     implementation commonsIo
     implementation multiDex
+    implementation ankoSqlite
 }

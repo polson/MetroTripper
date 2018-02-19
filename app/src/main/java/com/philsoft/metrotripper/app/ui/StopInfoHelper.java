@@ -85,11 +85,11 @@ public class StopInfoHelper implements NexTripManager.NexTripListener {
         saveStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (settingsProvider.isStopSaved(stopProvider.getSelectedStop().stopId)) {
-                    settingsProvider.unsaveStop(stopProvider.getSelectedStop().stopId);
+                if (settingsProvider.isStopSaved(stopProvider.getSelectedStop().getStopId())) {
+                    settingsProvider.unsaveStop(stopProvider.getSelectedStop().getStopId());
                     saveStopButton.setColorFilter(null);
                 } else {
-                    settingsProvider.saveStop(stopProvider.getSelectedStop().stopId);
+                    settingsProvider.saveStop(stopProvider.getSelectedStop().getStopId());
                     saveStopButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
                 }
             }
@@ -98,7 +98,7 @@ public class StopInfoHelper implements NexTripManager.NexTripListener {
 
     private void fetchTripInfo(final Stop stop) {
         showProgressSpinner();
-        nexTripManager.getTripsRepeating(stop.stopId, MapVehicleHelper.LOCATION_UPDATE_INTERVAL_MS);
+        nexTripManager.getTripsRepeating(stop.getStopId(), MapVehicleHelper.LOCATION_UPDATE_INTERVAL_MS);
     }
 
     private void showProgressSpinner() {
@@ -113,11 +113,11 @@ public class StopInfoHelper implements NexTripManager.NexTripListener {
 
     public void showStopInfo(Stop stop) {
         hideProgressSpinner();
-        Ui.setText(activity, R.id.stop_heading_route, "Stop " + stop.stopId);
-        Ui.setText(activity, R.id.stop_heading_description, String.valueOf(stop.stopName));
+        Ui.setText(activity, R.id.stop_heading_route, "Stop " + stop.getStopId());
+        Ui.setText(activity, R.id.stop_heading_description, String.valueOf(stop.getStopName()));
         clearTrips();
         final ImageView saveStopButton = Ui.findView(activity, R.id.stop_heading_save_stop);
-        if (stopProvider.getSelectedStop() != null && settingsProvider.isStopSaved(stop.stopId)) {
+        if (stopProvider.getSelectedStop() != null && settingsProvider.isStopSaved(stop.getStopId())) {
             saveStopButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
         } else {
             saveStopButton.setColorFilter(null);

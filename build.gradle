@@ -47,4 +47,5 @@ ext {
     commonsLang = 'commons-lang:commons-lang:2.6'
     commonsIo = 'commons-io:commons-io:2.4'
     multiDex = 'com.android.support:multidex:1.0.1'
+    ankoSqlite = 'org.jetbrains.anko:anko-sqlite:0.10.4'
 }

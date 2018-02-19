@@ -7,16 +7,12 @@ import android.app.FragmentManager;
 import com.philsoft.metrotripper.app.nextrip.NexTripManager;
 import com.philsoft.metrotripper.database.DataProvider;
 import com.philsoft.metrotripper.database.DatabasePopulator;
-import com.philsoft.metrotripper.database.contracts.StopContract;
 import com.philsoft.metrotripper.utils.ui.Ui;
 
 import java.io.IOException;
 
 import timber.log.Timber;
 
-/**
- * Created by polson on 1/15/15.
- */
 public class AppHub {
 
     private Activity activity;
@@ -38,7 +34,7 @@ public class AppHub {
     private void populateStops() {
         DatabasePopulator populator = new DatabasePopulator(activity);
         try {
-            if (populator.isTableEmpty(StopContract.TABLE_NAME)) {
+            if (populator.isTableEmpty()) {
                 populator.populateStopsFast();
             } else {
                 Timber.d("Unable to populate stops: Stop table not empty");

@@ -61,14 +61,14 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
         }
         List<Stop> stops = dataProvider.getClosestStops(position.target.latitude, position.target.longitude, MAX_STOPS);
         for (Stop stop : stops) {
-            if (!stopMarkers.containsKey(stop.stopId)) {
+            if (!stopMarkers.containsKey(stop.getStopId())) {
                 MapUtils.fadeInMarker(createStopMarker(stop), 500);
             }
         }
     }
 
     public void selectStopMarker(Stop stop) {
-        Marker marker = stopMarkers.get(stop.stopId);
+        Marker marker = stopMarkers.get(stop.getStopId());
         if (marker == null) {
             marker = createStopMarker(stop);
             MapUtils.fadeInMarker(marker, 500);
@@ -78,7 +78,7 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
 
     private void removeAllStopsButSelected() {
         Stop selectedStop = stopProvider.getSelectedStop();
-        Long selectedStopId = selectedStop != null ? selectedStop.stopId : -1;
+        Long selectedStopId = selectedStop != null ? selectedStop.getStopId() : -1;
         for (Iterator<Long> markerStopIdIter = stopMarkers.keySet().iterator(); markerStopIdIter.hasNext(); ) {
             long stopId = markerStopIdIter.next();
             boolean isMarkerSelected = (stopId == selectedStopId);
@@ -90,10 +90,10 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
     }
 
     private Marker createStopMarker(Stop stop) {
-        Bitmap icon = settingsProvider.isStopSaved(stop.stopId) ? getStarredBitmap() : getStopBitmap();
-        Marker marker = map.addMarker(new MarkerOptions().title(String.valueOf(stop.stopId)).position(
-                new LatLng(stop.stopLat, stop.stopLon)).icon(BitmapDescriptorFactory.fromBitmap(icon)));
-        stopMarkers.put(stop.stopId, marker);
+        Bitmap icon = settingsProvider.isStopSaved(stop.getStopId()) ? getStarredBitmap() : getStopBitmap();
+        Marker marker = map.addMarker(new MarkerOptions().title(String.valueOf(stop.getStopId())).position(
+                new LatLng(stop.getStopLat(), stop.getStopLon())).icon(BitmapDescriptorFactory.fromBitmap(icon)));
+        stopMarkers.put(stop.getStopId(), marker);
         return marker;
     }
 
