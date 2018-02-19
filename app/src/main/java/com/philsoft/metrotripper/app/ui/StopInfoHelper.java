@@ -8,10 +8,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.common.collect.Lists;
 import com.philsoft.metrotripper.R;
 import com.philsoft.metrotripper.app.SelectedStopProvider;
 import com.philsoft.metrotripper.app.SettingsProvider;
-import com.philsoft.metrotripper.app.nextrip.NexTripManager;
+import com.philsoft.metrotripper.app.nextrip.NexTripService;
 import com.philsoft.metrotripper.app.nextrip.TripAdapter;
 import com.philsoft.metrotripper.model.Stop;
 import com.philsoft.metrotripper.model.Trip;
@@ -21,30 +22,31 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
-/**
- * Created by polson on 1/23/15.
- */
-public class StopInfoHelper implements NexTripManager.NexTripListener {
+public class StopInfoHelper {
 
     private static final String KEY_HAS_TRIP_INFO = "KEY_HAS_TRIP_INFO";
 
     private Activity activity;
     private SlidingUpPanelLayout panel;
-    private NexTripManager nexTripManager;
     private MapHelper mapHelper;
     private SettingsProvider settingsProvider;
     private SelectedStopProvider stopProvider;
     private TripAdapter tripAdapter;
     private boolean hasTripInfo;
 
-    public <T extends Activity & SelectedStopProvider> StopInfoHelper(T activity, SlidingUpPanelLayout panel,
-                                                                      NexTripManager nexTripManager, MapHelper mapHelper, SettingsProvider settingsProvider, TripAdapter tripAdapter) {
+    public <T extends Activity & SelectedStopProvider> StopInfoHelper(T activity,
+                                                                      SlidingUpPanelLayout panel,
+                                                                      MapHelper mapHelper,
+                                                                      SettingsProvider settingsProvider,
+                                                                      TripAdapter tripAdapter) {
         this.activity = activity;
         this.stopProvider = activity;
         this.panel = panel;
-        this.nexTripManager = nexTripManager;
         this.mapHelper = mapHelper;
         this.settingsProvider = settingsProvider;
         this.tripAdapter = tripAdapter;
@@ -98,7 +100,22 @@ public class StopInfoHelper implements NexTripManager.NexTripListener {
 
     private void fetchTripInfo(final Stop stop) {
         showProgressSpinner();
-        nexTripManager.getTripsRepeating(stop.getStopId(), MapVehicleHelper.LOCATION_UPDATE_INTERVAL_MS);
+        NexTripService.Companion.create().getTrips(stop.getStopId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Consumer<List<Trip>>() {
+                    @Override
+                    public void accept(List<Trip> trips) throws Exception {
+                        onNexTripLoadComplete(Lists.newArrayList(trips));
+                    }
+                })
+                .doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        onNexTripLoadFailed(throwable.getMessage());
+                    }
+                })
+                .subscribe();
     }
 
     private void showProgressSpinner() {
@@ -130,21 +147,14 @@ public class StopInfoHelper implements NexTripManager.NexTripListener {
         ((TripAdapter) tripList.getAdapter()).clear();
     }
 
-    @Override
     public void onNexTripLoadComplete(List<Trip> trips) {
         hideProgressSpinner();
         tripAdapter.setTrips(trips);
         hasTripInfo = true;
     }
 
-    @Override
     public void onNexTripLoadFailed(String message) {
         Timber.d("Failed to get trips: " + message);
-    }
-
-    @Override
-    public void onNexTripLoadingStopped() {
-        // Do nothing
     }
 
     public void saveState(Bundle outState) {

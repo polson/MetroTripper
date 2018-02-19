@@ -83,7 +83,6 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
             // Map was already set up, set the listeners again since onMapReady() is not going to get called
             setupListeners();
         }
-        appHub.getNexTripManager().resumeUpdatingTrips();
     }
 
     private void setupActionBar() {
@@ -270,8 +269,6 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
 
     private void setupListeners() {
         mapHelper.addListener(stopHelper);
-        appHub.getNexTripManager().addListener(stopInfoHelper);
-        appHub.getNexTripManager().addListener(mapVehicleHelper);
     }
 
     @Override
@@ -281,7 +278,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
         map.setMyLocationEnabled(true); // show location button
         mapHelper = new MapHelper(this, map);
         mapVehicleHelper = new MapVehicleHelper(this, map);
-        stopInfoHelper = new StopInfoHelper(this, panel, appHub.getNexTripManager(), mapHelper, appHub.getSettingsProvider(), tripAdapter);
+        stopInfoHelper = new StopInfoHelper(this, panel, mapHelper, appHub.getSettingsProvider(), tripAdapter);
         stopHelper = new StopHelper(this, map, appHub.getDataProvider(), appHub.getSettingsProvider());
         setupDrawer();
 
@@ -318,7 +315,6 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
             selectedStop = stop;
             stopHelper.selectStopMarker(stop);
             stopInfoHelper.showStopInfo(stop);
-            appHub.getNexTripManager().stopUpdatingTrips();
         }
     }
 
@@ -334,11 +330,8 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
     @Override
     protected void onStop() {
         Timber.d("onStop");
-        if (mapHelper != null && appHub.getNexTripManager() != null) {
+        if (mapHelper != null) {
             mapHelper.removeListener(stopHelper);
-            appHub.getNexTripManager().removeListener(stopInfoHelper);
-            appHub.getNexTripManager().removeListener(mapVehicleHelper);
-            appHub.getNexTripManager().pauseUpdatingTrips();
         }
         if (selectedStop != null) {
             prefs.setLastStopId(selectedStop.getStopId());

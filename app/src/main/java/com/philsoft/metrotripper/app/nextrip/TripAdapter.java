@@ -1,6 +1,5 @@
 package com.philsoft.metrotripper.app.nextrip;
 
-import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,12 +17,7 @@ import java.util.List;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
 
-    private Activity activity;
     private List<Trip> trips = Lists.newArrayList();
-
-    public TripAdapter(Activity activity) {
-        this.activity = activity;
-    }
 
     @Override
     public TripViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -37,7 +31,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         holder.timeUnit.setVisibility(View.VISIBLE);
 
         Trip trip = trips.get(position);
-        holder.route.setText(trip.getVehicle().getRoute() + trip.getVehicle().getTerminal());
+        holder.route.setText(trip.getRoute() + trip.getTerminal());
         holder.description.setText(trip.getDescription());
         holder.tripDirection.setImageResource(getTripDirectionResource(trip));
 

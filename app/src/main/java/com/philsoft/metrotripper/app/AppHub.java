@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 
-import com.philsoft.metrotripper.app.nextrip.NexTripManager;
 import com.philsoft.metrotripper.database.DataProvider;
 import com.philsoft.metrotripper.database.DatabasePopulator;
 import com.philsoft.metrotripper.utils.ui.Ui;
@@ -16,7 +15,6 @@ import timber.log.Timber;
 public class AppHub {
 
     private Activity activity;
-    private NexTripManager nexTripManager;
     private FragmentManager fragmentManager;
     private DataProvider dataProvider;
     private SettingsProvider settingsProvider;
@@ -24,7 +22,6 @@ public class AppHub {
     public AppHub(Activity activity) {
         this.activity = activity;
         this.fragmentManager = activity.getFragmentManager();
-        this.nexTripManager = getNexTripManager();
         this.settingsProvider = getSettingsProvider();
         this.dataProvider = new DataProvider(activity);
 
@@ -43,18 +40,6 @@ public class AppHub {
             e.printStackTrace();
         }
     }
-
-    public NexTripManager getNexTripManager() {
-        if (nexTripManager == null) {
-            nexTripManager = findFrag(NexTripManager.TAG);
-            if (nexTripManager == null) {
-                nexTripManager = new NexTripManager();
-                commitFrag(nexTripManager, NexTripManager.TAG);
-            }
-        }
-        return nexTripManager;
-    }
-
 
     public SettingsProvider getSettingsProvider() {
         if (settingsProvider == null) {

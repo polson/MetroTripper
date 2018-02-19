@@ -39,4 +39,8 @@ dependencies {
     implementation commonsIo
     implementation multiDex
     implementation ankoSqlite
+    implementation retrofit
+    implementation retrofitGson
+    implementation retrofitRxjava
+    implementation rxandroid
 }
