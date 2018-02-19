@@ -17,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.philsoft.metrotripper.R;
 import com.philsoft.metrotripper.app.AppHub;
@@ -57,10 +58,12 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
     private TripAdapter tripAdapter;
     private Stop selectedStop;
     private SlidingUpPanelLayout panel;
+    private Prefs prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefs = Prefs.getInstance(this);
         setupActionBar();
         this.savedInstanceState = savedInstanceState;
         setContentView(R.layout.activity_main);
@@ -274,6 +277,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
     @Override
     public void onMapReady(GoogleMap map) {
         Timber.d("OnMapReady");
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
         map.setMyLocationEnabled(true); // show location button
         mapHelper = new MapHelper(this, map);
         mapVehicleHelper = new MapVehicleHelper(this, map);
@@ -320,7 +324,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
 
     private void restoreStopFromPrefs() {
         // Restore state from prefs if this is a fresh start of the app
-        long stopId = Prefs.getLastStopId(this);
+        long stopId = prefs.getLastStopId();
         Stop stop = appHub.getDataProvider().getStopById(stopId);
         if (stop != null) {
             drawerAdapter.selectStopOnMap(stop, false);
@@ -337,7 +341,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
             appHub.getNexTripManager().pauseUpdatingTrips();
         }
         if (selectedStop != null) {
-            Prefs.saveLastStopId(this, selectedStop.getStopId());
+            prefs.setLastStopId(selectedStop.getStopId());
         }
         super.onStop();
     }

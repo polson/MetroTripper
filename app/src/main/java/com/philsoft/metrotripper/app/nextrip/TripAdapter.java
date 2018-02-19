@@ -37,11 +37,11 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         holder.timeUnit.setVisibility(View.VISIBLE);
 
         Trip trip = trips.get(position);
-        holder.route.setText(trip.vehicle.route + trip.vehicle.terminal);
-        holder.description.setText(trip.description);
+        holder.route.setText(trip.getVehicle().getRoute() + trip.getVehicle().getTerminal());
+        holder.description.setText(trip.getDescription());
         holder.tripDirection.setImageResource(getTripDirectionResource(trip));
 
-        String[] timeAndText = trip.departureText.split("\\s+");
+        String[] timeAndText = trip.getDepartureText().split("\\s+");
         holder.timeNumber.setText(timeAndText[0]);
         if (timeAndText.length > 1) {
             holder.timeUnit.setText(R.string.minutes);
@@ -51,7 +51,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
     }
 
     private int getTripDirectionResource(Trip trip) {
-        Direction direction = Direction.valueOf(trip.routeDirection);
+        Direction direction = Direction.valueOf(trip.getRouteDirection());
         switch (direction) {
             case NORTHBOUND:
                 return R.drawable.ic_up_arrow;

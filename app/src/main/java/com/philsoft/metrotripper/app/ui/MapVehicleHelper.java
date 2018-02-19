@@ -61,8 +61,8 @@ public class MapVehicleHelper implements NexTripManager.NexTripListener {
 	private List<Vehicle> getVehiclesForTrips(List<Trip> trips) {
 		List<Vehicle> vehicles = Lists.newArrayList();
 		for (Trip trip : trips) {
-			Vehicle vehicle = trip.vehicle;
-			if (vehicle.latitude != 0 && vehicle.longitude != 0) {
+			Vehicle vehicle = trip.getVehicle();
+			if (vehicle.getLatitude() != 0 && vehicle.getLongitude() != 0) {
 				vehicles.add(vehicle);
 			}
 		}
@@ -72,15 +72,15 @@ public class MapVehicleHelper implements NexTripManager.NexTripListener {
 	public Marker createVehicleMarker(Vehicle vehicle) {
 		View vehicleView = buildVehicleView(vehicle);
 		Marker marker = map.addMarker(new MarkerOptions().anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-				.title(activity.getString(R.string.vehicle) + " " + vehicle.route + vehicle.terminal).position(
-						new LatLng(vehicle.latitude, vehicle.longitude)).icon(
+				.title(activity.getString(R.string.vehicle) + " " + vehicle.getRoute() + vehicle.getTerminal()).position(
+						new LatLng(vehicle.getLatitude(), vehicle.getLongitude())).icon(
 						BitmapDescriptorFactory.fromBitmap(Ui.createBitmapFromView(activity, vehicleView))));
 		return marker;
 	}
 
 	private View buildVehicleView(Vehicle vehicle) {
 		View view = activity.getLayoutInflater().inflate(R.layout.vehicle, null);
-		Ui.setText(view, R.id.vehicle_number, vehicle.route + vehicle.terminal);
+		Ui.setText(view, R.id.vehicle_number, vehicle.getRoute() + vehicle.getTerminal());
 		return view;
 	}
 

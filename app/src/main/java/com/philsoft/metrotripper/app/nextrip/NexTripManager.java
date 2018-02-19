@@ -142,7 +142,7 @@ public class NexTripManager extends BaseFragment {
     private Comparator<Trip> tripTimeComparator = new Comparator<Trip>() {
         @Override
         public int compare(Trip lhs, Trip rhs) {
-            if (lhs.departureTime > rhs.departureTime) {
+            if (lhs.getDepartureTime() > rhs.getDepartureTime()) {
                 return 1;
             } else {
                 return -1;
