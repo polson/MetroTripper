@@ -214,7 +214,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
         RecyclerView tripList = Ui.findView(this, R.id.stop_info_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         tripList.setLayoutManager(layoutManager);
-        tripAdapter = new TripAdapter(this);
+        tripAdapter = new TripAdapter();
         tripList.setAdapter(tripAdapter);
 
         // Fix issues with touch events when recyclerview is used inside sliding panel
