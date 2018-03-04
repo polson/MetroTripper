@@ -8,7 +8,7 @@ import android.text.format.DateUtils;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.philsoft.metrotripper.constants.Regex;
+import com.philsoft.metrotripper.app.nextrip.constants.Regex;
 
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -24,7 +24,7 @@ public class EZ {
     }
 
     public static long parseLocationTime(String locationTime) {
-        Pattern p = Pattern.compile(Regex.LOCATION_TIME);
+        Pattern p = Pattern.compile(Regex.INSTANCE.getLOCATION_TIME());
         Matcher m = p.matcher(locationTime);
         if (m.matches()) {
             return Long.valueOf(m.group(1));

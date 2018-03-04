@@ -2,37 +2,25 @@ package com.philsoft.metrotripper.app.nextrip
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.constants.Direction
+import com.philsoft.metrotripper.app.nextrip.constants.Direction
 import com.philsoft.metrotripper.model.Trip
-import com.philsoft.metrotripper.utils.ui.Ui
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.trip_item.*
 
-//TODO: use kotlin android extensions
-class TripViewHolder(root: View) : RecyclerView.ViewHolder(root) {
-    var route: TextView = Ui.findView(root, R.id.trip_item_route)
-    var description: TextView = Ui.findView(root, R.id.trip_item_description)
-    var timeNumber: TextView = Ui.findView(root, R.id.trip_item_time_number)
-    var timeUnit: TextView = Ui.findView(root, R.id.trip_item_time_unit)
-    var topLine: View = Ui.findView(root, R.id.trip_item_line_top)
-    var bottomLine: View = Ui.findView(root, R.id.trip_item_line_bottom)
-    var mainLayout: View = Ui.findView(root, R.id.trip_item_main_layout)
-    var tripDirection: ImageView = Ui.findView(root, R.id.trip_item_route_direction)
-
+class TripViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
     fun render(trip: Trip) {
-        timeUnit.setVisibility(View.VISIBLE)
-        route.setText(trip.route + trip.terminal)
-        description.setText(trip.description)
-        tripDirection.setImageResource(getTripDirectionResource(trip))
+        timeUnit.visibility = View.VISIBLE
+        route.text = trip.route + trip.terminal
+        description.text = trip.description
+        routeDirection.setImageResource(getTripDirectionResource(trip))
 
         val timeAndText = trip.departureText.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        timeNumber.setText(timeAndText[0])
+        timeNumber.text = timeAndText[0]
         if (timeAndText.size > 1) {
             timeUnit.setText(R.string.minutes)
         } else {
-            timeUnit.setVisibility(View.GONE)
+            timeUnit.visibility = View.GONE
         }
     }
 
@@ -47,9 +35,9 @@ class TripViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         }
     }
 
-    private fun setColors(holder: TripViewHolder, mainColorResId: Int, topLineColorResId: Int, bottomLineColorResId: Int) {
-        holder.mainLayout.setBackgroundResource(mainColorResId)
-        holder.topLine.setBackgroundResource(topLineColorResId)
-        holder.bottomLine.setBackgroundResource(bottomLineColorResId)
+    private fun setColors(mainColorResId: Int, topLineColorResId: Int, bottomLineColorResId: Int) {
+        mainLayout.setBackgroundResource(mainColorResId)
+        lineTop.setBackgroundResource(topLineColorResId)
+        lineBottom.setBackgroundResource(bottomLineColorResId)
     }
 }
