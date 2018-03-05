@@ -136,7 +136,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Lo
     private void setupDrawer() {
         DrawerLayout drawer = Ui.findView(this, R.id.drawer_layout);
         RecyclerView drawerList = Ui.findView(this, R.id.left_drawer);
-        drawerAdapter = new DrawerAdapter(this, drawer, appHub.getDataProvider(), mapHelper, appHub.getSettingsProvider(), panel);
+        drawerAdapter = new DrawerAdapter(this, this, drawer, appHub.getDataProvider(), mapHelper, appHub.getSettingsProvider(), panel);
         if (selectedStop != null) {
             if (panel.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
                 panel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);

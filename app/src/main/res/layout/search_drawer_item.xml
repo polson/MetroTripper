@@ -5,7 +5,7 @@
                 android:layout_height="match_parent">
 
     <RelativeLayout
-        android:id="@+id/search_drawer_item_layout"
+        android:id="@+id/searchLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="20dip"
@@ -15,7 +15,7 @@
         android:background="@color/sidebar_bg">
 
         <EditText
-            android:id="@+id/search_drawer_item_entry"
+            android:id="@+id/entry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter Stop Number"
@@ -24,12 +24,12 @@
             android:textColor="@color/white"
             android:inputType="number"
             android:maxLength="5"
-            android:layout_toLeftOf="@+id/search_drawer_item_button"
+            android:layout_toLeftOf="@+id/searchButton"
             android:imeOptions="actionGo"
             android:textColorHint="@color/light_gray"/>
 
         <ImageView
-            android:id="@+id/search_drawer_item_button"
+            android:id="@+id/searchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_search"
@@ -41,13 +41,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@+id/search_drawer_item_layout">
+        android:layout_below="@+id/searchLayout">
 
 
         <View
             style="@style/horizontal_line"
             android:background="@color/darkest_gray"
-            android:layout_below="@+id/search_drawer_item_layout"/>
+            android:layout_below="@+id/searchLayout"/>
 
         <View
             style="@style/horizontal_line"

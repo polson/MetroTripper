@@ -57,15 +57,15 @@ public class StopInfoHelper {
         View getTimesButton = Ui.findView(activity, R.id.stop_heading_get_times);
         ImageView getLocationButton = Ui.findView(activity, R.id.stop_heading_show_location);
         final ImageView saveStopButton = Ui.findView(activity, R.id.stop_heading_save_stop);
-        panel.setPanelSlideListener(new SimplePanelSlideListener() {
-            @Override
-            public void onPanelExpanded(View view) {
-                fetchTripInfo(stopProvider.getSelectedStop());
-            }
+        panel.addPanelSlideListener(new SimplePanelSlideListener() {
 
             @Override
-            public void onPanelAnchored(View panel) {
-                fetchTripInfo(stopProvider.getSelectedStop());
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if (newState.equals(SlidingUpPanelLayout.PanelState.EXPANDED)) {
+                    fetchTripInfo(stopProvider.getSelectedStop());
+                } else if (newState.equals(SlidingUpPanelLayout.PanelState.ANCHORED)) {
+                    fetchTripInfo(stopProvider.getSelectedStop());
+                }
             }
         });
 

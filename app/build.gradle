@@ -46,5 +46,7 @@ dependencies {
     implementation retrofit
     implementation retrofitGson
     implementation retrofitRxjava
+    implementation rxjava
     implementation rxandroid
+    implementation rxbinding
 }

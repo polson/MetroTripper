@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                        android:id="@+id/drawer_layout"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent">
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/res-auto"
-                                                     android:id="@+id/sliding_panel"
-                                                     android:layout_width="match_parent"
-                                                     android:layout_height="match_parent"
-                                                     android:gravity="bottom"
-                                                     sothree:umanoPanelHeight="@dimen/panel_height"
-                                                     sothree:umanoShadowHeight="4dp"
-                                                     sothree:umanoParalaxOffset="200dp"
-                                                     sothree:umanoFadeColor="@android:color/transparent"
-                                                     android:layout_marginTop="?android:attr/actionBarSize">
+        android:id="@+id/sliding_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:gravity="bottom"
+        sothree:umanoFadeColor="@android:color/transparent"
+        sothree:umanoPanelHeight="@dimen/panel_height"
+        sothree:umanoParallaxOffset="200dp"
+        sothree:umanoShadowHeight="4dp">
 
         <!-- The main content view -->
         <FrameLayout
@@ -22,10 +22,10 @@
             android:layout_height="match_parent">
 
             <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-                      android:name="com.google.android.gms.maps.MapFragment"
-                      android:id="@+id/map"
-                      android:layout_width="match_parent"
-                      android:layout_height="match_parent"/>
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.MapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
         </FrameLayout>
 
         <LinearLayout
@@ -35,7 +35,7 @@
 
             <include
                 android:id="@+id/stop_heading"
-                layout="@layout/stop_heading"/>
+                layout="@layout/stop_heading" />
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -45,11 +45,11 @@
                     android:id="@+id/stop_info_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/blue"/>
+                    android:background="@color/blue" />
             </RelativeLayout>
         </LinearLayout>
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
     <!-- The navigation drawer -->
-    <include layout="@layout/drawer"/>
+    <include layout="@layout/drawer" />
 </android.support.v4.widget.DrawerLayout>
