@@ -34,6 +34,8 @@ ext {
     supportLibVersion = '27.0.2'
     playServicesVersion = '11.8.0'
     retrofitVersion = '2.3.0'
+    ankoVersion = '0.10.4'
+    rxbindingVersion = '2.1.1'
 
     //libraries
     appCompat = "com.android.support:appcompat-v7:$supportLibVersion"
@@ -48,11 +50,13 @@ ext {
     commonsLang = 'commons-lang:commons-lang:2.6'
     commonsIo = 'commons-io:commons-io:2.4'
     multiDex = 'com.android.support:multidex:1.0.1'
-    ankoSqlite = 'org.jetbrains.anko:anko-sqlite:0.10.4'
+    ankoSqlite = "org.jetbrains.anko:anko-sqlite:$ankoVersion"
+    ankoCommons = "org.jetbrains.anko:anko-commons:$ankoVersion"
     retrofit = "com.squareup.retrofit2:retrofit:$retrofitVersion"
     retrofitGson = "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     retrofitRxjava = "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
     rxandroid = "io.reactivex.rxjava2:rxandroid:2.0.2"
-    rxbinding = "com.jakewharton.rxbinding2:rxbinding-kotlin:2.1.1"
+    rxbinding = "com.jakewharton.rxbinding2:rxbinding-kotlin:$rxbindingVersion"
+    rxbindingRecyclerView = "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7-kotlin:$rxbindingVersion"
     rxjava = "io.reactivex.rxjava2:rxjava:2.1.10"
 }

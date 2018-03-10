@@ -15,5 +15,5 @@ class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHold
             }
     val searchEvent = RxView.clicks(searchButton)
             .mergeWith(searchAction)
-            .map { entry.text.toString() }
+            .map { entry.text.toString().toLong() }!!
 }

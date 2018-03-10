@@ -62,7 +62,7 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
         List<Stop> stops = dataProvider.getClosestStops(position.target.latitude, position.target.longitude, MAX_STOPS);
         for (Stop stop : stops) {
             if (!stopMarkers.containsKey(stop.getStopId())) {
-                MapUtils.fadeInMarker(createStopMarker(stop), 500);
+                MapUtils.INSTANCE.fadeInMarker(createStopMarker(stop), 500);
             }
         }
     }
@@ -71,7 +71,7 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
         Marker marker = stopMarkers.get(stop.getStopId());
         if (marker == null) {
             marker = createStopMarker(stop);
-            MapUtils.fadeInMarker(marker, 500);
+            MapUtils.INSTANCE.fadeInMarker(marker, 500);
         }
         marker.showInfoWindow();
     }
@@ -83,7 +83,7 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
             long stopId = markerStopIdIter.next();
             boolean isMarkerSelected = (stopId == selectedStopId);
             if (!isMarkerSelected) {
-                MapUtils.fadeOutMarkerAndRemove(stopMarkers.get(stopId), 500);
+                MapUtils.INSTANCE.fadeOutMarkerAndRemove(stopMarkers.get(stopId), 500);
                 markerStopIdIter.remove();
             }
         }
@@ -99,14 +99,14 @@ public class StopHelper implements MapHelper.CameraListener, SettingsProvider.Se
 
     private Bitmap getStopBitmap() {
         if (stopBitmap == null) {
-            stopBitmap = Ui.createBitmapFromDrawableResource(activity, -30, -30, R.drawable.ic_bus_stop);
+            stopBitmap = Ui.INSTANCE.createBitmapFromDrawableResource(activity, -30, -30, R.drawable.ic_bus_stop);
         }
         return stopBitmap;
     }
 
     private Bitmap getStarredBitmap() {
         if (starBitmap == null) {
-            starBitmap = Ui.createBitmapFromLayoutResource(activity, R.layout.starred_stop);
+            starBitmap = Ui.INSTANCE.createBitmapFromLayoutResource(activity, R.layout.starred_stop);
         }
         return starBitmap;
     }

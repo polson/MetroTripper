@@ -115,7 +115,7 @@ public class MapHelper implements GoogleMap.OnCameraChangeListener {
 		}
 
 		private boolean cameraStoppedMoving() {
-			double distance = EZ.getDistanceInMeters(previousPosition.target, lastCameraPosition.target);
+			double distance = EZ.INSTANCE.getDistanceInMeters(previousPosition.target, lastCameraPosition.target);
 			return distance < CAMERA_CHECKER_MAX_DISTANCE;
 		}
 	}

@@ -49,15 +49,15 @@ public class AboutDialog extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		// Get app version
-		String versionName = EZ.getAppVersion(getActivity());
+		String versionName = EZ.INSTANCE.getAppVersion(getActivity());
 
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		ScrollView aboutLayout = (ScrollView) inflater.inflate(R.layout.dialog_about, null);
 
-		TextView version = Ui.findView(aboutLayout, R.id.dialog_about_version);
+		TextView version = Ui.INSTANCE.findView(aboutLayout, R.id.dialog_about_version);
 		version.setText(getString(R.string.about_version, versionName));
 
-		TextView licensesLink = Ui.findView(aboutLayout, R.id.dialog_about_licenses);
+		TextView licensesLink = Ui.INSTANCE.findView(aboutLayout, R.id.dialog_about_licenses);
 		licensesLink.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -66,7 +66,7 @@ public class AboutDialog extends DialogFragment {
 			}
 		});
 
-		TextView description = Ui.findView(aboutLayout, R.id.dialog_about_description);
+		TextView description = Ui.INSTANCE.findView(aboutLayout, R.id.dialog_about_description);
 		try {
 			InputStream inputStream = getResources().getAssets().open("description.html");
 			String html = IOUtils.toString(inputStream);

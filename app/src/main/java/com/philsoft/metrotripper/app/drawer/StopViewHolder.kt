@@ -9,7 +9,7 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.stop_drawer_item.*
 
 class StopViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-    val clickEvent = containerView.clicks()
+    val clickEvent = containerView.clicks().map { adapterPosition }
 
     fun render(stop: Stop, isStopSelected: Boolean) {
         header.text = stop.stopId.toString()
@@ -19,5 +19,6 @@ class StopViewHolder(override val containerView: View) : RecyclerView.ViewHolder
         } else {
             containerView.setBackgroundResource(R.color.sidebar_bg)
         }
+        clickEvent.map { stop.stopId }
     }
 }

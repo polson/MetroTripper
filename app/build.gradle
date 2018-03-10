@@ -32,7 +32,6 @@ dependencies {
     implementation appCompat
     implementation recyclerView
     implementation timber
-    implementation volley
     implementation appCompat
     implementation playServicesMaps
     implementation playServicesLocation
@@ -43,10 +42,12 @@ dependencies {
     implementation commonsIo
     implementation multiDex
     implementation ankoSqlite
+    implementation ankoCommons
     implementation retrofit
     implementation retrofitGson
     implementation retrofitRxjava
     implementation rxjava
     implementation rxandroid
     implementation rxbinding
+    implementation rxbindingRecyclerView
 }

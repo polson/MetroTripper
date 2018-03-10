@@ -7,7 +7,7 @@
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/left_drawer"
+        android:id="@+id/leftDrawer"
         android:layout_width="280dip"
         android:layout_height="match_parent"
         android:layout_gravity="start"
