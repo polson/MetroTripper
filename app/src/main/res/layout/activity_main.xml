@@ -33,9 +33,10 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <include
-                android:id="@+id/stop_heading"
-                layout="@layout/stop_heading" />
+            <com.philsoft.metrotripper.app.ui.view.StopHeadingView
+                android:id="@+id/stopHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/tripList"
@@ -45,6 +46,13 @@
         </LinearLayout>
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
-    <!-- The navigation drawer -->
-    <include layout="@layout/drawer" />
+    <!-- The navigatstop_list_recycler_viewawer -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/stopListRv"
+        android:layout_width="280dip"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:layout_marginTop="40dip"
+        android:background="@color/sidebar_bg"
+        android:scrollbars="vertical" />
 </android.support.v4.widget.DrawerLayout>

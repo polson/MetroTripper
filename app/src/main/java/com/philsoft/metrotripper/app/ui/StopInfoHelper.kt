@@ -4,12 +4,10 @@ import android.app.Activity
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import com.google.common.collect.Lists
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.R.id.tripList
 import com.philsoft.metrotripper.app.SelectedStopProvider
 import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.nextrip.NexTripService
@@ -38,9 +36,9 @@ class StopInfoHelper(private val activity: Activity,
     }
 
     private fun setupView() {
-        val getTimesButton = Ui.findView<View>(activity, R.id.stop_heading_get_times)
-        val getLocationButton = Ui.findView<ImageView>(activity, R.id.stop_heading_show_location)
-        val saveStopButton = Ui.findView<ImageView>(activity, R.id.stop_heading_save_stop)
+        val getTimesButton = Ui.findView<View>(activity, R.id.scheduleButtonWrapper)
+        val getLocationButton = Ui.findView<ImageView>(activity, R.id.locationButton)
+        val saveStopButton = Ui.findView<ImageView>(activity, R.id.saveButton)
         panel.addPanelSlideListener(object : SimplePanelSlideListener() {
 
             override fun onPanelStateChanged(panel: View, previousState: SlidingUpPanelLayout.PanelState, newState: SlidingUpPanelLayout.PanelState) {
@@ -83,21 +81,21 @@ class StopInfoHelper(private val activity: Activity,
     }
 
     private fun showProgressSpinner() {
-        Ui.findView<View>(activity, R.id.stop_heading_progress_spinner).visibility = View.VISIBLE
-        Ui.findView<View>(activity, R.id.stop_heading_get_times_icon).visibility = View.GONE
+        Ui.findView<View>(activity, R.id.progressSpinner).visibility = View.VISIBLE
+        Ui.findView<View>(activity, R.id.scheduleButton).visibility = View.GONE
     }
 
     private fun hideProgressSpinner() {
-        Ui.findView<View>(activity, R.id.stop_heading_progress_spinner).visibility = View.GONE
-        Ui.findView<View>(activity, R.id.stop_heading_get_times_icon).visibility = View.VISIBLE
+        Ui.findView<View>(activity, R.id.progressSpinner).visibility = View.GONE
+        Ui.findView<View>(activity, R.id.scheduleButton).visibility = View.VISIBLE
     }
 
     fun showStopInfo(stop: Stop) {
         hideProgressSpinner()
-        Ui.setText(activity, R.id.stop_heading_route, "Stop " + stop.stopId)
-        Ui.setText(activity, R.id.stop_heading_description, stop.stopName.toString())
+        Ui.setText(activity, R.id.route, "Stop " + stop.stopId)
+        Ui.setText(activity, R.id.description, stop.stopName.toString())
         clearTrips()
-        val saveStopButton = Ui.findView<ImageView>(activity, R.id.stop_heading_save_stop)
+        val saveStopButton = Ui.findView<ImageView>(activity, R.id.saveButton)
         if (stopProvider.selectedStop != null && settingsProvider.isStopSaved(stop.stopId)) {
             saveStopButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY)
         } else {

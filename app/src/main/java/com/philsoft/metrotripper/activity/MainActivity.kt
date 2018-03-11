@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapFragment
@@ -21,40 +20,41 @@ import com.philsoft.metrotripper.app.SelectedStopProvider
 import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.drawer.DrawerAdapter
-import com.philsoft.metrotripper.app.nextrip.TripAdapter
+import com.philsoft.metrotripper.app.state.AppEvent
+import com.philsoft.metrotripper.app.state.AppState
+import com.philsoft.metrotripper.app.state.AppStateManager
 import com.philsoft.metrotripper.app.ui.MapHelper
 import com.philsoft.metrotripper.app.ui.MapVehicleHelper
 import com.philsoft.metrotripper.app.ui.StopHelper
-import com.philsoft.metrotripper.app.ui.StopInfoHelper
+import com.philsoft.metrotripper.app.ui.view.TripListView
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.database.DatabasePopulator
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.drawer.*
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.anko.toast
 import timber.log.Timber
 import java.io.IOException
 
-class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.LocationReadyListener, SelectedStopProvider, GoogleMap.OnMarkerClickListener {
+class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, SelectedStopProvider, GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 
     private var drawerToggle: ActionBarDrawerToggle? = null
-    private var appHub: AppHub? = null
     private var locationHelper: LocationHelper? = null
     private var mapHelper: MapHelper? = null
     private var mapVehicleHelper: MapVehicleHelper? = null
-    private var stopInfoHelper: StopInfoHelper? = null
     private var stopHelper: StopHelper? = null
     private var savedInstanceState: Bundle? = null
     private var drawerAdapter: DrawerAdapter? = null
-    private var tripAdapter: TripAdapter? = null
     private var selectedStop: Stop? = null
     private lateinit var dataProvider: DataProvider
     private lateinit var prefs: Prefs
     private lateinit var settingsProvider: SettingsProvider
+    private lateinit var stateManager: AppStateManager
+    private lateinit var tripListView: TripListView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,11 +66,35 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
         settingsProvider = SettingsProvider(prefs)
         dataProvider = DataProvider(this)
 
-        leftDrawer.layoutManager = LinearLayoutManager(this)
+        stopListRv.layoutManager = LinearLayoutManager(this)
         setupSlidingPanel()
         populateStops()
-        appHub = AppHub(this)
         setupMap()
+        setupDrawer()
+        setupViews()
+        setupListeners()
+    }
+
+    private fun setupViews() {
+        tripListView = TripListView(tripList)
+    }
+
+    private fun setupListeners() {
+        stateManager = AppStateManager(this)
+        Observable.merge(
+                stopHeading.headingClicks.map { AppEvent.ShowStops },
+                stopHeading.scheduleButtonClicks.map { AppEvent.ShowSchedule },
+                stopHeading.locationButtonClicks.map { AppEvent.ShowCurrentStopLocation },
+                drawerAdapter?.stopSearchedEvent?.map { stopId -> AppEvent.SearchStop(stopId) }
+        ).subscribe(stateManager::handleEvent)
+
+        stateManager.stateObservable
+                .subscribe(this::render)
+    }
+
+    private fun render(state: AppState) {
+        stopHeading.render(state)
+        tripListView.render(state)
     }
 
     private fun populateStops() {
@@ -85,19 +109,11 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
             e.printStackTrace()
         }
     }
-
-    override fun onStart() {
-        super.onStart()
-        if (mapHelper != null) {
-            // Map was already set up, set the listeners again since onMapReady() is not going to get called
-            setupListeners()
-        }
-    }
-
+    
     private fun setupActionBar() {
-        actionBar!!.setDisplayHomeAsUpEnabled(true)
-        actionBar!!.setHomeButtonEnabled(true)
-        actionBar!!.setDisplayShowTitleEnabled(false)
+        actionBar.setDisplayHomeAsUpEnabled(true)
+        actionBar.setHomeButtonEnabled(true)
+        actionBar.setDisplayShowTitleEnabled(false)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -106,7 +122,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
         outState.putString(KEY_PANEL_STATE, panel.panelState.name)
         if (mapHelper != null) { // Check if map is ready
             mapHelper!!.saveState(outState)
-            stopInfoHelper!!.saveState(outState)
         }
     }
 
@@ -119,13 +134,12 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
     private fun restoreState(savedState: Bundle) {
         restoreStopState(savedState)
         mapHelper!!.restoreState(savedState)
-        stopInfoHelper!!.restoreState(savedState)
         restorePanelState(savedState)
     }
 
     private fun restoreStopState(savedInstanceState: Bundle) {
         val selectedStopId = savedInstanceState.getLong(SelectedStopProvider.KEY_STOP_ID)
-        val stop = appHub!!.dataProvider.getStopById(selectedStopId)
+        val stop = dataProvider.getStopById(selectedStopId)
         if (stop != null) {
             showStop(stop)
         }
@@ -155,7 +169,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
         drawerAdapter?.stopSearchedEvent?.subscribe { stopId ->
             Timber.d("Stop selected: $stopId")
             EZ.hideKeyboard(this)
-            val stop = appHub!!.dataProvider.getStopById(stopId)
+            val stop = dataProvider.getStopById(stopId)
             if (stop != null) {
                 selectStopOnMap(stop, true)
             } else {
@@ -163,7 +177,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
             }
         }
 
-        leftDrawer.adapter = drawerAdapter
+        stopListRv.adapter = drawerAdapter
         drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
             override fun onDrawerClosed(drawerView: View) {
@@ -214,27 +228,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
     }
 
     private fun setupSlidingPanel(): SlidingUpPanelLayout {
-        val layoutManager = LinearLayoutManager(this)
-        tripList.layoutManager = layoutManager
-        tripAdapter = TripAdapter()
-        tripList.adapter = tripAdapter
-
-        // Fix issues with touch events when recyclerview is used inside sliding panel
-        tripList.setOnTouchListener { v, event ->
-            val action = event.action
-            when (action) {
-                MotionEvent.ACTION_DOWN ->
-                    // Disallow ScrollView to intercept touch events.
-                    v.parent.requestDisallowInterceptTouchEvent(true)
-
-                MotionEvent.ACTION_UP ->
-                    // Allow ScrollView to intercept touch events.
-                    v.parent.requestDisallowInterceptTouchEvent(false)
-            }
-            v.onTouchEvent(event)
-            true
-        }
-
         if (selectedStop == null) {
             panel.isTouchEnabled = true
             panel.anchorPoint = 0.5f
@@ -261,22 +254,15 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
         mapFragment.getMapAsync(this)
     }
 
-    private fun setupListeners() {
-        mapHelper!!.addListener(stopHelper)
-    }
-
     override fun onMapReady(map: GoogleMap) {
         Timber.d("OnMapReady")
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
         map.isMyLocationEnabled = true // show location button
-        mapHelper = MapHelper(this, map)
+        mapHelper = MapHelper(map)
         mapVehicleHelper = MapVehicleHelper(this, map)
-        stopInfoHelper = StopInfoHelper(this, this, panel, mapHelper!!, settingsProvider, tripAdapter!!)
-        stopHelper = StopHelper(this, map, appHub!!.dataProvider, settingsProvider)
-        setupDrawer()
+        stopHelper = StopHelper(this, this, map, dataProvider, settingsProvider)
 
         map.setOnMarkerClickListener(this)
-        setupListeners()
 
         if (savedInstanceState != null) {
             restoreState(savedInstanceState!!)
@@ -293,7 +279,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
     override fun onMarkerClick(marker: Marker): Boolean {
         if (StringUtils.isNumeric(marker.title)) {
             // Assume this is a stop if the info window is a number
-            val stop = appHub!!.dataProvider.getStopById(Integer.valueOf(marker.title)!!.toLong())
+            val stop = dataProvider.getStopById(Integer.valueOf(marker.title)!!.toLong())
             showStop(stop)
             panel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
         }
@@ -306,14 +292,13 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
             restorePanelHeight()
             selectedStop = stop
             stopHelper!!.selectStopMarker(stop)
-            stopInfoHelper!!.showStopInfo(stop)
         }
     }
 
     private fun restoreStopFromPrefs() {
         // Restore state from prefs if this is a fresh start of the app
-        val stopId = prefs!!.lastStopId
-        val stop = appHub!!.dataProvider.getStopById(stopId)
+        val stopId = prefs.lastStopId
+        val stop = dataProvider.getStopById(stopId)
         if (stop != null) {
             selectStopOnMap(stop, false)
         }
@@ -321,11 +306,8 @@ class MainActivity : BaseActivity(), OnMapReadyCallback, LocationHelper.Location
 
     override fun onStop() {
         Timber.d("onStop")
-        if (mapHelper != null) {
-            mapHelper!!.removeListener(stopHelper)
-        }
         if (selectedStop != null) {
-            prefs!!.lastStopId = selectedStop!!.stopId
+            prefs.lastStopId = selectedStop!!.stopId
         }
         super.onStop()
     }
