@@ -4,7 +4,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MotionEvent
 import com.philsoft.metrotripper.app.nextrip.TripAdapter
-import com.philsoft.metrotripper.app.state.AppState
+import com.philsoft.metrotripper.app.state.TripListAction
+import com.philsoft.metrotripper.model.Trip
 
 class TripListView(rv: RecyclerView) {
 
@@ -30,7 +31,13 @@ class TripListView(rv: RecyclerView) {
         }
     }
 
-    fun render(state: AppState) {
-        tripAdapter.setTrips(state.currentTrips)
+    fun render(action: TripListAction) {
+        val x = when (action) {
+            is TripListAction.ShowTrips -> showTrips(action.trips)
+        }
+    }
+
+    private fun showTrips(trips: List<Trip>) {
+        tripAdapter.setTrips(trips)
     }
 }

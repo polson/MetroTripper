@@ -7,9 +7,10 @@ import android.util.AttributeSet
 import android.widget.RelativeLayout
 import com.jakewharton.rxbinding2.view.clicks
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.app.state.AppState
+import com.philsoft.metrotripper.app.state.StopHeadingAction
+import com.philsoft.metrotripper.model.Stop
+import com.philsoft.metrotripper.utils.gone
 import com.philsoft.metrotripper.utils.inflate
-import com.philsoft.metrotripper.utils.invisible
 import com.philsoft.metrotripper.utils.visible
 import kotlinx.android.synthetic.main.stop_heading.view.*
 
@@ -25,26 +26,30 @@ class StopHeadingView @JvmOverloads constructor(
         this.inflate(R.layout.stop_heading, true)
     }
 
-    fun render(state: AppState) {
-        showCurrentStop(state)
-        updateProgress(state)
-    }
-
-    private fun updateProgress(state: AppState) {
-        if (state.isLoadingSchedule) {
-            progressSpinner.visible()
-            scheduleButton.invisible()
-        } else {
-            progressSpinner.invisible()
-            scheduleButton.visible()
+    fun render(action: StopHeadingAction) {
+        when (action) {
+            is StopHeadingAction.ShowStop -> showStop(action.stop, action.isSaved)
+            StopHeadingAction.LoadingTrips -> showProgressSpinner()
+            is StopHeadingAction.LoadTripsComplete -> hideProgressSpinner()
+            is StopHeadingAction.LoadTripsError -> hideProgressSpinner()
         }
     }
 
-    private fun showCurrentStop(state: AppState) {
-        state.selectedStop?.apply {
+    private fun hideProgressSpinner() {
+        progressSpinner.gone()
+        scheduleButton.visible()
+    }
+
+    private fun showProgressSpinner() {
+        progressSpinner.visible()
+        scheduleButton.gone()
+    }
+
+    private fun showStop(stop: Stop, isSaved: Boolean) {
+        stop.apply {
             route.text = "Stop $stopId"
             description.text = stopName
-            if (state.isSelectedStopSaved) {
+            if (isSaved) {
                 saveButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY)
             } else {
                 saveButton.colorFilter = null
