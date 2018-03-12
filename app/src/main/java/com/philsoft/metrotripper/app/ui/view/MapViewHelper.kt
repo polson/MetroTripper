@@ -10,14 +10,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.R.id.panel
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
 import com.philsoft.metrotripper.utils.ui.Ui
-import com.sothree.slidinguppanel.SlidingUpPanelLayout
-import kotlinx.android.synthetic.main.activity_main.*
-import org.apache.commons.lang.StringUtils
 
 class MapViewHelper(context: Context, private val map: GoogleMap) {
 
@@ -34,21 +30,33 @@ class MapViewHelper(context: Context, private val map: GoogleMap) {
     }
 
     fun render(action: MapAction) {
-        when (action) {
+        val x = when (action) {
             is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
-            is MapAction.ShowStopMarkers -> {
-                if (map.cameraPosition.zoom > MIN_ZOOM_LEVEL) {
-                    showStopMarkers(action.stops)
-                }
-            }
+            is MapAction.ShowStopMarkers -> showStopMarkers(action.stops)
+            is MapAction.SelectStopMarker -> selectStopMarker(action.stop)
         }
     }
+
+    private fun selectStopMarker(stop: Stop) {
+        val stopId = stop.stopId
+        if (stopMarkers.containsKey(stopId)) {
+            stopMarkers[stopId]?.showInfoWindow()
+        } else {
+            val newMarker = addStopMarkerToMap(stop)
+            newMarker.showInfoWindow()
+            stopMarkers.put(stop.stopId, newMarker)
+        }
+    }
+
 
     private fun moveCameraToPosition(latLng: LatLng) {
         map.centerCameraOnLatLng(latLng, true)
     }
 
     private fun showStopMarkers(stops: List<Stop>) {
+        if (map.cameraPosition.zoom < MIN_ZOOM_LEVEL) {
+            return
+        }
         //Remove markers that are not in the new list
         val updatedStopIds = stops.map { it.stopId }
         val markersToDelete = stopMarkers.minus(updatedStopIds)

@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.philsoft.metrotripper.app.nextrip.NexTripService
 import com.philsoft.metrotripper.database.DataProvider
+import com.philsoft.metrotripper.model.Stop
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -42,7 +43,8 @@ class AppStateManager(val context: Context) {
         val something = when (appEvent) {
             AppEvent.ShowStops -> showStops()
             AppEvent.ShowCurrentStopLocation -> showCurrentStopLocation()
-            is AppEvent.ShowSchedule -> showSchedule()
+            is AppEvent.ShowSchedule -> showSchedule(state.selectedStop)
+
             is AppEvent.SearchStop -> searchStop(appEvent.stopId)
             is AppEvent.CameraIdle -> handleCameraIdle(appEvent.cameraPosition)
             is AppEvent.InitialLocationUpdate -> handleInitialLocationUpdate(appEvent.locationResult)
@@ -59,24 +61,25 @@ class AppStateManager(val context: Context) {
         val lastLocation = locationResult.lastLocation
         if (locationResult.lastLocation != null) {
             val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-            mapActionSubject.onNext(MapAction.MoveCameraToPosition(latLng))
+            MapAction.MoveCameraToPosition(latLng).send()
         } else {
-            mapActionSubject.onNext(MapAction.MoveCameraToPosition(MINNEAPOLIS_LATLNG))
+            MapAction.MoveCameraToPosition(MINNEAPOLIS_LATLNG).send()
         }
     }
 
     private fun handleCameraIdle(position: CameraPosition) {
         val stops = dataProvider.getClosestStops(position.target.latitude, position.target.longitude, MAX_STOPS)
-        mapActionSubject.onNext(MapAction.ShowStopMarkers(stops))
+        MapAction.ShowStopMarkers(stops).send()
     }
 
     private fun searchStop(stopId: Long) {
         val stop = dataProvider.getStopById(stopId)
         if (stop != null) {
             state = state.copy(selectedStop = stop)
-            stopHeadingActionSubject.onNext(StopHeadingAction.ShowStop(stop, false))
-            mapActionSubject.onNext(MapAction.MoveCameraToPosition(stop.latLng))
-            showSchedule()
+            StopHeadingAction.ShowStop(stop, false).send()
+            MapAction.MoveCameraToPosition(stop.latLng).send()
+            MapAction.SelectStopMarker(stop).send()
+            showSchedule(stop)
         }
     }
 
@@ -84,20 +87,23 @@ class AppStateManager(val context: Context) {
 
     }
 
-    private fun showSchedule() {
+    private fun showSchedule(stop: Stop?) {
+        if (stop == null) {
+            return //TODO: gross
+        }
         val selectedStop = state.selectedStop
         if (selectedStop != null) {
-            stopHeadingActionSubject.onNext(StopHeadingAction.LoadingTrips)
+            StopHeadingAction.LoadingTrips.send()
             nexTripService.getTrips(selectedStop.stopId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnError { throwable ->
                         Timber.d("Unable to get trips: ${throwable.message}")
-                        stopHeadingActionSubject.onNext(StopHeadingAction.LoadTripsError())
+                        StopHeadingAction.LoadTripsError().send()
                     }
                     .subscribe { trips ->
-                        stopHeadingActionSubject.onNext(StopHeadingAction.LoadTripsComplete())
-                        tripListActionSubject.onNext(TripListAction.ShowTrips(trips))
+                        StopHeadingAction.LoadTripsComplete().send()
+                        TripListAction.ShowTrips(trips).send()
                     }
         }
     }
@@ -106,7 +112,20 @@ class AppStateManager(val context: Context) {
     private fun showCurrentStopLocation() {
         val selectedStop = state.selectedStop
         if (selectedStop != null) {
-            mapActionSubject.onNext(MapAction.MoveCameraToPosition(selectedStop.latLng))
+            MapAction.MoveCameraToPosition(selectedStop.latLng).send()
         }
+    }
+
+    //Extension functions
+    private fun MapAction.send() {
+        mapActionSubject.onNext(this)
+    }
+
+    private fun StopHeadingAction.send() {
+        stopHeadingActionSubject.onNext(this)
+    }
+
+    private fun TripListAction.send() {
+        tripListActionSubject.onNext(this)
     }
 }
