@@ -108,6 +108,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 stopHeading.scheduleButtonClicks
                         .throttleFirst(500, TimeUnit.MILLISECONDS).map { AppEvent.ShowSchedule },
                 stopHeading.locationButtonClicks.map { AppEvent.ShowCurrentStopLocation },
+                stopHeading.saveStopButtonClicks.map { AppEvent.SaveStop },
                 drawerAdapter?.stopSearchedEvent?.map { stopId -> AppEvent.SearchStop(stopId) },
                 mapViewHelper.cameraIdleEvents.map { cameraPosition -> AppEvent.CameraIdle(cameraPosition) },
                 locationEvents.map { locationResult -> AppEvent.InitialLocationUpdate(locationResult) },

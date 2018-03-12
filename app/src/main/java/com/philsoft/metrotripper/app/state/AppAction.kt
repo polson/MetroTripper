@@ -11,8 +11,8 @@ sealed class AppAction {
 
 sealed class MapAction : AppAction() {
     class MoveCameraToPosition(val latLng: LatLng) : MapAction()
-    class ShowStopMarkers(val stops: List<Stop>) : MapAction()
-    class SelectStopMarker(val stop: Stop) : MapAction()
+    class ShowStopMarkers(val stops: List<Stop>, val savedStopIds: Set<Long>) : MapAction()
+    class SelectStopMarker(val stop: Stop, val isSaved: Boolean) : MapAction()
 }
 
 sealed class StopHeadingAction : AppAction() {
@@ -20,6 +20,8 @@ sealed class StopHeadingAction : AppAction() {
     class LoadTripsComplete : StopHeadingAction()
     class ShowStop(val stop: Stop, val isSaved: Boolean) : StopHeadingAction()
     class LoadTripsError : StopHeadingAction()
+    object SaveStop : StopHeadingAction()
+    object UnsaveStop : StopHeadingAction()
 }
 
 sealed class TripListAction : AppAction() {

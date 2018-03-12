@@ -1,7 +1,7 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import android.animation.ValueAnimator
-import android.content.Context
+import android.app.Activity
 import android.graphics.Bitmap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -15,7 +15,7 @@ import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
 import com.philsoft.metrotripper.utils.ui.Ui
 
-class MapViewHelper(context: Context, private val map: GoogleMap) {
+class MapViewHelper(activity: Activity, private val map: GoogleMap) {
 
     companion object {
         private val MIN_ZOOM_LEVEL = 16
@@ -26,23 +26,26 @@ class MapViewHelper(context: Context, private val map: GoogleMap) {
 
     private val stopMarkers = hashMapOf<Long, Marker>()
     private val stopBitmap: Bitmap by lazy {
-        Ui.createBitmapFromDrawableResource(context, -30, -30, R.drawable.ic_bus_stop)
+        Ui.createBitmapFromDrawableResource(activity, -30, -30, R.drawable.ic_bus_stop)
+    }
+    private val starredBitmap: Bitmap by lazy {
+        Ui.createBitmapFromLayoutResource(activity, R.layout.starred_stop)
     }
 
     fun render(action: MapAction) {
         val x = when (action) {
             is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
-            is MapAction.ShowStopMarkers -> showStopMarkers(action.stops)
-            is MapAction.SelectStopMarker -> selectStopMarker(action.stop)
+            is MapAction.ShowStopMarkers -> showStopMarkers(action.stops, action.savedStopIds)
+            is MapAction.SelectStopMarker -> selectStopMarker(action.stop, action.isSaved)
         }
     }
 
-    private fun selectStopMarker(stop: Stop) {
+    private fun selectStopMarker(stop: Stop, isSaved: Boolean) {
         val stopId = stop.stopId
         if (stopMarkers.containsKey(stopId)) {
             stopMarkers[stopId]?.showInfoWindow()
         } else {
-            val newMarker = addStopMarkerToMap(stop)
+            val newMarker = addStopMarkerToMap(stop, isSaved)
             newMarker.showInfoWindow()
             stopMarkers.put(stop.stopId, newMarker)
         }
@@ -53,7 +56,7 @@ class MapViewHelper(context: Context, private val map: GoogleMap) {
         map.centerCameraOnLatLng(latLng, true)
     }
 
-    private fun showStopMarkers(stops: List<Stop>) {
+    private fun showStopMarkers(stops: List<Stop>, savedStopIds: Set<Long>) {
         if (map.cameraPosition.zoom < MIN_ZOOM_LEVEL) {
             return
         }
@@ -69,18 +72,19 @@ class MapViewHelper(context: Context, private val map: GoogleMap) {
         stops.forEach {
             val markerIsShown = stopMarkers.containsKey(it.stopId)
             if (!markerIsShown) {
-                val marker = addStopMarkerToMap(it)
+                val marker = addStopMarkerToMap(it, savedStopIds.contains(it.stopId))
                 marker.fadeIn(500)
                 stopMarkers.put(it.stopId, marker)
             }
         }
     }
 
-    private fun addStopMarkerToMap(stop: Stop): Marker {
+    private fun addStopMarkerToMap(stop: Stop, isSaved: Boolean): Marker {
+        val bitmap = if (isSaved) starredBitmap else stopBitmap
         return map.addMarker(MarkerOptions()
                 .title(stop.stopId.toString())
                 .position(LatLng(stop.stopLat, stop.stopLon))
-                .icon(BitmapDescriptorFactory.fromBitmap(stopBitmap)))
+                .icon(BitmapDescriptorFactory.fromBitmap(bitmap)))
     }
 }
 

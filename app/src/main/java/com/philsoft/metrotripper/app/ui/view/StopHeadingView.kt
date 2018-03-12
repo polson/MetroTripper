@@ -27,11 +27,13 @@ class StopHeadingView @JvmOverloads constructor(
     }
 
     fun render(action: StopHeadingAction) {
-        when (action) {
+        val x = when (action) {
             is StopHeadingAction.ShowStop -> showStop(action.stop, action.isSaved)
             StopHeadingAction.LoadingTrips -> showProgressSpinner()
             is StopHeadingAction.LoadTripsComplete -> hideProgressSpinner()
             is StopHeadingAction.LoadTripsError -> hideProgressSpinner()
+            StopHeadingAction.SaveStop -> showAsSaved()
+            StopHeadingAction.UnsaveStop -> showAsUnsaved()
         }
     }
 
@@ -50,10 +52,14 @@ class StopHeadingView @JvmOverloads constructor(
             route.text = "Stop $stopId"
             description.text = stopName
             if (isSaved) {
-                saveButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY)
+                showAsSaved()
             } else {
-                saveButton.colorFilter = null
+                showAsUnsaved()
             }
         }
     }
+
+    private fun showAsSaved() = saveButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY)
+
+    private fun showAsUnsaved() = saveButton.setColorFilter(null)
 }

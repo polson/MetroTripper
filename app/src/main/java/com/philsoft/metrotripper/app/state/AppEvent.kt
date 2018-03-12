@@ -12,4 +12,5 @@ sealed class AppEvent {
     class CameraIdle(val cameraPosition: CameraPosition) : AppEvent()
     class InitialLocationUpdate(val locationResult: LocationResult) : AppEvent()
     class MarkerClick(val marker: Marker) : AppEvent()
+    object SaveStop : AppEvent()
 }

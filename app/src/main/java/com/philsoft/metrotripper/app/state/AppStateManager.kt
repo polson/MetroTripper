@@ -5,16 +5,18 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.nextrip.NexTripService
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.model.Stop
+import com.philsoft.metrotripper.prefs.Prefs
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 
-class AppStateManager(val context: Context) {
+class AppStateManager(context: Context) {
     companion object {
         private val MAX_STOPS = 20
         private val MINNEAPOLIS_LATLNG = LatLng(44.9799700, -93.2638400)
@@ -33,6 +35,7 @@ class AppStateManager(val context: Context) {
     //Services
     private val nexTripService = NexTripService.create()
     private val dataProvider = DataProvider(context)
+    private val settingsProvider = SettingsProvider(Prefs.getInstance(context))
 
     //State
     private var state = AppState(
@@ -42,6 +45,7 @@ class AppStateManager(val context: Context) {
     fun handleEvent(appEvent: AppEvent) {
         val something = when (appEvent) {
             AppEvent.ShowStops -> showStops()
+            AppEvent.SaveStop -> toggleCurrentStopSaved()
             AppEvent.ShowCurrentStopLocation -> showCurrentStopLocation()
             is AppEvent.ShowSchedule -> showSchedule(state.selectedStop)
 
@@ -49,6 +53,19 @@ class AppStateManager(val context: Context) {
             is AppEvent.CameraIdle -> handleCameraIdle(appEvent.cameraPosition)
             is AppEvent.InitialLocationUpdate -> handleInitialLocationUpdate(appEvent.locationResult)
             is AppEvent.MarkerClick -> handleMarkerClick(appEvent.marker)
+        }
+    }
+
+    private fun toggleCurrentStopSaved() {
+        if (state.hasSelectedStop()) {
+            val stopId = state.selectedStop!!.stopId
+            if (settingsProvider.isStopSaved(stopId)) {
+                settingsProvider.unsaveStop(stopId)
+                StopHeadingAction.UnsaveStop.send()
+            } else {
+                settingsProvider.saveStop(stopId)
+                StopHeadingAction.SaveStop.send()
+            }
         }
     }
 
@@ -69,16 +86,18 @@ class AppStateManager(val context: Context) {
 
     private fun handleCameraIdle(position: CameraPosition) {
         val stops = dataProvider.getClosestStops(position.target.latitude, position.target.longitude, MAX_STOPS)
-        MapAction.ShowStopMarkers(stops).send()
+        val savedStopIds = settingsProvider.getSavedStopIds()
+        MapAction.ShowStopMarkers(stops, savedStopIds).send()
     }
 
     private fun searchStop(stopId: Long) {
         val stop = dataProvider.getStopById(stopId)
         if (stop != null) {
             state = state.copy(selectedStop = stop)
-            StopHeadingAction.ShowStop(stop, false).send()
+            val isSavedStop = settingsProvider.isStopSaved(stop.stopId)
+            StopHeadingAction.ShowStop(stop, isSavedStop).send()
             MapAction.MoveCameraToPosition(stop.latLng).send()
-            MapAction.SelectStopMarker(stop).send()
+            MapAction.SelectStopMarker(stop, isSavedStop).send()
             showSchedule(stop)
         }
     }
@@ -128,4 +147,8 @@ class AppStateManager(val context: Context) {
     private fun TripListAction.send() {
         tripListActionSubject.onNext(this)
     }
+
+    private fun AppState.hasSelectedStop(): Boolean = selectedStop != null
+
 }
+
