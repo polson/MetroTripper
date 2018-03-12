@@ -10,10 +10,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.philsoft.metrotripper.R
+import com.philsoft.metrotripper.R.id.panel
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
 import com.philsoft.metrotripper.utils.ui.Ui
+import com.sothree.slidinguppanel.SlidingUpPanelLayout
+import kotlinx.android.synthetic.main.activity_main.*
+import org.apache.commons.lang.StringUtils
 
 class MapViewHelper(context: Context, private val map: GoogleMap) {
 
@@ -22,6 +26,7 @@ class MapViewHelper(context: Context, private val map: GoogleMap) {
     }
 
     val cameraIdleEvents = RxGoogleMap.cameraIdleEvents(map)
+    val markerClicks = RxGoogleMap.markerClicks(map)
 
     private val stopMarkers = hashMapOf<Long, Marker>()
     private val stopBitmap: Bitmap by lazy {

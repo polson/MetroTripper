@@ -1,28 +1,24 @@
 package com.philsoft.metrotripper.activity
 
 import android.content.res.Configuration
-import android.location.Location
+import android.net.http.SslCertificate.restoreState
 import android.os.Bundle
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.android.gms.maps.model.Marker
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.app.LocationHelper
-import com.philsoft.metrotripper.app.SelectedStopProvider
 import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.drawer.DrawerAdapter
 import com.philsoft.metrotripper.app.state.AppEvent
 import com.philsoft.metrotripper.app.state.AppStateManager
-import com.philsoft.metrotripper.app.ui.MapHelper
 import com.philsoft.metrotripper.app.ui.MapVehicleHelper
 import com.philsoft.metrotripper.app.ui.view.MapViewHelper
 import com.philsoft.metrotripper.app.ui.view.TripListView
@@ -31,20 +27,18 @@ import com.philsoft.metrotripper.database.DatabasePopulator
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
+import com.philsoft.metrotripper.utils.map.RxLocation
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_main.*
-import org.apache.commons.lang.StringUtils
 import org.jetbrains.anko.toast
 import timber.log.Timber
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, SelectedStopProvider, GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
+class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private var drawerToggle: ActionBarDrawerToggle? = null
-    private var locationHelper: LocationHelper? = null
-    private var mapHelper: MapHelper? = null
     private var mapVehicleHelper: MapVehicleHelper? = null
     private var savedInstanceState: Bundle? = null
     private var drawerAdapter: DrawerAdapter? = null
@@ -55,6 +49,11 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
     private lateinit var stateManager: AppStateManager
     private lateinit var tripListView: TripListView
     private lateinit var mapViewHelper: MapViewHelper
+
+    private val locationEvents by lazy {
+        val client = LocationServices.getFusedLocationProviderClient(this)
+        RxLocation.locationEvents(client)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,20 +84,14 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
         Timber.d("OnMapReady")
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
         map.isMyLocationEnabled = true // show location button
-        mapHelper = MapHelper(map)
         mapVehicleHelper = MapVehicleHelper(this, map)
 //        stopHelper = StopHelper(this, this, map, dataProvider, settingsProvider)
-
-        map.setOnMarkerClickListener(this)
 
         if (savedInstanceState != null) {
             restoreState(savedInstanceState!!)
         } else {
             if (selectedStop == null) {
                 restoreStopFromPrefs()
-                if (selectedStop == null) {
-                    showCurrentLocation()
-                }
             }
         }
     }
@@ -116,7 +109,9 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
                         .throttleFirst(500, TimeUnit.MILLISECONDS).map { AppEvent.ShowSchedule },
                 stopHeading.locationButtonClicks.map { AppEvent.ShowCurrentStopLocation },
                 drawerAdapter?.stopSearchedEvent?.map { stopId -> AppEvent.SearchStop(stopId) },
-                mapViewHelper.cameraIdleEvents.map { cameraPosition -> AppEvent.CameraIdle(cameraPosition) }
+                mapViewHelper.cameraIdleEvents.map { cameraPosition -> AppEvent.CameraIdle(cameraPosition) },
+                locationEvents.map { locationResult -> AppEvent.InitialLocationUpdate(locationResult) },
+                mapViewHelper.markerClicks.map { marker -> AppEvent.MarkerClick(marker) }
         )
         Observable.merge(observables).subscribe(stateManager::handleEvent)
 
@@ -144,53 +139,12 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
         actionBar.setDisplayShowTitleEnabled(false)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        saveStopState(outState)
-        outState.putString(KEY_PANEL_STATE, panel.panelState.name)
-        if (mapHelper != null) { // Check if map is ready
-            mapHelper!!.saveState(outState)
-        }
-    }
-
-    private fun saveStopState(outState: Bundle) {
-        if (getSelectedStop() != null) {
-            outState.putLong(SelectedStopProvider.KEY_STOP_ID, getSelectedStop()!!.stopId)
-        }
-    }
-
-    private fun restoreState(savedState: Bundle) {
-        restoreStopState(savedState)
-        mapHelper!!.restoreState(savedState)
-        restorePanelState(savedState)
-    }
-
-    private fun restoreStopState(savedInstanceState: Bundle) {
-        val selectedStopId = savedInstanceState.getLong(SelectedStopProvider.KEY_STOP_ID)
-        val stop = dataProvider.getStopById(selectedStopId)
-        if (stop != null) {
-            showStop(stop)
-        }
-    }
-
-    private fun restorePanelState(savedState: Bundle) {
-        val panelStateStr = savedState.getString(KEY_PANEL_STATE)
-        val panelState = SlidingUpPanelLayout.PanelState.valueOf(panelStateStr)
-        panel.panelState = panelState
-    }
-
-    private fun restorePanelHeight() {
-        panel.panelHeight = resources.getDimensionPixelSize(R.dimen.panel_height)
-    }
-
     private fun setupDrawer() {
         stopListRv.layoutManager = LinearLayoutManager(this)
         drawerAdapter = DrawerAdapter()
         if (selectedStop != null) {
             if (panel.panelState == SlidingUpPanelLayout.PanelState.HIDDEN) {
                 panel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
-                // HIDDEN is broken on SlidingUpPanel 3.0, so use height
-                restorePanelHeight()
             }
             selectStopOnMap(selectedStop, false)
         }
@@ -222,7 +176,6 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
         drawerLayout.closeDrawers()
         showStop(stop)
         panel?.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
-        mapHelper?.centerCameraOnLatLng(stop!!.latLng, animate)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -249,13 +202,6 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
         }
     }
 
-    private fun showCurrentLocation() {
-        if (locationHelper == null) {
-            locationHelper = LocationHelper(this, this)
-        }
-        locationHelper!!.getLastLocation()
-    }
-
     private fun setupSlidingPanel(): SlidingUpPanelLayout {
         if (selectedStop == null) {
             panel.isTouchEnabled = true
@@ -268,30 +214,9 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
         return panel
     }
 
-    override fun onLocationReady(location: Location?) {
-        if (mapHelper != null) {
-            if (location != null) {
-                mapHelper!!.centerCameraOnLatLng(LatLng(location.latitude, location.longitude), false)
-            } else {
-                mapHelper!!.centerCameraOnLatLng(MINNEAPOLIS_LATLNG, false)
-            }
-        }
-    }
-
-    override fun onMarkerClick(marker: Marker): Boolean {
-        if (StringUtils.isNumeric(marker.title)) {
-            // Assume this is a stop if the info window is a number
-            val stop = dataProvider.getStopById(Integer.valueOf(marker.title)!!.toLong())
-            showStop(stop)
-            panel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
-        }
-        return false
-    }
-
-    override fun showStop(stop: Stop?) {
+    fun showStop(stop: Stop?) {
         if (stop != selectedStop) {
             Timber.d("New stop selected: " + stop!!.stopId)
-            restorePanelHeight()
             selectedStop = stop
         }
     }
@@ -313,17 +238,11 @@ class MainActivity : BaseActivity(), LocationHelper.LocationReadyListener, Selec
         super.onStop()
     }
 
-    override fun getSelectedStop(): Stop? {
+    fun getSelectedStop(): Stop? {
         return selectedStop
     }
 
-    override fun setSelectedStop(stop: Stop) {
+    fun setSelectedStop(stop: Stop) {
         selectedStop = stop
-    }
-
-    companion object {
-
-        private val KEY_PANEL_STATE = "KEY_PANEL_STATE"
-        private val MINNEAPOLIS_LATLNG = LatLng(44.9799700, -93.2638400)
     }
 }
