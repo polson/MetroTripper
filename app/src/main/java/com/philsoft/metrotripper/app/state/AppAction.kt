@@ -8,7 +8,6 @@ sealed class AppAction {
     object None : AppAction()
 }
 
-
 sealed class MapAction : AppAction() {
     class MoveCameraToPosition(val latLng: LatLng) : MapAction()
     class ShowStopMarkers(val stops: List<Stop>, val savedStopIds: Set<Long>) : MapAction()
@@ -26,4 +25,8 @@ sealed class StopHeadingAction : AppAction() {
 
 sealed class TripListAction : AppAction() {
     class ShowTrips(val trips: List<Trip>) : TripListAction()
+}
+
+sealed class DrawerAction : AppAction() {
+    object CloseDrawer : DrawerAction()
 }

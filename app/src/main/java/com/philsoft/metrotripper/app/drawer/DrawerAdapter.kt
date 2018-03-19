@@ -16,7 +16,7 @@ class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val stopSelectedSubject = PublishSubject.create<Stop>()
     private val stopSearchedSubject = PublishSubject.create<Long>()
     val stopSelectedEvent = stopSelectedSubject.hide()!!
-    val stopSearchedEvent = stopSearchedSubject.hide()!!
+    val searchStopEvent = stopSearchedSubject.hide()!!
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
         return when (viewType) {
@@ -33,7 +33,7 @@ class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 val drawerItemView = parent.inflate(R.layout.stop_drawer_item, false)
                 val viewHolder = StopViewHolder(drawerItemView)
                 viewHolder.clickEvent
-                        .takeUntil(RxView.detaches(drawerItemView))
+                        .takeUntil(RxView.detaches(parent))
                         .map { adapterPosition -> items[adapterPosition - 1] }
                         .subscribe(stopSelectedSubject)
                 viewHolder

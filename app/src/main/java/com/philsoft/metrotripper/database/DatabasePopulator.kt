@@ -18,7 +18,6 @@ class DatabasePopulator(private val context: Context) {
     private val STOPS_FILE = "stops.txt"
     private val dbHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
-    @Throws(IOException::class)
     fun populateStopsFast() {
         val assetManager = context.assets
         val inputStream = assetManager.open(STOPS_FILE)

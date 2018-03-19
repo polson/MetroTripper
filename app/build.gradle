@@ -50,4 +50,5 @@ dependencies {
     implementation rxandroid
     implementation rxbinding
     implementation rxbindingRecyclerView
+    implementation rxkotlin
 }
