@@ -1,15 +1,18 @@
 package com.philsoft.metrotripper.utils.ui
 
 import android.app.Activity
-import android.app.Fragment
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
 import android.util.DisplayMetrics
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.TextView
+import org.jetbrains.anko.displayMetrics
 
 
 object Ui {
@@ -61,4 +64,20 @@ object Ui {
         return createBitmapFromView(activity, view)
     }
 
+    fun getCurrentScreenHeight(context: Context): Int {
+        val size = getDisplaySize(context)
+        return size.y
+    }
+
+    private fun getDisplaySize(context: Context): Point {
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = wm.defaultDisplay
+        val size = Point()
+        display.getSize(size)
+        return size
+    }
+
+    fun dpToPx(context: Context, dp: Int): Int {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), context.displayMetrics).toInt()
+    }
 }

@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/panel"
+    <com.philsoft.metrotripper.app.ui.view.MtSlidingPanel xmlns:sothree="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/slidingPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?android:attr/actionBarSize"
@@ -29,6 +29,7 @@
         </FrameLayout>
 
         <LinearLayout
+            android:id="@+id/sliding_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -44,7 +45,7 @@
                 android:layout_height="match_parent"
                 android:background="@color/blue" />
         </LinearLayout>
-    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+    </com.philsoft.metrotripper.app.ui.view.MtSlidingPanel>
 
     <!-- The navigatstop_list_recycler_viewawer -->
     <android.support.v7.widget.RecyclerView

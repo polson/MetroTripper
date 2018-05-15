@@ -34,3 +34,9 @@ sealed class DrawerAction : AppAction() {
 sealed class NexTripAction : AppAction() {
     class GetTrips(val stopId: Long) : NexTripAction()
 }
+
+sealed class SlidingPanelAction : AppAction() {
+    object Expand : SlidingPanelAction()
+    object Collapse : SlidingPanelAction()
+    object Hide : SlidingPanelAction()
+}

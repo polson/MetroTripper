@@ -17,10 +17,8 @@ import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.drawer.DrawerAdapter
 import com.philsoft.metrotripper.app.state.*
-import com.philsoft.metrotripper.app.state.transformer.DrawerActionTransformer
-import com.philsoft.metrotripper.app.state.transformer.MapTransformer
-import com.philsoft.metrotripper.app.state.transformer.NexTripApiActionTransformer
-import com.philsoft.metrotripper.app.state.transformer.StopHeadingTransformer
+import com.philsoft.metrotripper.app.state.transformer.*
+import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.app.ui.view.MapViewHelper
 import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper
 import com.philsoft.metrotripper.app.ui.view.TripListView
@@ -30,7 +28,6 @@ import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.utils.map.RxLocation
 import com.philsoft.metrotripper.utils.ui.Ui
-import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import io.reactivex.ObservableTransformer
 import io.reactivex.rxkotlin.merge
 import kotlinx.android.synthetic.main.activity_main.*
@@ -101,11 +98,8 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
-    private fun setupSlidingPanel(): SlidingUpPanelLayout {
-        panel.isTouchEnabled = true
-        panel.anchorPoint = 0.5f
-        panel.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
-        return panel
+    private fun setupSlidingPanel() {
+        slidingPanel.setPanelState(SlidingPanel.PanelState.HIDDEN)
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -127,9 +121,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun setupListeners() {
         val uiEvents = listOf(
-                stopHeading.headingClicks.map {
-                    AppUiEvent.HeadingButtonClicked
-                },
                 stopHeading.scheduleButtonClicks
                         .throttleFirst(500, TimeUnit.MILLISECONDS)
                         .map {
@@ -161,17 +152,15 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                     observable.compose(StopHeadingTransformer(settingsProvider)),
                     observable.compose(MapTransformer(settingsProvider, dataProvider)),
                     observable.compose(DrawerActionTransformer()),
-                    observable.compose(NexTripApiActionTransformer())
+                    observable.compose(NexTripApiActionTransformer()),
+                    observable.compose(SlidingPanelTransformer())
             ).merge()
         }
 
         uiEvents
                 .compose(stateTransformer)
                 .compose(uiEventToAction)
-                .subscribe { appAction ->
-                    Timber.d("Action: " + appAction)
-                    render(appAction)
-                }
+                .subscribe(this::render)
     }
 
     private fun render(appAction: AppAction?) {
@@ -181,6 +170,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
             is TripListAction -> tripListView.render(appAction)
             is NexTripAction -> nexTripApiHelper.render(appAction)
             is DrawerAction -> drawerLayout.render(appAction)
+            is SlidingPanelAction -> slidingPanel.render(appAction)
         }
     }
 

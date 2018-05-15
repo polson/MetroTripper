@@ -20,7 +20,6 @@ class StopHeadingView @JvmOverloads constructor(
     val scheduleButtonClicks by lazy { scheduleButtonWrapper.clicks() }
     val locationButtonClicks by lazy { locationButton.clicks() }
     val saveStopButtonClicks by lazy { saveButton.clicks() }
-    val headingClicks by lazy { clicks() }
 
     init {
         this.inflate(R.layout.stop_heading, true)
