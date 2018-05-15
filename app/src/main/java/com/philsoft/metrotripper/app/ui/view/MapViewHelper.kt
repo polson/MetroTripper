@@ -1,7 +1,6 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import android.animation.ValueAnimator
-import android.app.Activity
 import android.graphics.Bitmap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -9,13 +8,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
-import com.philsoft.metrotripper.utils.ui.Ui
 
-class MapViewHelper(activity: Activity, private val map: GoogleMap) {
+class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
 
     companion object {
         private val MIN_ZOOM_LEVEL = 16
@@ -25,15 +22,9 @@ class MapViewHelper(activity: Activity, private val map: GoogleMap) {
     val markerClicks = RxGoogleMap.markerClicks(map)
 
     private val stopMarkers = hashMapOf<Long, Marker>()
-    private val stopBitmap: Bitmap by lazy {
-        Ui.createBitmapFromDrawableResource(activity, -30, -30, R.drawable.ic_bus_stop)
-    }
-    private val starredBitmap: Bitmap by lazy {
-        Ui.createBitmapFromLayoutResource(activity, R.layout.starred_stop)
-    }
 
     fun render(action: MapAction) {
-        val x = when (action) {
+        when (action) {
             is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
             is MapAction.ShowStopMarkers -> showStopMarkers(action.stops, action.savedStopIds)
             is MapAction.SelectStopMarker -> selectStopMarker(action.stop, action.isSaved)
@@ -88,7 +79,7 @@ class MapViewHelper(activity: Activity, private val map: GoogleMap) {
     }
 }
 
-//Extension fu
+//Extension functions
 private fun GoogleMap.centerCameraOnLatLng(latLng: LatLng, animate: Boolean) {
     val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17f)
     if (animate) {

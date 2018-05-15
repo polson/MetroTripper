@@ -3,6 +3,7 @@ package com.philsoft.metrotripper.app.state
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.Marker
+import com.philsoft.metrotripper.model.Trip
 
 sealed class AppUiEvent {
     object HeadingButtonClicked : AppUiEvent()
@@ -13,6 +14,6 @@ sealed class AppUiEvent {
     class InitialLocationUpdate(val locationResult: LocationResult) : AppUiEvent()
     class MarkerClicked(val marker: Marker) : AppUiEvent()
     object SaveStopButtonClicked : AppUiEvent()
+    class GetTripsComplete(val trips: List<Trip>) : AppUiEvent()
+    object GetTripsFailed : AppUiEvent()
 }
-
-data class AppUiEventWithState(val event: AppUiEvent, val state: AppState)

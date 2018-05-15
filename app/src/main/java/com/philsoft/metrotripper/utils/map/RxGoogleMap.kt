@@ -10,7 +10,9 @@ class RxGoogleMap {
     companion object {
         fun cameraIdleEvents(map: GoogleMap): Observable<CameraPosition> {
             return Observable.create<CameraPosition> { emitter ->
-                map.setOnCameraIdleListener { emitter.onNext(map.cameraPosition) }
+                map.setOnCameraIdleListener {
+                    emitter.onNext(map.cameraPosition)
+                }
                 emitter.setCancellable { map.setOnCameraIdleListener(null) }
             }.share()
         }

@@ -13,15 +13,23 @@ import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.philsoft.metrotripper.R
+import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.drawer.DrawerAdapter
 import com.philsoft.metrotripper.app.state.*
+import com.philsoft.metrotripper.app.state.transformer.DrawerActionTransformer
+import com.philsoft.metrotripper.app.state.transformer.MapTransformer
+import com.philsoft.metrotripper.app.state.transformer.StopHeadingTransformer
 import com.philsoft.metrotripper.app.ui.view.MapViewHelper
 import com.philsoft.metrotripper.app.ui.view.TripListView
+import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.database.DatabasePopulator
+import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.utils.map.RxLocation
+import com.philsoft.metrotripper.utils.ui.Ui
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
+import io.reactivex.ObservableTransformer
 import io.reactivex.rxkotlin.merge
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
@@ -29,11 +37,16 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
-    private lateinit var drawerToggle: ActionBarDrawerToggle
-    private lateinit var drawerAdapter: DrawerAdapter
-    private lateinit var stateManager: AppStateManager
-    private lateinit var tripListView: TripListView
+    private val drawerAdapter = DrawerAdapter()
+    private val drawerToggle by lazy { MtDrawerToggle() }
+    private val tripListView by lazy { TripListView(tripList) }
     private lateinit var mapViewHelper: MapViewHelper
+
+
+    //Services
+    private val dataProvider by lazy { DataProvider(this) }
+    private val settingsProvider by lazy { SettingsProvider(Prefs.getInstance(this)) }
+    private val stateTransformer by lazy { AppStateTransformer(dataProvider) }
 
     private val locationEvents by lazy {
         val client = LocationServices.getFusedLocationProviderClient(this)
@@ -68,18 +81,16 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun setupDrawer() {
         stopListRv.layoutManager = LinearLayoutManager(this)
-        drawerAdapter = DrawerAdapter()
-
         stopListRv.adapter = drawerAdapter
-        drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
-
-            override fun onDrawerClosed(drawerView: View) {
-                super.onDrawerClosed(drawerView)
-                EZ.hideKeyboard(this@MainActivity)
-            }
-        }
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
+    }
+
+    private inner class MtDrawerToggle : ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
+        override fun onDrawerClosed(drawerView: View) {
+            super.onDrawerClosed(drawerView)
+            EZ.hideKeyboard(this@MainActivity)
+        }
     }
 
     private fun setupMapFragment() {
@@ -106,8 +117,9 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun setupViews(map: GoogleMap) {
-        tripListView = TripListView(tripList)
-        mapViewHelper = MapViewHelper(this, map)
+        val stopBitmap = Ui.createBitmapFromDrawableResource(this, -30, -30, R.drawable.ic_bus_stop)
+        val starredBitmap = Ui.createBitmapFromLayoutResource(this, R.layout.starred_stop)
+        mapViewHelper = MapViewHelper(stopBitmap, starredBitmap, map)
     }
 
     private fun setupListeners() {
@@ -138,28 +150,31 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 locationEvents.map { locationResult ->
                     AppUiEvent.InitialLocationUpdate(locationResult)
                 }
-        )
+        ).merge().share()
 
-        stateManager = AppStateManager(this, uiEvents.merge())
-        uiEvents.merge()
-                .publish { shared ->
-                    listOf(
-                            shared.ofType(AppUiEvent.LocationButtonClicked::class.java).compose(stateManager.showCurrentStopTransformer),
-                            shared.ofType(AppUiEvent.StopSearched::class.java).compose(stateManager.searchStopTransformer),
-                            shared.ofType(AppUiEvent.MarkerClicked::class.java).compose(stateManager.markerClickTransformer),
-                            shared.ofType(AppUiEvent.ScheduleButtonClicked::class.java).compose(stateManager.showScheduleTransformer),
-                            shared.ofType(AppUiEvent.CameraIdle::class.java).compose(stateManager.cameraIdleTransformer),
-                            shared.ofType(AppUiEvent.SaveStopButtonClicked::class.java).compose(stateManager.toggleCurrenStopSavedTransformer),
-                            shared.ofType(AppUiEvent.InitialLocationUpdate::class.java).compose(stateManager.locationUpdateTransformer)
-                    ).merge()
-                }
+        val uiEventToAction = ObservableTransformer<AppStateTransformer.AppUiEventWithState, AppAction> { observable ->
+            listOf(
+                    observable.compose(StopHeadingTransformer(settingsProvider)),
+                    observable.compose(MapTransformer(settingsProvider, dataProvider)),
+                    observable.compose(DrawerActionTransformer())
+            ).merge()
+        }
+
+        uiEvents
+                .compose(stateTransformer)
+                .compose(uiEventToAction)
                 .subscribe { appAction ->
-                    when (appAction) {
-                        is MapAction -> mapViewHelper.render(appAction)
-                        is StopHeadingAction -> stopHeading.render(appAction)
-                        is TripListAction -> tripListView.render(appAction)
-                    }
+                    Timber.d("Action: " + appAction)
+                    render(appAction)
                 }
+    }
+
+    private fun render(appAction: AppAction?) {
+        when (appAction) {
+            is MapAction -> mapViewHelper.render(appAction)
+            is StopHeadingAction -> stopHeading.render(appAction)
+            is TripListAction -> tripListView.render(appAction)
+        }
     }
 
 

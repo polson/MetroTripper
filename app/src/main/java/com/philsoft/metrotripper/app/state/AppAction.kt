@@ -30,3 +30,7 @@ sealed class TripListAction : AppAction() {
 sealed class DrawerAction : AppAction() {
     object CloseDrawer : DrawerAction()
 }
+
+sealed class NexTripAction : AppAction() {
+    class GetTrips(val stopId: Long) : NexTripAction()
+}

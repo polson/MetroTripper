@@ -14,6 +14,7 @@ class TripListView(rv: RecyclerView) {
     init {
         rv.layoutManager = LinearLayoutManager(rv.context)
         rv.adapter = tripAdapter
+
         // Fix issues with touch events when recyclerview is used inside sliding panel
         rv.setOnTouchListener { v, event ->
             val action = event.action
@@ -32,7 +33,7 @@ class TripListView(rv: RecyclerView) {
     }
 
     fun render(action: TripListAction) {
-        val x = when (action) {
+        when (action) {
             is TripListAction.ShowTrips -> showTrips(action.trips)
         }
     }

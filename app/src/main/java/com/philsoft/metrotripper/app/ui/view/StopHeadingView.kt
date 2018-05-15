@@ -27,7 +27,7 @@ class StopHeadingView @JvmOverloads constructor(
     }
 
     fun render(action: StopHeadingAction) {
-        val x = when (action) {
+        when (action) {
             is StopHeadingAction.ShowStop -> showStop(action.stop, action.isSaved)
             StopHeadingAction.LoadingTrips -> showProgressSpinner()
             is StopHeadingAction.LoadTripsComplete -> hideProgressSpinner()
