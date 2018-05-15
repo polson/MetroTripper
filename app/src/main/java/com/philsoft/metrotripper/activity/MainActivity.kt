@@ -19,8 +19,10 @@ import com.philsoft.metrotripper.app.drawer.DrawerAdapter
 import com.philsoft.metrotripper.app.state.*
 import com.philsoft.metrotripper.app.state.transformer.DrawerActionTransformer
 import com.philsoft.metrotripper.app.state.transformer.MapTransformer
+import com.philsoft.metrotripper.app.state.transformer.NexTripApiActionTransformer
 import com.philsoft.metrotripper.app.state.transformer.StopHeadingTransformer
 import com.philsoft.metrotripper.app.ui.view.MapViewHelper
+import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper
 import com.philsoft.metrotripper.app.ui.view.TripListView
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.database.DatabasePopulator
@@ -47,6 +49,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private val dataProvider by lazy { DataProvider(this) }
     private val settingsProvider by lazy { SettingsProvider(Prefs.getInstance(this)) }
     private val stateTransformer by lazy { AppStateTransformer(dataProvider) }
+    private val nexTripApiHelper = NexTripApiHelper()
 
     private val locationEvents by lazy {
         val client = LocationServices.getFusedLocationProviderClient(this)
@@ -149,14 +152,16 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 },
                 locationEvents.map { locationResult ->
                     AppUiEvent.InitialLocationUpdate(locationResult)
-                }
+                },
+                nexTripApiHelper.apiResultObservable
         ).merge().share()
 
         val uiEventToAction = ObservableTransformer<AppStateTransformer.AppUiEventWithState, AppAction> { observable ->
             listOf(
                     observable.compose(StopHeadingTransformer(settingsProvider)),
                     observable.compose(MapTransformer(settingsProvider, dataProvider)),
-                    observable.compose(DrawerActionTransformer())
+                    observable.compose(DrawerActionTransformer()),
+                    observable.compose(NexTripApiActionTransformer())
             ).merge()
         }
 
@@ -174,6 +179,8 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
             is MapAction -> mapViewHelper.render(appAction)
             is StopHeadingAction -> stopHeading.render(appAction)
             is TripListAction -> tripListView.render(appAction)
+            is NexTripAction -> nexTripApiHelper.render(appAction)
+            is DrawerAction -> drawerLayout.render(appAction)
         }
     }
 

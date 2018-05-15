@@ -16,9 +16,9 @@ sealed class MapAction : AppAction() {
 
 sealed class StopHeadingAction : AppAction() {
     object LoadingTrips : StopHeadingAction()
-    class LoadTripsComplete : StopHeadingAction()
+    object LoadTripsComplete : StopHeadingAction()
     class ShowStop(val stop: Stop, val isSaved: Boolean) : StopHeadingAction()
-    class LoadTripsError : StopHeadingAction()
+    object LoadTripsError : StopHeadingAction()
     object SaveStop : StopHeadingAction()
     object UnsaveStop : StopHeadingAction()
 }

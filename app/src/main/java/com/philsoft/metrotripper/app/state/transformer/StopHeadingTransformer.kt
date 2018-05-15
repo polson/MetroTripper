@@ -11,10 +11,20 @@ class StopHeadingTransformer(val settingsProvider: SettingsProvider) : AppAction
 
     override fun handleEvent(event: AppUiEvent, state: AppState) {
         when (event) {
-            AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state.selectedStop)
+            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state.selectedStop)
             is AppUiEvent.StopSearched -> handleStopSearched(state.selectedStop)
-            AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()
+            is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()
+            is AppUiEvent.GetTripsFailed -> handleGetTripsFailed()
+            is AppUiEvent.GetTripsComplete -> handleGetTripsComplete()
         }
+    }
+
+    private fun handleGetTripsComplete() {
+        send(StopHeadingAction.LoadTripsComplete)
+    }
+
+    private fun handleGetTripsFailed() {
+        send(StopHeadingAction.LoadTripsError)
     }
 
     private fun handleScheduleButtonClicked() {
