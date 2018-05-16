@@ -9,9 +9,8 @@ import android.view.VelocityTracker
  * passed into `trackEvent` and a drag can be checked via `isDragging`.  When a drag occurs or stops
  * the `dragListener` is called
  */
-class VerticalDragDetector(val dragListener: DragListener) {
+class VerticalDragDetector(val dragListener: DragListener, val dragThreshold: Float = 1000f) {
     companion object {
-        val DRAG_VELOCITY_THRESHOLD = 1000f //px per second
         private val PER_SECOND = 1000
     }
 
@@ -65,7 +64,7 @@ class VerticalDragDetector(val dragListener: DragListener) {
     }
 
     private fun didStartVerticalDrag(distanceX: Float, distanceY: Float): Boolean {
-        if (Math.abs(getVelocity()) > DRAG_VELOCITY_THRESHOLD) {
+        if (Math.abs(getVelocity()) > dragThreshold) {
             return Math.abs(distanceX) < Math.abs(distanceY)
         }
         return false

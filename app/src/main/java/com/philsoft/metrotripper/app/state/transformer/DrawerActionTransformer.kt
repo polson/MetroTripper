@@ -10,7 +10,12 @@ class DrawerActionTransformer : AppActionTransformer<DrawerAction>() {
     override fun handleEvent(event: AppUiEvent, state: AppState) {
         when (event) {
             is AppUiEvent.StopSearched -> handleStopSearched(state.selectedStop)
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected()
         }
+    }
+
+    private fun handleStopSelected() {
+        send(DrawerAction.CloseDrawer)
     }
 
     private fun handleStopSearched(selectedStop: Stop?) {

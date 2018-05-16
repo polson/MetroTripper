@@ -44,9 +44,7 @@ ext {
     volley = 'com.mcxiaoke.volley:library:1.0.7'
     playServicesMaps = "com.google.android.gms:play-services-maps:$playServicesVersion"
     playServicesLocation = "com.google.android.gms:play-services-location:$playServicesVersion"
-    guava = 'com.google.guava:guava:18.0'
     commonsCsv = 'org.apache.commons:commons-csv:1.0'
-    slidingUpPanel = 'com.sothree.slidinguppanel:library:3.4.0'
     commonsLang = 'commons-lang:commons-lang:2.6'
     commonsIo = 'commons-io:commons-io:2.4'
     multiDex = 'com.android.support:multidex:1.0.1'

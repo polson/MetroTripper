@@ -13,6 +13,18 @@ class NexTripApiActionTransformer : AppActionTransformer<NexTripAction>() {
             is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked(state.selectedStop)
             is AppUiEvent.MarkerClicked -> handleMarkerClicked(event.marker)
             is AppUiEvent.StopSearched -> handleStopSearched(event.stopId)
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(event.stop)
+            is AppUiEvent.SlidingPanelExpanded -> handlePanelExpanded(state)
+        }
+    }
+
+    private fun handleStopSelected(stop: Stop) {
+        send(NexTripAction.GetTrips(stop.stopId))
+    }
+
+    private fun handlePanelExpanded(state: AppState) = state.apply {
+        if (selectedStop != null) {
+            send(NexTripAction.GetTrips(selectedStop.stopId))
         }
     }
 

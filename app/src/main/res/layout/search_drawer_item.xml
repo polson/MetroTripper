@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <RelativeLayout
         android:id="@+id/searchLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/sidebar_bg"
+        android:paddingBottom="20dip"
         android:paddingLeft="20dip"
         android:paddingRight="20dip"
-        android:paddingTop="20dip"
-        android:paddingBottom="20dip"
-        android:background="@color/sidebar_bg">
+        android:paddingTop="20dip">
 
         <EditText
             android:id="@+id/entry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/searchButton"
             android:hint="Enter Stop Number"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
+            android:imeOptions="actionGo"
             android:inputType="number"
             android:maxLength="5"
-            android:layout_toLeftOf="@+id/searchButton"
-            android:imeOptions="actionGo"
-            android:textColorHint="@color/light_gray"/>
+            android:textColor="@color/white"
+            android:textColorHint="@color/light_gray"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/searchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_search"
             android:layout_alignParentRight="true"
-            android:paddingLeft="10dip"/>
+            android:paddingLeft="10dip"
+            android:src="@drawable/ic_search" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/searchLayout">
+        android:layout_below="@+id/searchLayout"
+        android:orientation="vertical">
 
 
         <View
             style="@style/horizontal_line"
-            android:background="@color/darkest_gray"
-            android:layout_below="@+id/searchLayout"/>
+            android:layout_below="@+id/searchLayout"
+            android:background="@color/darkest_gray" />
 
         <View
             style="@style/horizontal_line"
-            android:background="@color/dark_gray"/>
+            android:background="@color/dark_gray" />
 
     </LinearLayout>
 </RelativeLayout>

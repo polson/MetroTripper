@@ -3,25 +3,22 @@ package com.philsoft.metrotripper.app.ui
 import android.app.Activity
 import android.view.View
 import android.widget.Toast
-
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.common.collect.Sets
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.model.Trip
 import com.philsoft.metrotripper.utils.map.MapUtils
 import com.philsoft.metrotripper.utils.ui.Ui
 import kotlinx.android.synthetic.main.vehicle.view.*
-
 import timber.log.Timber
 
 class MapVehicleHelper(private val activity: Activity, private val map: GoogleMap) {
-    private val vehicleMarkers = Sets.newHashSet<VehicleMarker>()
+    private val vehicleMarkers = HashSet<VehicleMarker>()
 
-    fun displayVehicleMarkers(trips: List<Trip>) {
+    private fun displayVehicleMarkers(trips: List<Trip>) {
         // Fade out existing vehicles
         for (vehicleMarker in vehicleMarkers) {
             MapUtils.fadeOutMarkerAndRemove(vehicleMarker.marker, FADE_DURATION)
@@ -36,7 +33,7 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
         }
     }
 
-    fun createVehicleMarker(trip: Trip): Marker {
+    private fun createVehicleMarker(trip: Trip): Marker {
         val vehicleView = buildVehicleView(trip)
         return map.addMarker(MarkerOptions().anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                 .title(activity.getString(R.string.vehicle) + " " + trip.route + trip.terminal).position(

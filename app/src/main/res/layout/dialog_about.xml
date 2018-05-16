@@ -22,7 +22,7 @@
                 android:src="@drawable/ic_launcher"/>
 
             <TextView
-                android:id="@+id/dialog_about_title"
+                android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -35,21 +35,21 @@
             android:background="@color/lighter_gray"/>
 
         <TextView
-            android:id="@+id/dialog_about_version"
+            android:id="@+id/versionNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:textSize="16sp"/>
 
         <TextView
-            android:id="@+id/dialog_about_description"
+            android:id="@+id/description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:textSize="16sp"/>
 
         <TextView
-            android:id="@+id/dialog_about_licenses"
+            android:id="@+id/licenses"
             style="@style/hyperlink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -8,10 +8,8 @@ import com.philsoft.metrotripper.app.state.DrawerAction
 class MtDrawerView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : DrawerLayout(context, attrs, defStyleAttr) {
 
-    fun render(action: DrawerAction) {
-        when (action) {
-            DrawerAction.CloseDrawer -> handleCloseDrawer()
-        }
+    fun render(action: DrawerAction) = when (action) {
+        DrawerAction.CloseDrawer -> handleCloseDrawer()
     }
 
     private fun handleCloseDrawer() {

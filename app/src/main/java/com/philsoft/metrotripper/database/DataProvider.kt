@@ -31,6 +31,17 @@ class DataProvider(context: Context) {
         }
     }
 
+    fun getStopsById(stopIds: Collection<Long>): List<Stop> {
+        if (stopIds.isEmpty()) {
+            return emptyList()
+        }
+        return dbHelper.use {
+            return@use select(StopContract.TABLE_NAME)
+                    .whereSimple("${StopContract.STOP_ID} in (${"?,".repeat(stopIds.size).dropLast(1)})", *stopIds.map { it.toString() }.toTypedArray())
+                    .parseList(stopParser)
+        }
+    }
+
     fun getClosestStops(lat: Double, lon: Double, max: Int): List<Stop> {
         return dbHelper.use {
             return@use select(StopContract.TABLE_NAME)

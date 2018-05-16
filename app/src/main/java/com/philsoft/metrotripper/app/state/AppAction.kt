@@ -4,14 +4,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.model.Trip
 
-sealed class AppAction {
-    object None : AppAction()
-}
+sealed class AppAction
 
 sealed class MapAction : AppAction() {
     class MoveCameraToPosition(val latLng: LatLng) : MapAction()
-    class ShowStopMarkers(val stops: List<Stop>, val savedStopIds: Set<Long>) : MapAction()
-    class SelectStopMarker(val stop: Stop, val isSaved: Boolean) : MapAction()
+    class ShowStopMarkers(val stops: List<Stop>) : MapAction()
+    class SelectStopMarker(val stop: Stop) : MapAction()
 }
 
 sealed class StopHeadingAction : AppAction() {
@@ -19,8 +17,6 @@ sealed class StopHeadingAction : AppAction() {
     object LoadTripsComplete : StopHeadingAction()
     class ShowStop(val stop: Stop, val isSaved: Boolean) : StopHeadingAction()
     object LoadTripsError : StopHeadingAction()
-    object SaveStop : StopHeadingAction()
-    object UnsaveStop : StopHeadingAction()
 }
 
 sealed class TripListAction : AppAction() {
@@ -29,6 +25,11 @@ sealed class TripListAction : AppAction() {
 
 sealed class DrawerAction : AppAction() {
     object CloseDrawer : DrawerAction()
+}
+
+sealed class StopListAction : AppAction() {
+    class ShowStops(val stops: List<Stop>) : StopListAction()
+    class SetStopSelected(val stopId: Long) : StopListAction()
 }
 
 sealed class NexTripAction : AppAction() {

@@ -1,21 +1,37 @@
 package com.philsoft.metrotripper.app.state.transformer
 
-import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.state.AppState
 import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.StopHeadingAction
 import com.philsoft.metrotripper.model.Stop
 
 
-class StopHeadingTransformer(val settingsProvider: SettingsProvider) : AppActionTransformer<StopHeadingAction>() {
+class StopHeadingTransformer : AppActionTransformer<StopHeadingAction>() {
 
     override fun handleEvent(event: AppUiEvent, state: AppState) {
         when (event) {
-            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state.selectedStop)
-            is AppUiEvent.StopSearched -> handleStopSearched(state.selectedStop)
+            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state)
+            is AppUiEvent.StopSearched -> handleStopSearched(state)
             is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()
-            is AppUiEvent.GetTripsFailed -> handleGetTripsFailed()
             is AppUiEvent.GetTripsComplete -> handleGetTripsComplete()
+            is AppUiEvent.GetTripsInFlight -> handleGetTripsInFlight()
+            is AppUiEvent.GetTripsFailed -> handleGetTripsFailed()
+            is AppUiEvent.MarkerClicked -> handleMarkerClicked(state)
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(state, event.stop)
+        }
+    }
+
+    private fun handleStopSelected(state: AppState, stop: Stop) {
+        send(StopHeadingAction.ShowStop(stop, state.isSelectedStopSaved))
+    }
+
+    private fun handleGetTripsInFlight() {
+        send(StopHeadingAction.LoadingTrips)
+    }
+
+    private fun handleMarkerClicked(state: AppState) = state.apply {
+        if (selectedStop != null) {
+            send(StopHeadingAction.ShowStop(selectedStop, isSelectedStopSaved))
         }
     }
 
@@ -31,21 +47,15 @@ class StopHeadingTransformer(val settingsProvider: SettingsProvider) : AppAction
         send(StopHeadingAction.LoadingTrips)
     }
 
-    private fun handleStopSearched(selectedStop: Stop?) {
+    private fun handleStopSearched(state: AppState) = state.apply {
         if (selectedStop != null) {
-            val isSavedStop = settingsProvider.isStopSaved(selectedStop.stopId)
-            send(StopHeadingAction.ShowStop(selectedStop, isSavedStop))
+            send(StopHeadingAction.ShowStop(selectedStop, isSelectedStopSaved))
         }
     }
 
-    private fun handleSaveStopButtonClicked(selectedStop: Stop?) {
-        val stopId = selectedStop?.stopId ?: return
-        if (settingsProvider.isStopSaved(stopId)) {
-            settingsProvider.unsaveStop(stopId)
-            send(StopHeadingAction.UnsaveStop)
-        } else {
-            settingsProvider.saveStop(stopId)
-            send(StopHeadingAction.SaveStop)
+    private fun handleSaveStopButtonClicked(state: AppState) = state.apply {
+        if (selectedStop != null) {
+            send(StopHeadingAction.ShowStop(selectedStop, isSelectedStopSaved))
         }
     }
 }

@@ -2,21 +2,24 @@ package com.philsoft.metrotripper.app.drawer
 
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.google.common.collect.Lists
 import com.jakewharton.rxbinding2.view.RxView
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.inflate
-import io.reactivex.subjects.PublishSubject
+import timber.log.Timber
 
 
-class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = Lists.newArrayList<Stop>()
-    private val stopSelectedSubject = PublishSubject.create<Stop>()
-    private val stopSearchedSubject = PublishSubject.create<Long>()
-    val stopSelectedEvent = stopSelectedSubject.hide()!!
-    val searchStopEvent = stopSearchedSubject.hide()!!
+    private val items = ArrayList<Stop>()
+    var selectedStopId: Long = 0L
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    var stopSearchedListener: (Long) -> Unit = {}
+    var stopSelectedListener: (Stop) -> Unit = {}
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
         return when (viewType) {
@@ -25,7 +28,7 @@ class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 val viewHolder = SearchViewHolder(searchView)
                 viewHolder.searchEvent
                         .takeUntil(RxView.detaches(parent))
-                        .subscribe(stopSearchedSubject)
+                        .subscribe { stopId -> stopSearchedListener(stopId) }
                 viewHolder
 
             }
@@ -35,7 +38,7 @@ class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 viewHolder.clickEvent
                         .takeUntil(RxView.detaches(parent))
                         .map { adapterPosition -> items[adapterPosition - 1] }
-                        .subscribe(stopSelectedSubject)
+                        .subscribe { stop -> stopSelectedListener(stop) }
                 viewHolder
             }
         }
@@ -50,6 +53,7 @@ class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        Timber.d(">>onBindViewHolder: " + position)
         when (getItemViewType(position)) {
             VIEW_TYPE_STOP -> {
                 val stop = items[position - 1]
@@ -60,7 +64,8 @@ class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun buildStopRow(holder: StopViewHolder, stop: Stop) {
         if (stop != null) {
-            holder.render(stop, false)
+            val isSelected = stop.stopId == selectedStopId
+            holder.render(stop, isSelected)
         }
     }
 
@@ -78,4 +83,5 @@ class DrawerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private val VIEW_TYPE_SEARCH = 0
         private val VIEW_TYPE_STOP = 1
     }
+
 }

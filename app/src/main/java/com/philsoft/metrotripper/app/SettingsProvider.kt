@@ -1,10 +1,9 @@
 package com.philsoft.metrotripper.app
 
-import com.google.common.collect.Sets
 import com.philsoft.metrotripper.prefs.Prefs
 
 class SettingsProvider(val prefs: Prefs) {
-    private val savedStopIds = Sets.newLinkedHashSet<Long>(prefs.getSavedStopIds())
+    private val savedStopIds = LinkedHashSet<Long>(prefs.getSavedStopIds())
 
     fun saveStop(stopId: Long) {
         savedStopIds.add(stopId)

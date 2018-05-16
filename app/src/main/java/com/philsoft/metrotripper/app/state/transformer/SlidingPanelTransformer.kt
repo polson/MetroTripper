@@ -9,9 +9,14 @@ class SlidingPanelTransformer : AppActionTransformer<SlidingPanelAction>() {
     override fun handleEvent(event: AppUiEvent, state: AppState) {
         when (event) {
             is AppUiEvent.StopSearched -> handleStopSearched()
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected()
             is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()
             is AppUiEvent.LocationButtonClicked -> handleLocationButtonClicked()
         }
+    }
+
+    private fun handleStopSelected() {
+        send(SlidingPanelAction.Collapse)
     }
 
     private fun handleLocationButtonClicked() {

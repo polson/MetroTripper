@@ -10,7 +10,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
-import com.philsoft.metrotripper.app.ui.slidingpanel.VerticalDragDetector.Companion.DRAG_VELOCITY_THRESHOLD
 import com.philsoft.metrotripper.utils.ui.Ui
 
 /**
@@ -21,6 +20,14 @@ import com.philsoft.metrotripper.utils.ui.Ui
 open class SlidingPanel @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
+
+
+    /**
+     * Amount of drag velocity required before the panel will start to move.  Measured in pixels / second.
+     * Default value is 750
+     */
+    var dragVelocityThreshold = 750f
+
     /**
      * Amount in px the sliding panel should peek up from the bottom
      */
@@ -66,7 +73,7 @@ open class SlidingPanel @JvmOverloads constructor(
         override fun onDragStopped(velocity: Float) {
             handleDragStopped(velocity)
         }
-    })
+    }, dragVelocityThreshold)
 
     private var panelState: PanelState = PanelState.COLLAPSED
     private var expandAnimator: ObjectAnimator? = null
@@ -148,8 +155,8 @@ open class SlidingPanel @JvmOverloads constructor(
      */
     private fun handleDragStopped(velocity: Float) {
         when {
-            velocity < -DRAG_VELOCITY_THRESHOLD -> expandPanel()
-            velocity > DRAG_VELOCITY_THRESHOLD -> collapsePanel()
+            velocity < -dragVelocityThreshold -> expandPanel()
+            velocity > dragVelocityThreshold -> collapsePanel()
             else -> animateToClosest()
         }
     }

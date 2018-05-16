@@ -23,20 +23,18 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
 
     private val stopMarkers = hashMapOf<Long, Marker>()
 
-    fun render(action: MapAction) {
-        when (action) {
-            is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
-            is MapAction.ShowStopMarkers -> showStopMarkers(action.stops, action.savedStopIds)
-            is MapAction.SelectStopMarker -> selectStopMarker(action.stop, action.isSaved)
-        }
+    fun render(action: MapAction) = when (action) {
+        is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
+        is MapAction.ShowStopMarkers -> showStopMarkers(action.stops)
+        is MapAction.SelectStopMarker -> selectStopMarker(action.stop)
     }
 
-    private fun selectStopMarker(stop: Stop, isSaved: Boolean) {
+    private fun selectStopMarker(stop: Stop) {
         val stopId = stop.stopId
         if (stopMarkers.containsKey(stopId)) {
             stopMarkers[stopId]?.showInfoWindow()
         } else {
-            val newMarker = addStopMarkerToMap(stop, isSaved)
+            val newMarker = addStopMarkerToMap(stop)
             newMarker.showInfoWindow()
             stopMarkers.put(stop.stopId, newMarker)
         }
@@ -47,7 +45,7 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
         map.centerCameraOnLatLng(latLng, true)
     }
 
-    private fun showStopMarkers(stops: List<Stop>, savedStopIds: Set<Long>) {
+    private fun showStopMarkers(stops: List<Stop>) {
         if (map.cameraPosition.zoom < MIN_ZOOM_LEVEL) {
             return
         }
@@ -63,19 +61,18 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
         stops.forEach {
             val markerIsShown = stopMarkers.containsKey(it.stopId)
             if (!markerIsShown) {
-                val marker = addStopMarkerToMap(it, savedStopIds.contains(it.stopId))
+                val marker = addStopMarkerToMap(it)
                 marker.fadeIn(500)
                 stopMarkers.put(it.stopId, marker)
             }
         }
     }
 
-    private fun addStopMarkerToMap(stop: Stop, isSaved: Boolean): Marker {
-        val bitmap = if (isSaved) starredBitmap else stopBitmap
+    private fun addStopMarkerToMap(stop: Stop): Marker {
         return map.addMarker(MarkerOptions()
                 .title(stop.stopId.toString())
                 .position(LatLng(stop.stopLat, stop.stopLon))
-                .icon(BitmapDescriptorFactory.fromBitmap(bitmap)))
+                .icon(BitmapDescriptorFactory.fromBitmap(stopBitmap)))
     }
 }
 

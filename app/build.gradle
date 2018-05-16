@@ -35,9 +35,7 @@ dependencies {
     implementation appCompat
     implementation playServicesMaps
     implementation playServicesLocation
-    implementation guava
     implementation commonsCsv
-    implementation slidingUpPanel
     implementation commonsLang
     implementation commonsIo
     implementation multiDex

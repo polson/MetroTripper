@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="20dip"
-                android:background="@color/sidebar_bg">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/sidebar_bg"
+    android:padding="20dip">
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="40dip"
         android:layout_height="40dip"
-        android:src="@drawable/ic_bus_stop_2"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="15dip"/>
+        android:layout_marginRight="15dip"
+        android:src="@drawable/ic_bus_stop_2" />
 
     <TextView
         android:id="@+id/header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/icon"
         android:text="15562"
-        android:textSize="20sp"
-        android:textStyle="bold"
         android:textColor="@color/white"
-        android:layout_toRightOf="@+id/icon"/>
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2nd St NE &amp; 1st Ave NE"
-        android:textSize="13sp"
-        android:textColor="@color/white"
         android:layout_below="@+id/header"
-        android:maxLines="1"
+        android:layout_toRightOf="@+id/icon"
         android:ellipsize="end"
-        android:layout_toRightOf="@+id/icon"/>
+        android:maxLines="1"
+        android:text="2nd St NE &amp; 1st Ave NE"
+        android:textColor="@color/white"
+        android:textSize="13sp" />
 </RelativeLayout>

@@ -31,8 +31,6 @@ class StopHeadingView @JvmOverloads constructor(
             StopHeadingAction.LoadingTrips -> showProgressSpinner()
             is StopHeadingAction.LoadTripsComplete -> hideProgressSpinner()
             is StopHeadingAction.LoadTripsError -> hideProgressSpinner()
-            StopHeadingAction.SaveStop -> showAsSaved()
-            StopHeadingAction.UnsaveStop -> showAsUnsaved()
         }
     }
 
@@ -60,5 +58,7 @@ class StopHeadingView @JvmOverloads constructor(
 
     private fun showAsSaved() = saveButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY)
 
-    private fun showAsUnsaved() = saveButton.setColorFilter(null)
+    private fun showAsUnsaved() {
+        saveButton.colorFilter = null
+    }
 }

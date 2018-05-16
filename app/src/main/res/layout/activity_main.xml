@@ -4,16 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.philsoft.metrotripper.app.ui.view.MtSlidingPanel xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    <com.philsoft.metrotripper.app.ui.view.MtSlidingPanel
         android:id="@+id/slidingPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?android:attr/actionBarSize"
-        android:gravity="bottom"
-        sothree:umanoFadeColor="@android:color/transparent"
-        sothree:umanoPanelHeight="@dimen/panel_height"
-        sothree:umanoParallaxOffset="200dp"
-        sothree:umanoShadowHeight="4dp">
+        android:gravity="bottom">
 
         <!-- The main content view -->
         <FrameLayout
@@ -39,7 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <android.support.v7.widget.RecyclerView
+            <com.philsoft.metrotripper.app.ui.view.TripListView
                 android:id="@+id/tripList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -48,8 +44,8 @@
     </com.philsoft.metrotripper.app.ui.view.MtSlidingPanel>
 
     <!-- The navigatstop_list_recycler_viewawer -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/stopListRv"
+    <com.philsoft.metrotripper.app.ui.view.StopListView
+        android:id="@+id/stopList"
         android:layout_width="330dip"
         android:layout_height="match_parent"
         android:layout_gravity="start"
