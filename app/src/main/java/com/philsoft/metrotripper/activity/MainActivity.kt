@@ -17,6 +17,7 @@ import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.state.*
 import com.philsoft.metrotripper.app.state.transformer.*
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
+import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
 import com.philsoft.metrotripper.app.ui.view.MapViewHelper
 import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper
 import com.philsoft.metrotripper.database.DataProvider
@@ -27,14 +28,17 @@ import com.philsoft.metrotripper.utils.map.RxLocation
 import com.philsoft.metrotripper.utils.ui.Ui
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.merge
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private val drawerToggle by lazy { MtDrawerToggle() }
     private lateinit var mapViewHelper: MapViewHelper
+    private lateinit var mapVehicleHelper: MapVehicleHelper
 
     private val locationEvents by lazy {
         val client = LocationServices.getFusedLocationProviderClient(this)
@@ -92,6 +96,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         val stopBitmap = Ui.createBitmapFromDrawableResource(this, -30, -30, R.drawable.ic_bus_stop)
         val starredBitmap = Ui.createBitmapFromLayoutResource(this, R.layout.starred_stop)
         mapViewHelper = MapViewHelper(stopBitmap, starredBitmap, map)
+        mapVehicleHelper = MapVehicleHelper(this, map)
     }
 
     private fun setupListeners() {
@@ -148,13 +153,16 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                     observable.compose(NexTripApiActionTransformer()),
                     observable.compose(SlidingPanelTransformer()),
                     observable.compose(TripListTransformer()),
-                    observable.compose(StopListTransformer())
+                    observable.compose(StopListTransformer()),
+                    observable.compose(VehicleTransformer())
             ).merge()
         }
 
-        uiEvents.compose(appStateTransformer)
+        uiEvents.observeOn(AndroidSchedulers.mainThread())
+                .compose(appStateTransformer)
                 .compose(uiEventToAction)
                 .subscribe { appAction ->
+                    Timber.d("Action! $appAction")
                     when (appAction) {
                         is MapAction -> mapViewHelper.render(appAction)
                         is StopHeadingAction -> stopHeading.render(appAction)
@@ -163,6 +171,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                         is DrawerAction -> drawerLayout.render(appAction)
                         is SlidingPanelAction -> slidingPanel.render(appAction)
                         is StopListAction -> stopList.render(appAction)
+                        is VehicleAction -> mapVehicleHelper.render(appAction)
                     }
                 }
     }

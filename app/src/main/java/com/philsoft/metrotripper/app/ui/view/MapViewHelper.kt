@@ -1,6 +1,5 @@
 package com.philsoft.metrotripper.app.ui.view
 
-import android.animation.ValueAnimator
 import android.graphics.Bitmap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -11,6 +10,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
+import com.philsoft.metrotripper.utils.map.fadeIn
+import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
 
 class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
 
@@ -27,6 +28,12 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
         is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
         is MapAction.ShowStopMarkers -> showStopMarkers(action.stops)
         is MapAction.SelectStopMarker -> selectStopMarker(action.stop)
+        is MapAction.HideStopMarkers -> hideStopMarkers(action.selectedStop)
+    }
+
+    private fun hideStopMarkers(selectedStop: Stop) {
+        val markersToDelete = stopMarkers.filterKeys { it != selectedStop.stopId }
+        markersToDelete.forEach { removeMarker(it.key) }
     }
 
     private fun selectStopMarker(stop: Stop) {
@@ -53,8 +60,7 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
         val updatedStopIds = stops.map { it.stopId }
         val markersToDelete = stopMarkers.minus(updatedStopIds)
         markersToDelete.forEach { (stopId, marker) ->
-            marker.remove()
-            stopMarkers.remove(stopId)
+            removeMarker(stopId)
         }
 
         //Fade in new markers
@@ -66,6 +72,11 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
                 stopMarkers.put(it.stopId, marker)
             }
         }
+    }
+
+    private fun removeMarker(stopId: Long) {
+        val marker = stopMarkers.remove(stopId)
+        marker?.fadeOutAndRemove(500)
     }
 
     private fun addStopMarkerToMap(stop: Stop): Marker {
@@ -84,14 +95,6 @@ private fun GoogleMap.centerCameraOnLatLng(latLng: LatLng, animate: Boolean) {
     } else {
         moveCamera(cameraUpdate)
     }
-}
-
-private fun Marker.fadeIn(duration: Int): ValueAnimator {
-    val ani = ValueAnimator.ofFloat(0f, 1f)
-    ani.duration = duration.toLong()
-    ani.addUpdateListener { animation -> alpha = animation.animatedValue as Float }
-    ani.start()
-    return ani
 }
 
 

@@ -2,11 +2,22 @@ package com.philsoft.metrotripper.app.state.transformer
 
 import com.google.android.gms.maps.model.Marker
 import com.philsoft.metrotripper.app.state.AppState
+import com.philsoft.metrotripper.app.state.AppStateTransformer
 import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.NexTripAction
 import com.philsoft.metrotripper.model.Stop
+import io.reactivex.Observable
+import io.reactivex.ObservableSource
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BiFunction
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class NexTripApiActionTransformer : AppActionTransformer<NexTripAction>() {
+
+    companion object {
+        val UPDATE_INTERVAL = 10000L //ms
+    }
 
     override fun handleEvent(event: AppUiEvent, state: AppState) {
         when (event) {
@@ -40,5 +51,18 @@ class NexTripApiActionTransformer : AppActionTransformer<NexTripAction>() {
 
     private fun handleStopSearched(stopId: Long) {
         send(NexTripAction.GetTrips(stopId))
+    }
+
+    override fun apply(observable: Observable<AppStateTransformer.AppUiEventWithState>): ObservableSource<NexTripAction> {
+        val actionObservable = super.apply(observable)
+        return Observable.combineLatest(
+                actionObservable,
+                Observable.interval(UPDATE_INTERVAL, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread()),
+                BiFunction { action, interval ->
+                    action
+                }
+        )
     }
 }
