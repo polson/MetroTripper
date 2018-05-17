@@ -31,7 +31,6 @@ import io.reactivex.ObservableTransformer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.merge
 import kotlinx.android.synthetic.main.activity_main.*
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
@@ -162,7 +161,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 .compose(appStateTransformer)
                 .compose(uiEventToAction)
                 .subscribe { appAction ->
-                    Timber.d("Action! $appAction")
                     when (appAction) {
                         is MapAction -> mapViewHelper.render(appAction)
                         is StopHeadingAction -> stopHeading.render(appAction)

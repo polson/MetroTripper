@@ -53,7 +53,6 @@ class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        Timber.d(">>onBindViewHolder: " + position)
         when (getItemViewType(position)) {
             VIEW_TYPE_STOP -> {
                 val stop = items[position - 1]
