@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MetroTripper</string>
+    <string name="title_activity_main">MetroTripper</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="settings">Settings</string>
+    <string name="routes">Routes</string>
+    <string name="minutes">minutes</string>
+    <string name="bus">Bus</string>
+    <string name="stop_not_found">Stop not found</string>
+    <string name="unable_to_load_trips">Unable to load trips.  Please try again in a moment.</string>
+    <string name="vehicle">Vehicle</string>
+    <string name="about">About</string>
+    <string name="licenses"><u>Open Source Licenses</u></string>
+    <string name="about_version">Version %s</string>
+    <string name="ok">OK</string>
+</resources>

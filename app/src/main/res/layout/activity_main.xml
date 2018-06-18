@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.philsoft.metrotripper.app.ui.view.MtDrawerView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.philsoft.metrotripper.app.ui.view.MtSlidingPanel
+        android:id="@+id/slidingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:gravity="bottom">
+
+        <!-- The main content view -->
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.MapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/sliding_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.philsoft.metrotripper.app.ui.view.StopHeadingView
+                android:id="@+id/stopHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.philsoft.metrotripper.app.ui.view.TripListView
+                android:id="@+id/tripList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/blue" />
+        </LinearLayout>
+    </com.philsoft.metrotripper.app.ui.view.MtSlidingPanel>
+
+    <!-- The navigatstop_list_recycler_viewawer -->
+    <com.philsoft.metrotripper.app.ui.view.StopListView
+        android:id="@+id/stopList"
+        android:layout_width="330dip"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/sidebar_bg"
+        android:fitsSystemWindows="true"
+        android:scrollbars="vertical" />
+</com.philsoft.metrotripper.app.ui.view.MtDrawerView>

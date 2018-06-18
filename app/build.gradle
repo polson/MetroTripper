@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+androidExtensions {
+    experimental = true
+}
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.philsoft.metrotripper"
+        minSdkVersion minSdkVersion
+        targetSdkVersion targetSdkVersion
+        versionCode 3
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        resValue "string", "google_maps_key", (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation appCompat
+    implementation recyclerView
+    implementation timber
+    implementation appCompat
+    implementation playServicesMaps
+    implementation playServicesLocation
+    implementation commonsCsv
+    implementation commonsLang
+    implementation commonsIo
+    implementation multiDex
+    implementation ankoSqlite
+    implementation ankoCommons
+    implementation retrofit
+    implementation retrofitGson
+    implementation retrofitRxjava
+    implementation rxjava
+    implementation rxandroid
+    implementation rxbinding
+    implementation rxbindingRecyclerView
+    implementation rxkotlin
+}

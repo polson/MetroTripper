@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="50dip"
+              android:orientation="vertical"
+              android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/info_window_route"
+        android:text="6U"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/info_window_last_updated"
+        android:text="Updated 5 mins ago"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
