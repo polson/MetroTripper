@@ -1,7 +1,6 @@
 package com.philsoft.metrotripper.app.state
 
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.Marker
 import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.model.Stop
@@ -9,33 +8,28 @@ import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
 import io.reactivex.rxkotlin.withLatestFrom
+import timber.log.Timber
 
-class AppStateTransformer(private val dataProvider: DataProvider, private val settingsProvider: SettingsProvider) : ObservableTransformer<AppUiEvent, AppStateTransformer.AppUiEventWithState> {
+class AppStateTransformer(private val dataProvider: DataProvider, private val settingsProvider: SettingsProvider) : ObservableTransformer<AppUiEvent, AppUiEventWithState> {
     companion object {
-        private val MAX_STOPS = 20
+        private const val MAX_STOPS = 20
+        const val MIN_ZOOM_LEVEL = 16f
     }
+
+    private val initialState = setupInitialState()
 
     override fun apply(observable: Observable<AppUiEvent>): ObservableSource<AppUiEventWithState> {
-        return observable
-                .withLatestFrom(observable.compose(stateTransformer))
-                .map { pair -> AppUiEventWithState(pair.first, pair.second) }
-    }
-
-    data class AppUiEventWithState(val appUiEvent: AppUiEvent, val appState: AppState)
-
-    //State Transformers
-    private val stateTransformer = ObservableTransformer<AppUiEvent, AppState> { observable ->
-        val initialState = setupInitialState()
-        observable.scan(initialState, { previousState, appUiEvent ->
+        return observable.withLatestFrom(observable.scan(initialState, { previousState, appUiEvent ->
+            Timber.d("State transformation: $appUiEvent")
             when (appUiEvent) {
                 is AppUiEvent.StopSearched -> handleStopSearched(previousState, appUiEvent.stopId)
-                is AppUiEvent.MarkerClicked -> handleMarkerClicked(previousState, appUiEvent.marker)
+                is AppUiEvent.MarkerClicked -> handleMarkerClicked(previousState, appUiEvent.stopId)
                 is AppUiEvent.CameraIdle -> handleCameraIdle(previousState, appUiEvent.cameraPosition)
                 is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(previousState)
                 is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(previousState, appUiEvent.stop)
                 else -> previousState
             }
-        })
+        })).map { pair -> AppUiEventWithState(pair.first, pair.second) }
     }
 
     private fun handleStopSelected(previousState: AppState, stop: Stop): AppState {
@@ -58,19 +52,24 @@ class AppStateTransformer(private val dataProvider: DataProvider, private val se
                 copy(isSelectedStopSaved = false)
             } else {
                 settingsProvider.saveStop(selectedStop.stopId)
-                savedStopsMap.put(selectedStop.stopId, selectedStop)
+                savedStopsMap[selectedStop.stopId] = selectedStop
                 copy(isSelectedStopSaved = true)
             }
         } else this
     }
 
     private fun handleCameraIdle(previousState: AppState, cameraPosition: CameraPosition): AppState {
-        val visibleStops = dataProvider.getClosestStops(cameraPosition.target.latitude, cameraPosition.target.longitude, MAX_STOPS)
+        val visibleStops = if (cameraPosition.zoom < MIN_ZOOM_LEVEL) {
+            //Zoomed out too far, hide all stops
+            arrayListOf()
+        } else {
+            dataProvider.getClosestStops(cameraPosition.target.latitude, cameraPosition.target.longitude, MAX_STOPS).toMutableList()
+        }
+        previousState.selectedStop?.let { visibleStops.add(it) }
         return previousState.copy(visibleStops = visibleStops)
     }
 
-    private fun handleMarkerClicked(previousState: AppState, marker: Marker): AppState {
-        val stopId = marker.title.toLong()
+    private fun handleMarkerClicked(previousState: AppState, stopId: Long): AppState {
         val stop = dataProvider.getStopById(stopId)
         val isStopSaved = settingsProvider.isStopSaved(stopId)
         return previousState.copy(selectedStop = stop, isSelectedStopSaved = isStopSaved)

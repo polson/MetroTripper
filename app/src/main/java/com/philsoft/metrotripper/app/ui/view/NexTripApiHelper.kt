@@ -30,7 +30,6 @@ class NexTripApiHelper {
         emitter.onNext(Event.LoadTripsInFlight)
         nexTripService.getTrips(stopId)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onNext = { trips ->
                     emitter.onNext(Event.LoadTripsComplete(trips))
                 }, onError = {

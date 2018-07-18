@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.AttributeSet
 import com.philsoft.metrotripper.app.state.SlidingPanelAction
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
-import com.philsoft.metrotripper.utils.ui.Ui
+import com.philsoft.metrotripper.utils.dpToPx
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_main.view.*
 
@@ -23,7 +23,7 @@ class MtSlidingPanel @JvmOverloads constructor(
     @SuppressLint("NewApi")
     override fun onFinishInflate() {
         super.onFinishInflate()
-        bottomOffset = Ui.dpToPx(context, 176)
+        bottomOffset = context.dpToPx(176)
         swipableViews.clear()
         swipableViews.add(stopHeading)
     }
