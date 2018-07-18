@@ -7,43 +7,34 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.philsoft.metrotripper.app.state.AppStateTransformer
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
 import com.philsoft.metrotripper.utils.map.fadeIn
 import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
 
-class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
-
-    companion object {
-        private val MIN_ZOOM_LEVEL = 16
-    }
+class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
 
     val cameraIdleEvents = RxGoogleMap.cameraIdleEvents(map)
     val markerClicks = RxGoogleMap.markerClicks(map)
 
-    private val stopMarkers = hashMapOf<Long, Marker>()
+    private val stopMarkersMap = hashMapOf<Long, Marker>()
 
     fun render(action: MapAction) = when (action) {
         is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
         is MapAction.ShowStopMarkers -> showStopMarkers(action.stops)
         is MapAction.SelectStopMarker -> selectStopMarker(action.stop)
-        is MapAction.HideStopMarkers -> hideStopMarkers(action.selectedStop)
-    }
-
-    private fun hideStopMarkers(selectedStop: Stop) {
-        val markersToDelete = stopMarkers.filterKeys { it != selectedStop.stopId }
-        markersToDelete.forEach { removeMarker(it.key) }
     }
 
     private fun selectStopMarker(stop: Stop) {
         val stopId = stop.stopId
-        if (stopMarkers.containsKey(stopId)) {
-            stopMarkers[stopId]?.showInfoWindow()
+        if (stopMarkersMap.containsKey(stopId)) {
+            stopMarkersMap[stopId]?.showInfoWindow()
         } else {
             val newMarker = addStopMarkerToMap(stop)
             newMarker.showInfoWindow()
-            stopMarkers.put(stop.stopId, newMarker)
+            stopMarkersMap[stop.stopId] = newMarker
         }
     }
 
@@ -53,29 +44,26 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
     }
 
     private fun showStopMarkers(stops: List<Stop>) {
-        if (map.cameraPosition.zoom < MIN_ZOOM_LEVEL) {
-            return
-        }
-        //Remove markers that are not in the new list
-        val updatedStopIds = stops.map { it.stopId }
-        val markersToDelete = stopMarkers.minus(updatedStopIds)
+        //Fade out existing markers that are no longer to be shown
+        val stopIdsToShow = stops.map { it.stopId }
+        val markersToDelete = stopMarkersMap.minus(stopIdsToShow)
         markersToDelete.forEach { (stopId, marker) ->
             removeMarker(stopId)
         }
 
         //Fade in new markers
         stops.forEach {
-            val markerIsShown = stopMarkers.containsKey(it.stopId)
+            val markerIsShown = stopMarkersMap.containsKey(it.stopId)
             if (!markerIsShown) {
                 val marker = addStopMarkerToMap(it)
                 marker.fadeIn(500)
-                stopMarkers.put(it.stopId, marker)
+                stopMarkersMap[it.stopId] = marker
             }
         }
     }
 
     private fun removeMarker(stopId: Long) {
-        val marker = stopMarkers.remove(stopId)
+        val marker = stopMarkersMap.remove(stopId)
         marker?.fadeOutAndRemove(500)
     }
 
@@ -89,7 +77,7 @@ class MapViewHelper(private val stopBitmap: Bitmap, private val starredBitmap: B
 
 //Extension functions
 private fun GoogleMap.centerCameraOnLatLng(latLng: LatLng, animate: Boolean) {
-    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17f)
+    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, AppStateTransformer.MIN_ZOOM_LEVEL)
     if (animate) {
         animateCamera(cameraUpdate)
     } else {

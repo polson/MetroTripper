@@ -10,7 +10,6 @@ sealed class MapAction : AppAction() {
     class MoveCameraToPosition(val latLng: LatLng) : MapAction()
     class ShowStopMarkers(val stops: List<Stop>) : MapAction()
     class SelectStopMarker(val stop: Stop) : MapAction()
-    class HideStopMarkers(val selectedStop: Stop) : MapAction()
 }
 
 sealed class StopHeadingAction : AppAction() {

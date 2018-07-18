@@ -10,9 +10,9 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.state.VehicleAction
 import com.philsoft.metrotripper.model.Trip
+import com.philsoft.metrotripper.utils.createBitmap
 import com.philsoft.metrotripper.utils.map.fadeIn
 import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
-import com.philsoft.metrotripper.utils.ui.Ui
 import kotlinx.android.synthetic.main.vehicle.view.*
 
 class MapVehicleHelper(private val activity: Activity, private val map: GoogleMap) {
@@ -45,7 +45,7 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
                 MarkerOptions().anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                         .title(activity.getString(R.string.vehicle) + " " + trip.route + trip.terminal)
                         .position(LatLng(trip.vehicleLatitude.toDouble(), trip.vehicleLongitude.toDouble()))
-                        .icon(BitmapDescriptorFactory.fromBitmap(Ui.createBitmapFromView(activity, vehicleView))))
+                        .icon(BitmapDescriptorFactory.fromBitmap(vehicleView.createBitmap())))
     }
 
     private fun buildVehicleView(trip: Trip): View {

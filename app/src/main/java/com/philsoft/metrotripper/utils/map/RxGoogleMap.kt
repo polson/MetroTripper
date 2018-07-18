@@ -19,7 +19,10 @@ class RxGoogleMap {
 
         fun markerClicks(map: GoogleMap): Observable<Marker> {
             return Observable.create<Marker> { emitter ->
-                map.setOnMarkerClickListener { marker -> emitter.onNext(marker); false }
+                map.setOnMarkerClickListener {
+                    marker -> emitter.onNext(marker)
+                    false
+                }
                 emitter.setCancellable { map.setOnMarkerClickListener(null) }
             }.share()
         }
