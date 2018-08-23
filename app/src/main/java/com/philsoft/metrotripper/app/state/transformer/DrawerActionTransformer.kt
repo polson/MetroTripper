@@ -5,10 +5,10 @@ import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.DrawerAction
 import com.philsoft.metrotripper.model.Stop
 
-class DrawerActionTransformer : AppActionTransformer<DrawerAction>() {
+class DrawerActionTransformer : ViewActionTransformer<DrawerAction>() {
 
-    override fun handleEvent(event: AppUiEvent, state: AppState) {
-        when (event) {
+    override fun handleEvent(state: AppState) {
+        when (state.appUiEvent) {
             is AppUiEvent.StopSearched -> handleStopSearched(state.selectedStop)
             is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected()
         }

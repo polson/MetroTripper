@@ -7,10 +7,8 @@ import com.philsoft.metrotripper.model.Stop
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
-import io.reactivex.rxkotlin.withLatestFrom
-import timber.log.Timber
 
-class AppStateTransformer(private val dataProvider: DataProvider, private val settingsProvider: SettingsProvider) : ObservableTransformer<AppUiEvent, AppUiEventWithState> {
+class AppStateTransformer(private val dataProvider: DataProvider, private val settingsProvider: SettingsProvider) : ObservableTransformer<AppUiEvent, AppState> {
     companion object {
         private const val MAX_STOPS = 20
         const val MIN_ZOOM_LEVEL = 16f
@@ -18,30 +16,31 @@ class AppStateTransformer(private val dataProvider: DataProvider, private val se
 
     private val initialState = setupInitialState()
 
-    override fun apply(observable: Observable<AppUiEvent>): ObservableSource<AppUiEventWithState> {
-        return observable.withLatestFrom(observable.scan(initialState, { previousState, appUiEvent ->
-            Timber.d("State transformation: $appUiEvent")
-            when (appUiEvent) {
-                is AppUiEvent.StopSearched -> handleStopSearched(previousState, appUiEvent.stopId)
-                is AppUiEvent.MarkerClicked -> handleMarkerClicked(previousState, appUiEvent.stopId)
-                is AppUiEvent.CameraIdle -> handleCameraIdle(previousState, appUiEvent.cameraPosition)
-                is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(previousState)
-                is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(previousState, appUiEvent.stop)
-                else -> previousState
-            }
-        })).map { pair -> AppUiEventWithState(pair.first, pair.second) }
+    override fun apply(observable: Observable<AppUiEvent>): ObservableSource<AppState> {
+        return observable.scan(initialState, { previousState, appUiEvent -> updateState(appUiEvent, previousState) })
     }
 
-    private fun handleStopSelected(previousState: AppState, stop: Stop): AppState {
-        val isStopSaved = settingsProvider.isStopSaved(stop.stopId)
-        return previousState.copy(selectedStop = stop, isSelectedStopSaved = isStopSaved)
+    private fun updateState(uiEvent: AppUiEvent, previousState: AppState): AppState {
+        return when (uiEvent) {
+            is AppUiEvent.StopSearched -> handleStopSearched(previousState, uiEvent.stopId)
+            is AppUiEvent.MarkerClicked -> handleMarkerClicked(previousState, uiEvent.stopId)
+            is AppUiEvent.CameraIdle -> handleCameraIdle(previousState, uiEvent.cameraPosition)
+            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(previousState)
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(previousState, uiEvent.stop)
+            else -> previousState
+        }.copy(appUiEvent = uiEvent)
     }
 
     private fun setupInitialState(): AppState {
         val savedStopIds = settingsProvider.getSavedStopIds()
         val savedStops = dataProvider.getStopsById(savedStopIds)
         val savedStopsMap = LinkedHashMap(savedStops.associate { it.stopId to it })
-        return AppState(savedStopsMap = savedStopsMap)
+        return AppState(appUiEvent = AppUiEvent.Initialize, savedStopsMap = savedStopsMap)
+    }
+
+    private fun handleStopSelected(previousState: AppState, stop: Stop): AppState {
+        val isStopSaved = settingsProvider.isStopSaved(stop.stopId)
+        return previousState.copy(selectedStop = stop, isSelectedStopSaved = isStopSaved)
     }
 
     private fun handleSaveStopButtonClicked(previousState: AppState): AppState = previousState.run {

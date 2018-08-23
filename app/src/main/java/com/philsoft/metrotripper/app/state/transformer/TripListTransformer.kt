@@ -5,11 +5,11 @@ import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.TripListAction
 import com.philsoft.metrotripper.model.Trip
 
-class TripListTransformer : AppActionTransformer<TripListAction>() {
+class TripListTransformer : ViewActionTransformer<TripListAction>() {
 
-    override fun handleEvent(event: AppUiEvent, state: AppState) {
-        when (event) {
-            is AppUiEvent.GetTripsComplete -> handleGetTripsComplete(event.trips)
+    override fun handleEvent(state: AppState) = state.appUiEvent.run {
+        when (this) {
+            is AppUiEvent.GetTripsComplete -> handleGetTripsComplete(trips)
             is AppUiEvent.GetTripsFailed -> handleGetTripsFailed()
         }
     }

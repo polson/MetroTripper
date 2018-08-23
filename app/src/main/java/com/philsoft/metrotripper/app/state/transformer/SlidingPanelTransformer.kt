@@ -4,10 +4,10 @@ import com.philsoft.metrotripper.app.state.AppState
 import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.SlidingPanelAction
 
-class SlidingPanelTransformer : AppActionTransformer<SlidingPanelAction>() {
+class SlidingPanelTransformer : ViewActionTransformer<SlidingPanelAction>() {
 
-    override fun handleEvent(event: AppUiEvent, state: AppState) {
-        when (event) {
+    override fun handleEvent(state: AppState) {
+        when (state.appUiEvent) {
             is AppUiEvent.StopSearched -> handleStopSearched()
             is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected()
             is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()

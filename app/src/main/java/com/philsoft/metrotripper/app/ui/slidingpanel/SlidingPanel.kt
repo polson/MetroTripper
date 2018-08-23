@@ -162,7 +162,7 @@ open class SlidingPanel @JvmOverloads constructor(
     }
 
     /**
-     * Called to foce the panel to collapse, expand, or hide.  A value of `PanelState.DRAGGING` has
+     * Called to force the panel to collapse, expand, or hide.  A value of `PanelState.DRAGGING` has
      * no effect
      */
     fun setPanelState(panelState: PanelState) {

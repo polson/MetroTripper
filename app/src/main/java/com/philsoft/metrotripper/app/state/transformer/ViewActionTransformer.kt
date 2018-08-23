@@ -5,13 +5,13 @@ import com.philsoft.metrotripper.app.state.AppState
 import com.philsoft.metrotripper.app.state.AppUiEvent
 
 
-abstract class AppActionTransformer<T : AppAction> {
+abstract class ViewActionTransformer<T : AppAction> {
     protected val actions: ArrayList<T> = arrayListOf()
 
-    protected abstract fun handleEvent(event: AppUiEvent, state: AppState)
+    protected abstract fun handleEvent(state: AppState): Any
 
-    fun buildActions(event: AppUiEvent, state: AppState): List<T> {
-        handleEvent(event, state)
+    fun buildActions(state: AppState): List<T> {
+        handleEvent(state)
         val output = actions.toList()
         actions.clear()
         return output

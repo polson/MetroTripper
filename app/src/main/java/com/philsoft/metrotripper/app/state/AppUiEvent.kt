@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.model.Trip
 
-sealed class AppUiEvent {
+open class AppUiEvent {
     object ScheduleButtonClicked : AppUiEvent()
     object LocationButtonClicked : AppUiEvent()
     class StopSearched(val stopId: Long) : AppUiEvent()
