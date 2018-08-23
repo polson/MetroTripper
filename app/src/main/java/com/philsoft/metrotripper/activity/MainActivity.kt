@@ -137,7 +137,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 slidingPanel.slidingPanelEvents,
 
                 //This delay prevents UI hiccups from occurring when the trip list is refreshed
-                nexTripApiHelper.apiResultEvents.delay(1000, TimeUnit.MILLISECONDS),
+                nexTripApiHelper.apiResultEvents.delay(500, TimeUnit.MILLISECONDS),
 
                 Observable.just(AppUiEvent.Initialize).share()
         ).merge()
