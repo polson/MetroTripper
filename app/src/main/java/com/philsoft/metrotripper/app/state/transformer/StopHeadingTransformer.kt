@@ -6,23 +6,25 @@ import com.philsoft.metrotripper.app.state.StopHeadingAction
 import com.philsoft.metrotripper.model.Stop
 
 
-class StopHeadingTransformer : AppActionTransformer<StopHeadingAction>() {
+class StopHeadingTransformer : ViewActionTransformer<StopHeadingAction>() {
 
-    override fun handleEvent(event: AppUiEvent, state: AppState) {
-        when (event) {
-            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state)
+    override fun handleEvent(state: AppState) = state.appUiEvent.run {
+        when (this) {
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(stop, state.isSelectedStopSaved)
             is AppUiEvent.StopSearched -> handleStopSearched(state)
             is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()
             is AppUiEvent.GetTripsComplete -> handleGetTripsComplete()
             is AppUiEvent.GetTripsInFlight -> handleGetTripsInFlight()
             is AppUiEvent.GetTripsFailed -> handleGetTripsFailed()
             is AppUiEvent.MarkerClicked -> handleMarkerClicked(state)
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(state, event.stop)
+            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state.selectedStop, state.isSelectedStopSaved)
+            else -> {
+            }
         }
     }
 
-    private fun handleStopSelected(state: AppState, stop: Stop) {
-        send(StopHeadingAction.ShowStop(stop, state.isSelectedStopSaved))
+    private fun handleStopSelected(stop: Stop, isStopSaved: Boolean) {
+        send(StopHeadingAction.ShowStop(stop, isStopSaved))
     }
 
     private fun handleGetTripsInFlight() {
@@ -53,9 +55,9 @@ class StopHeadingTransformer : AppActionTransformer<StopHeadingAction>() {
         }
     }
 
-    private fun handleSaveStopButtonClicked(state: AppState) = state.apply {
-        if (selectedStop != null) {
-            send(StopHeadingAction.ShowStop(selectedStop, isSelectedStopSaved))
+    private fun handleSaveStopButtonClicked(stop: Stop?, isStopSaved: Boolean) {
+        if (stop != null) {
+            send(StopHeadingAction.ShowStop(stop, isStopSaved))
         }
     }
 }

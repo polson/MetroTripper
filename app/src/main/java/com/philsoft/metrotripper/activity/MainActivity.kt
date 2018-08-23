@@ -15,7 +15,7 @@ import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.state.*
-import com.philsoft.metrotripper.app.state.transformer.*
+import com.philsoft.metrotripper.app.state.transformer.ViewActionTransformer
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
@@ -29,10 +29,7 @@ import com.philsoft.metrotripper.utils.ui.Ui
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.merge
-import io.reactivex.rxkotlin.toObservable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
@@ -102,32 +99,16 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun setupListeners() {
+        val prefs = Prefs.getInstance(this)
+        val settingsProvider = SettingsProvider(prefs)
         val dataProvider = DataProvider(this)
-        val settingsProvider = SettingsProvider(Prefs.getInstance(this))
         val appStateTransformer = AppStateTransformer(dataProvider, settingsProvider)
-
+        val appActionTransformer = AppActionTransformer()
         val uiEvents = buildUiEvents()
-
-        val uiEventToActionTransformers = listOf(
-                MapTransformer(),
-                StopHeadingTransformer(),
-                DrawerActionTransformer(),
-                NexTripApiActionTransformer(),
-                SlidingPanelTransformer(),
-                TripListTransformer(),
-                StopListTransformer(),
-                VehicleTransformer()
-        )
-
         uiEvents.observeOn(AndroidSchedulers.mainThread())
                 .compose(appStateTransformer)
-                .flatMap { uiAndState ->
-                    uiEventToActionTransformers.flatMap {
-                        it.buildActions(uiAndState.appUiEvent, uiAndState.appState)
-                    }.toObservable()
-                }
+                .compose(appActionTransformer)
                 .subscribe { appAction ->
-                    Timber.d("Action: $appAction")
                     when (appAction) {
                         is MapAction -> mapHelper.render(appAction)
                         is StopHeadingAction -> stopHeading.render(appAction)

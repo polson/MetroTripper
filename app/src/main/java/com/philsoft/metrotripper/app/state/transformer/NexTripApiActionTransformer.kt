@@ -5,27 +5,24 @@ import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.NexTripAction
 import com.philsoft.metrotripper.model.Stop
 
-class NexTripApiActionTransformer : AppActionTransformer<NexTripAction>() {
+class NexTripApiActionTransformer : ViewActionTransformer<NexTripAction>() {
 
-    companion object {
-        val UPDATE_INTERVAL = 10000L //ms
-    }
-
-    override fun handleEvent(event: AppUiEvent, state: AppState) {
-        when (event) {
-            is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked(state.selectedStop)
-            is AppUiEvent.MarkerClicked -> handleMarkerClicked(event.stopId)
-            is AppUiEvent.StopSearched -> handleStopSearched(event.stopId)
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(event.stop)
-            is AppUiEvent.SlidingPanelExpanded -> handlePanelExpanded(state)
+    override fun handleEvent(state: AppState) = state.run {
+        when (appUiEvent) {
+            is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked(selectedStop)
+            is AppUiEvent.MarkerClicked -> handleMarkerClicked(appUiEvent.stopId)
+            is AppUiEvent.StopSearched -> handleStopSearched(appUiEvent.stopId)
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(appUiEvent.stop)
+            is AppUiEvent.SlidingPanelExpanded -> handlePanelExpanded(selectedStop)
         }
+        Unit
     }
 
     private fun handleStopSelected(stop: Stop) {
         send(NexTripAction.GetTrips(stop.stopId))
     }
 
-    private fun handlePanelExpanded(state: AppState) = state.apply {
+    private fun handlePanelExpanded(selectedStop: Stop?) {
         if (selectedStop != null) {
             send(NexTripAction.GetTrips(selectedStop.stopId))
         }

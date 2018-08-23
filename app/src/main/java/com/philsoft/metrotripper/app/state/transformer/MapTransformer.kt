@@ -7,19 +7,19 @@ import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.model.Stop
 
-class MapTransformer : AppActionTransformer<MapAction>() {
+class MapTransformer : ViewActionTransformer<MapAction>() {
 
     companion object {
         private val MINNEAPOLIS_LATLNG = LatLng(44.9799700, -93.2638400)
     }
 
-    override fun handleEvent(event: AppUiEvent, state: AppState) {
-        when (event) {
-            is AppUiEvent.InitialLocationUpdate -> handleInitialLocationUpdate(event.locationResult)
-            is AppUiEvent.LocationButtonClicked -> handleLocationButtonClicked(state)
-            is AppUiEvent.StopSearched -> handleStopSearched(state)
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(event.stop)
-            is AppUiEvent.CameraIdle -> handleCameraIdle(state)
+    override fun handleEvent(state: AppState) = state.appUiEvent.run {
+        when (this) {
+            is AppUiEvent.InitialLocationUpdate -> handleInitialLocationUpdate(locationResult)
+            is AppUiEvent.LocationButtonClicked -> handleLocationButtonClicked(state.selectedStop)
+            is AppUiEvent.StopSearched -> handleStopSearched(state.selectedStop)
+            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(stop)
+            is AppUiEvent.CameraIdle -> handleCameraIdle(state.visibleStops)
         }
     }
 
@@ -28,11 +28,11 @@ class MapTransformer : AppActionTransformer<MapAction>() {
         send(MapAction.SelectStopMarker(stop))
     }
 
-    private fun handleCameraIdle(state: AppState) = state.apply {
+    private fun handleCameraIdle(visibleStops: List<Stop>) {
         send(MapAction.ShowStopMarkers(visibleStops))
     }
 
-    private fun handleStopSearched(state: AppState) = state.apply {
+    private fun handleStopSearched(selectedStop: Stop?) {
         if (selectedStop != null) {
             send(MapAction.MoveCameraToPosition(selectedStop.latLng))
             send(MapAction.SelectStopMarker(selectedStop))
@@ -49,7 +49,7 @@ class MapTransformer : AppActionTransformer<MapAction>() {
         }
     }
 
-    private fun handleLocationButtonClicked(state: AppState) = state.apply {
+    private fun handleLocationButtonClicked(selectedStop: Stop?) {
         if (selectedStop != null) {
             send(MapAction.MoveCameraToPosition(selectedStop.latLng))
             send(MapAction.SelectStopMarker(selectedStop))

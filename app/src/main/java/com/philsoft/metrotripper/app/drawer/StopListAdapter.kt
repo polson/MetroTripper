@@ -6,7 +6,7 @@ import com.jakewharton.rxbinding2.view.RxView
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.inflate
-import timber.log.Timber
+import io.reactivex.Observable
 
 
 class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
