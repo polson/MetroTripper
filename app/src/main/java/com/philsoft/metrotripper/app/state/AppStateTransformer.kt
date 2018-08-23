@@ -2,6 +2,12 @@ package com.philsoft.metrotripper.app.state
 
 import com.google.android.gms.maps.model.CameraPosition
 import com.philsoft.metrotripper.app.SettingsProvider
+import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.CameraIdle
+import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.MarkerClicked
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.SaveStopButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopListView
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.model.Stop
 import io.reactivex.Observable
@@ -22,11 +28,11 @@ class AppStateTransformer(private val dataProvider: DataProvider, private val se
 
     private fun updateState(uiEvent: AppUiEvent, previousState: AppState): AppState {
         return when (uiEvent) {
-            is AppUiEvent.StopSearched -> handleStopSearched(previousState, uiEvent.stopId)
-            is AppUiEvent.MarkerClicked -> handleMarkerClicked(previousState, uiEvent.stopId)
-            is AppUiEvent.CameraIdle -> handleCameraIdle(previousState, uiEvent.cameraPosition)
-            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(previousState)
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(previousState, uiEvent.stop)
+            is StopSearched -> handleStopSearched(previousState, uiEvent.stopId)
+            is MarkerClicked -> handleMarkerClicked(previousState, uiEvent.stopId)
+            is CameraIdle -> handleCameraIdle(previousState, uiEvent.cameraPosition)
+            is SaveStopButtonClicked -> handleSaveStopButtonClicked(previousState)
+            is StopSelectedFromDrawer -> handleStopSelected(previousState, uiEvent.stop)
             else -> previousState
         }.copy(appUiEvent = uiEvent)
     }

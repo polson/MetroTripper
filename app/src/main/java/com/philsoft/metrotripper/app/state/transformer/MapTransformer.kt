@@ -2,9 +2,13 @@ package com.philsoft.metrotripper.app.state.transformer
 
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
+import com.philsoft.metrotripper.activity.MainActivity.LocationUiEvent.InitialLocationUpdate
 import com.philsoft.metrotripper.app.state.AppState
-import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.MapAction
+import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.CameraIdle
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.LocationButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 
 class MapTransformer : ViewActionTransformer<MapAction>() {
@@ -15,11 +19,11 @@ class MapTransformer : ViewActionTransformer<MapAction>() {
 
     override fun handleEvent(state: AppState) = state.appUiEvent.run {
         when (this) {
-            is AppUiEvent.InitialLocationUpdate -> handleInitialLocationUpdate(locationResult)
-            is AppUiEvent.LocationButtonClicked -> handleLocationButtonClicked(state.selectedStop)
-            is AppUiEvent.StopSearched -> handleStopSearched(state.selectedStop)
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(stop)
-            is AppUiEvent.CameraIdle -> handleCameraIdle(state.visibleStops)
+            is InitialLocationUpdate -> handleInitialLocationUpdate(locationResult)
+            is LocationButtonClicked -> handleLocationButtonClicked(state.selectedStop)
+            is StopSearched -> handleStopSearched(state.selectedStop)
+            is StopSelectedFromDrawer -> handleStopSelected(stop)
+            is CameraIdle -> handleCameraIdle(state.visibleStops)
         }
     }
 

@@ -15,7 +15,7 @@ interface NexTripService {
 
         fun create(): NexTripService {
             val retrofit = Retrofit.Builder()
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
                     .addConverterFactory(GsonConverterFactory.create(NexTripGsonFactory.getGson()))
                     .baseUrl(NEXTRIP_URL)
                     .build()

@@ -1,13 +1,12 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import android.graphics.Bitmap
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.philsoft.metrotripper.app.state.AppStateTransformer
+import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
@@ -16,8 +15,18 @@ import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
 
 class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
 
-    val cameraIdleEvents = RxGoogleMap.cameraIdleEvents(map)
-    val markerClicks = RxGoogleMap.markerClicks(map)
+    sealed class MapUiEvent : AppUiEvent() {
+        class CameraIdle(val cameraPosition: CameraPosition) : AppUiEvent()
+        class MarkerClicked(val stopId: Long) : AppUiEvent()
+    }
+
+    val cameraIdleEvents = RxGoogleMap.cameraIdleEvents(map).map { cameraPosition ->
+        MapUiEvent.CameraIdle(cameraPosition)
+    }.share()
+
+    val markerClicks = RxGoogleMap.markerClicks(map).map { marker ->
+        MapUiEvent.MarkerClicked(marker.title.toLong())
+    }.share()
 
     private val stopMarkersMap = hashMapOf<Long, Marker>()
 

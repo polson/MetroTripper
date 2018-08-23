@@ -1,19 +1,23 @@
 package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppState
-import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.NexTripAction
+import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.MarkerClicked
+import com.philsoft.metrotripper.app.ui.view.MtSlidingPanel.SlidingPanelUiEvent.SlidingPanelExpanded
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.ScheduleButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 
 class NexTripApiActionTransformer : ViewActionTransformer<NexTripAction>() {
 
     override fun handleEvent(state: AppState) = state.run {
         when (appUiEvent) {
-            is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked(selectedStop)
-            is AppUiEvent.MarkerClicked -> handleMarkerClicked(appUiEvent.stopId)
-            is AppUiEvent.StopSearched -> handleStopSearched(appUiEvent.stopId)
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(appUiEvent.stop)
-            is AppUiEvent.SlidingPanelExpanded -> handlePanelExpanded(selectedStop)
+            is ScheduleButtonClicked -> handleScheduleButtonClicked(selectedStop)
+            is MarkerClicked -> handleMarkerClicked(appUiEvent.stopId)
+            is StopSearched -> handleStopSearched(appUiEvent.stopId)
+            is StopSelectedFromDrawer -> handleStopSelected(appUiEvent.stop)
+            is SlidingPanelExpanded -> handlePanelExpanded(selectedStop)
         }
         Unit
     }

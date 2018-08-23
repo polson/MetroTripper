@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapFragment
@@ -15,7 +16,6 @@ import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.state.*
-import com.philsoft.metrotripper.app.state.transformer.ViewActionTransformer
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
@@ -39,9 +39,15 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
 
+    sealed class LocationUiEvent : AppUiEvent() {
+        class InitialLocationUpdate(val locationResult: LocationResult) : AppUiEvent()
+    }
+
     private val locationEvents by lazy {
         val client = LocationServices.getFusedLocationProviderClient(this)
-        RxLocation.locationEvents(client)
+        RxLocation.locationEvents(client).map { locationResult ->
+            LocationUiEvent.InitialLocationUpdate(locationResult)
+        }.share()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +89,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
         setupMap(map)
         setupMapViewHelper(map)
-        setupListeners()
+        setupEventLoop()
     }
 
     private fun setupMap(map: GoogleMap) {
@@ -98,7 +104,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         mapVehicleHelper = MapVehicleHelper(this, map)
     }
 
-    private fun setupListeners() {
+    private fun setupEventLoop() {
         val prefs = Prefs.getInstance(this)
         val settingsProvider = SettingsProvider(prefs)
         val dataProvider = DataProvider(this)
@@ -124,51 +130,18 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun buildUiEvents(): Observable<AppUiEvent> {
         return listOf(
-                stopHeading.scheduleButtonClicks
-                        .throttleFirst(500, TimeUnit.MILLISECONDS)
-                        .map {
-                            AppUiEvent.ScheduleButtonClicked
-                        }.share(),
+                stopHeading.scheduleButtonClicks,
+                stopHeading.locationButtonClicks,
+                stopHeading.saveStopButtonClicks,
+                stopList.stopSearchedEvent,
+                stopList.stopSelectedEvent,
+                mapHelper.cameraIdleEvents,
+                mapHelper.markerClicks,
+                locationEvents,
+                slidingPanel.slidingPanelEvents,
 
-                stopHeading.locationButtonClicks.map {
-                    AppUiEvent.LocationButtonClicked
-                }.share(),
-
-                stopHeading.saveStopButtonClicks.map {
-                    AppUiEvent.SaveStopButtonClicked
-                }.share(),
-
-                stopList.stopSearchedEvent.map { stopId ->
-                    AppUiEvent.StopSearched(stopId)
-                }.share(),
-
-                stopList.stopSelectedEvent.map { stop ->
-                    AppUiEvent.StopSelectedFromDrawer(stop)
-                }.share(),
-
-                mapHelper.cameraIdleEvents.map { cameraPosition ->
-                    AppUiEvent.CameraIdle(cameraPosition)
-                }.share(),
-
-                mapHelper.markerClicks.map { marker ->
-                    AppUiEvent.MarkerClicked(marker.title.toLong())
-                }.share(),
-
-                locationEvents.map { locationResult ->
-                    AppUiEvent.InitialLocationUpdate(locationResult)
-                }.share(),
-
-                slidingPanel.slidingPanelEvents
-                        .filter { panelState -> panelState == SlidingPanel.PanelState.EXPANDED }
-                        .map { AppUiEvent.SlidingPanelExpanded }.share(),
-
-                nexTripApiHelper.apiResultObservable.map { event ->
-                    when (event) {
-                        is NexTripApiHelper.Event.LoadTripsComplete -> AppUiEvent.GetTripsComplete(event.trips)
-                        NexTripApiHelper.Event.LoadTripsFailed -> AppUiEvent.GetTripsFailed
-                        NexTripApiHelper.Event.LoadTripsInFlight -> AppUiEvent.GetTripsInFlight
-                    }
-                }.share(),
+                //This delay prevents UI hiccups from occurring when the trip list is refreshed
+                nexTripApiHelper.apiResultEvents.delay(1000, TimeUnit.MILLISECONDS),
 
                 Observable.just(AppUiEvent.Initialize).share()
         ).merge()
