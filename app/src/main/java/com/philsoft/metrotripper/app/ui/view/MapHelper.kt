@@ -8,17 +8,13 @@ import com.google.android.gms.maps.model.*
 import com.philsoft.metrotripper.app.state.AppStateTransformer
 import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.MapAction
+import com.philsoft.metrotripper.app.state.MapUiEvent
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
 import com.philsoft.metrotripper.utils.map.fadeIn
 import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
 
 class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
-
-    sealed class MapUiEvent : AppUiEvent() {
-        class CameraIdle(val cameraPosition: CameraPosition) : AppUiEvent()
-        class MarkerClicked(val stopId: Long) : AppUiEvent()
-    }
 
     val cameraIdleEvents = RxGoogleMap.cameraIdleEvents(map).map { cameraPosition ->
         MapUiEvent.CameraIdle(cameraPosition)

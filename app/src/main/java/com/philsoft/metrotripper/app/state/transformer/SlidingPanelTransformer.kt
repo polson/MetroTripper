@@ -1,12 +1,12 @@
 package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppState
-import com.philsoft.metrotripper.app.state.AppUiEvent
+import com.philsoft.metrotripper.app.state.MapUiEvent.MarkerClicked
 import com.philsoft.metrotripper.app.state.SlidingPanelAction
-import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.LocationButtonClicked
-import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.ScheduleButtonClicked
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.LocationButtonClicked
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.ScheduleButtonClicked
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSelectedFromDrawer
 
 class SlidingPanelTransformer : ViewActionTransformer<SlidingPanelAction>() {
 
@@ -16,7 +16,12 @@ class SlidingPanelTransformer : ViewActionTransformer<SlidingPanelAction>() {
             is StopSelectedFromDrawer -> handleStopSelected()
             is ScheduleButtonClicked -> handleScheduleButtonClicked()
             is LocationButtonClicked -> handleLocationButtonClicked()
+            is MarkerClicked -> handleMarkerClicked()
         }
+    }
+
+    private fun handleMarkerClicked() {
+        send(SlidingPanelAction.Collapse)
     }
 
     private fun handleStopSelected() {

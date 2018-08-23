@@ -1,10 +1,9 @@
 package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppState
-import com.philsoft.metrotripper.app.state.AppUiEvent
+import com.philsoft.metrotripper.app.state.MapUiEvent.MarkerClicked
+import com.philsoft.metrotripper.app.state.NexTripApiEvent.*
 import com.philsoft.metrotripper.app.state.TripListAction
-import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper.NexTripApiEvent.GetTripsComplete
-import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper.NexTripApiEvent.GetTripsFailed
 import com.philsoft.metrotripper.model.Trip
 
 class TripListTransformer : ViewActionTransformer<TripListAction>() {
@@ -13,7 +12,12 @@ class TripListTransformer : ViewActionTransformer<TripListAction>() {
         when (this) {
             is GetTripsComplete -> handleGetTripsComplete(trips)
             is GetTripsFailed -> handleGetTripsFailed()
+            is MarkerClicked -> handleMarkerClicked()
         }
+    }
+
+    private fun handleMarkerClicked() {
+        send(TripListAction.ShowTrips(arrayListOf()))
     }
 
     private fun handleGetTripsComplete(trips: List<Trip>) {
@@ -21,6 +25,6 @@ class TripListTransformer : ViewActionTransformer<TripListAction>() {
     }
 
     private fun handleGetTripsFailed() {
-        //TODO
+        send(TripListAction.ShowTrips(arrayListOf()))
     }
 }

@@ -39,10 +39,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
 
-    sealed class LocationUiEvent : AppUiEvent() {
-        class InitialLocationUpdate(val locationResult: LocationResult) : AppUiEvent()
-    }
-
     private val locationEvents by lazy {
         val client = LocationServices.getFusedLocationProviderClient(this)
         RxLocation.locationEvents(client).map { locationResult ->
@@ -141,7 +137,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 slidingPanel.slidingPanelEvents,
 
                 //This delay prevents UI hiccups from occurring when the trip list is refreshed
-                nexTripApiHelper.apiResultEvents.delay(1000, TimeUnit.MILLISECONDS),
+                nexTripApiHelper.apiResultEvents.delay(500, TimeUnit.MILLISECONDS),
 
                 Observable.just(AppUiEvent.Initialize).share()
         ).merge()

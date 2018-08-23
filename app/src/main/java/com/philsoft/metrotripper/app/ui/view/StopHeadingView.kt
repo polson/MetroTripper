@@ -7,8 +7,8 @@ import android.util.AttributeSet
 import android.widget.RelativeLayout
 import com.jakewharton.rxbinding2.view.clicks
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.StopHeadingAction
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.gone
 import com.philsoft.metrotripper.utils.inflate
@@ -18,12 +18,6 @@ import java.util.concurrent.TimeUnit
 
 class StopHeadingView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
-
-    sealed class StopHeadingUiEvent : AppUiEvent() {
-        object ScheduleButtonClicked : StopHeadingUiEvent()
-        object LocationButtonClicked : StopHeadingUiEvent()
-        object SaveStopButtonClicked : StopHeadingUiEvent()
-    }
 
     val scheduleButtonClicks by lazy {
         scheduleButtonWrapper.clicks()

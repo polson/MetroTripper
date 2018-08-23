@@ -2,13 +2,13 @@ package com.philsoft.metrotripper.app.state.transformer
 
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.LatLng
-import com.philsoft.metrotripper.activity.MainActivity.LocationUiEvent.InitialLocationUpdate
 import com.philsoft.metrotripper.app.state.AppState
+import com.philsoft.metrotripper.app.state.LocationUiEvent.InitialLocationUpdate
 import com.philsoft.metrotripper.app.state.MapAction
-import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.CameraIdle
-import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.LocationButtonClicked
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
+import com.philsoft.metrotripper.app.state.MapUiEvent.CameraIdle
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.LocationButtonClicked
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 
 class MapTransformer : ViewActionTransformer<MapAction>() {

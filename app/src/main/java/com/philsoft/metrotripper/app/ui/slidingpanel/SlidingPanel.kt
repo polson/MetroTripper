@@ -191,7 +191,7 @@ open class SlidingPanel @JvmOverloads constructor(
         cancelAnimations()
         panelView.visibility = View.VISIBLE
         isEnabled = true
-        expandAnimator = ObjectAnimator.ofFloat(panelView, "y", panelView.y, panelViewExpandedY.toFloat()).apply {
+        expandAnimator = ObjectAnimator.ofFloat(panelView, "y", panelView.y, panelViewExpandedY).apply {
             interpolator = DecelerateInterpolator()
             duration = 250
             addStartListener { notifyPanelState(PanelState.DRAGGING) }
@@ -204,6 +204,7 @@ open class SlidingPanel @JvmOverloads constructor(
     private fun hidePanel() {
         cancelAnimations()
         panelView.visibility = View.GONE
+        panelView.y = screenHeight
         isEnabled = false
     }
 
@@ -265,7 +266,7 @@ open class SlidingPanel @JvmOverloads constructor(
     }
 
     //Extension functions
-    fun ObjectAnimator.addEndListener(listener: () -> Unit) {
+    private fun ObjectAnimator.addEndListener(listener: () -> Unit) {
         addListener(object : SimpleAnimatorListener() {
             override fun onAnimationEnd(animation: Animator) {
                 listener()
@@ -274,7 +275,7 @@ open class SlidingPanel @JvmOverloads constructor(
     }
 
     //Extension functions
-    fun ObjectAnimator.addStartListener(listener: () -> Unit) {
+    private fun ObjectAnimator.addStartListener(listener: () -> Unit) {
         addListener(object : SimpleAnimatorListener() {
             override fun onAnimationStart(animation: Animator) {
                 listener()

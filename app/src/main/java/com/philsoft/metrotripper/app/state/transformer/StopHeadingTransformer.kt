@@ -1,14 +1,13 @@
 package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppState
-import com.philsoft.metrotripper.app.state.AppUiEvent
+import com.philsoft.metrotripper.app.state.MapUiEvent.MarkerClicked
+import com.philsoft.metrotripper.app.state.NexTripApiEvent.*
 import com.philsoft.metrotripper.app.state.StopHeadingAction
-import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.MarkerClicked
-import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper.NexTripApiEvent.*
-import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.SaveStopButtonClicked
-import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.ScheduleButtonClicked
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.SaveStopButtonClicked
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.ScheduleButtonClicked
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 
 
