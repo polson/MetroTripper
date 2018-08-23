@@ -1,23 +1,22 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import com.philsoft.metrotripper.app.nextrip.NexTripService
+import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.NexTripAction
 import com.philsoft.metrotripper.model.Trip
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 
 class NexTripApiHelper {
     private val nexTripService = NexTripService.create()
-    private lateinit var emitter: ObservableEmitter<Event>
-    val apiResultObservable: Observable<Event> = Observable.create<Event> { emitter = it }.share()
+    private lateinit var emitter: ObservableEmitter<NexTripApiEvent>
+    val apiResultEvents: Observable<NexTripApiEvent> = Observable.create<NexTripApiEvent> { emitter = it }.share()
 
-    sealed class Event {
-        class LoadTripsComplete(val trips: List<Trip>) : Event()
-        object LoadTripsFailed : Event()
-        object LoadTripsInFlight : Event()
+    sealed class NexTripApiEvent : AppUiEvent() {
+        object GetTripsInFlight : NexTripApiEvent()
+        class GetTripsComplete(val trips: List<Trip>) : NexTripApiEvent()
+        object GetTripsFailed : NexTripApiEvent()
     }
 
     fun render(action: NexTripAction) {
@@ -27,13 +26,12 @@ class NexTripApiHelper {
     }
 
     private fun getTrips(stopId: Long) {
-        emitter.onNext(Event.LoadTripsInFlight)
+        emitter.onNext(NexTripApiEvent.GetTripsInFlight)
         nexTripService.getTrips(stopId)
-                .subscribeOn(Schedulers.io())
                 .subscribeBy(onNext = { trips ->
-                    emitter.onNext(Event.LoadTripsComplete(trips))
+                    emitter.onNext(NexTripApiEvent.GetTripsComplete(trips))
                 }, onError = {
-                    emitter.onNext(Event.LoadTripsFailed)
+                    emitter.onNext(NexTripApiEvent.GetTripsFailed)
                 })
     }
 }

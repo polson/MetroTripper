@@ -2,18 +2,23 @@ package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppState
 import com.philsoft.metrotripper.app.state.AppUiEvent
+import com.philsoft.metrotripper.app.state.AppUiEvent.Initialize
 import com.philsoft.metrotripper.app.state.StopListAction
+import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.MarkerClicked
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.SaveStopButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 
 class StopListTransformer : ViewActionTransformer<StopListAction>() {
 
     override fun handleEvent(state: AppState) = state.appUiEvent.run {
         when (this) {
-            is AppUiEvent.Initialize -> handleInitialize(state)
-            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state)
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(stop)
-            is AppUiEvent.StopSearched -> handleStopSearched(state)
-            is AppUiEvent.MarkerClicked -> handleMarkerClicked(state)
+            is Initialize -> handleInitialize(state)
+            is SaveStopButtonClicked -> handleSaveStopButtonClicked(state)
+            is StopSelectedFromDrawer -> handleStopSelected(stop)
+            is StopSearched -> handleStopSearched(state)
+            is MarkerClicked -> handleMarkerClicked(state)
         }
     }
 

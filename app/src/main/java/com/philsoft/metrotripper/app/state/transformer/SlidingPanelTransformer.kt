@@ -3,15 +3,19 @@ package com.philsoft.metrotripper.app.state.transformer
 import com.philsoft.metrotripper.app.state.AppState
 import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.SlidingPanelAction
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.LocationButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.ScheduleButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
 
 class SlidingPanelTransformer : ViewActionTransformer<SlidingPanelAction>() {
 
     override fun handleEvent(state: AppState) {
         when (state.appUiEvent) {
-            is AppUiEvent.StopSearched -> handleStopSearched()
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected()
-            is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()
-            is AppUiEvent.LocationButtonClicked -> handleLocationButtonClicked()
+            is StopSearched -> handleStopSearched()
+            is StopSelectedFromDrawer -> handleStopSelected()
+            is ScheduleButtonClicked -> handleScheduleButtonClicked()
+            is LocationButtonClicked -> handleLocationButtonClicked()
         }
     }
 

@@ -7,19 +7,42 @@ import android.util.AttributeSet
 import android.widget.RelativeLayout
 import com.jakewharton.rxbinding2.view.clicks
 import com.philsoft.metrotripper.R
+import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.StopHeadingAction
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.gone
 import com.philsoft.metrotripper.utils.inflate
 import com.philsoft.metrotripper.utils.visible
 import kotlinx.android.synthetic.main.stop_heading.view.*
+import java.util.concurrent.TimeUnit
 
 class StopHeadingView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
 
-    val scheduleButtonClicks by lazy { scheduleButtonWrapper.clicks() }
-    val locationButtonClicks by lazy { locationButton.clicks() }
-    val saveStopButtonClicks by lazy { saveButton.clicks() }
+    sealed class StopHeadingUiEvent : AppUiEvent() {
+        object ScheduleButtonClicked : StopHeadingUiEvent()
+        object LocationButtonClicked : StopHeadingUiEvent()
+        object SaveStopButtonClicked : StopHeadingUiEvent()
+    }
+
+    val scheduleButtonClicks by lazy {
+        scheduleButtonWrapper.clicks()
+                .throttleFirst(500, TimeUnit.MILLISECONDS)
+                .map { StopHeadingUiEvent.ScheduleButtonClicked }
+                .share()
+    }
+
+    val locationButtonClicks by lazy {
+        locationButton.clicks()
+                .map { StopHeadingUiEvent.LocationButtonClicked }
+                .share()
+    }
+
+    val saveStopButtonClicks by lazy {
+        saveButton.clicks()
+                .map { StopHeadingUiEvent.SaveStopButtonClicked }
+                .share()
+    }
 
     init {
         this.inflate(R.layout.stop_heading, true)

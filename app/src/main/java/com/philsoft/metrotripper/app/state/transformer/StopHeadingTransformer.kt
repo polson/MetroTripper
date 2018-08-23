@@ -3,6 +3,12 @@ package com.philsoft.metrotripper.app.state.transformer
 import com.philsoft.metrotripper.app.state.AppState
 import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.StopHeadingAction
+import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.MarkerClicked
+import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper.NexTripApiEvent.*
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.SaveStopButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.ScheduleButtonClicked
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 
 
@@ -10,16 +16,15 @@ class StopHeadingTransformer : ViewActionTransformer<StopHeadingAction>() {
 
     override fun handleEvent(state: AppState) = state.appUiEvent.run {
         when (this) {
-            is AppUiEvent.StopSelectedFromDrawer -> handleStopSelected(stop, state.isSelectedStopSaved)
-            is AppUiEvent.StopSearched -> handleStopSearched(state)
-            is AppUiEvent.ScheduleButtonClicked -> handleScheduleButtonClicked()
-            is AppUiEvent.GetTripsComplete -> handleGetTripsComplete()
-            is AppUiEvent.GetTripsInFlight -> handleGetTripsInFlight()
-            is AppUiEvent.GetTripsFailed -> handleGetTripsFailed()
-            is AppUiEvent.MarkerClicked -> handleMarkerClicked(state)
-            is AppUiEvent.SaveStopButtonClicked -> handleSaveStopButtonClicked(state.selectedStop, state.isSelectedStopSaved)
-            else -> {
-            }
+            is StopSelectedFromDrawer -> handleStopSelected(stop, state.isSelectedStopSaved)
+            is StopSearched -> handleStopSearched(state)
+            is ScheduleButtonClicked -> handleScheduleButtonClicked()
+            is GetTripsComplete -> handleGetTripsComplete()
+            is GetTripsInFlight -> handleGetTripsInFlight()
+            is GetTripsFailed -> handleGetTripsFailed()
+            is MarkerClicked -> handleMarkerClicked(state)
+            is SaveStopButtonClicked -> handleSaveStopButtonClicked(state.selectedStop, state.isSelectedStopSaved)
+            else -> { }
         }
     }
 
