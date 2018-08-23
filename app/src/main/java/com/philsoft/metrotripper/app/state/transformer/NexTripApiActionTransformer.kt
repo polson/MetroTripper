@@ -1,12 +1,12 @@
 package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppState
+import com.philsoft.metrotripper.app.state.MapUiEvent.MarkerClicked
 import com.philsoft.metrotripper.app.state.NexTripAction
-import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.MarkerClicked
-import com.philsoft.metrotripper.app.ui.view.MtSlidingPanel.SlidingPanelUiEvent.SlidingPanelExpanded
-import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.ScheduleButtonClicked
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
+import com.philsoft.metrotripper.app.state.SlidingPanelUiEvent.SlidingPanelExpanded
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.ScheduleButtonClicked
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 
 class NexTripApiActionTransformer : ViewActionTransformer<NexTripAction>() {

@@ -2,12 +2,11 @@ package com.philsoft.metrotripper.app.state
 
 import com.google.android.gms.maps.model.CameraPosition
 import com.philsoft.metrotripper.app.SettingsProvider
-import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.CameraIdle
-import com.philsoft.metrotripper.app.ui.view.MapHelper.MapUiEvent.MarkerClicked
-import com.philsoft.metrotripper.app.ui.view.StopHeadingView.StopHeadingUiEvent.SaveStopButtonClicked
-import com.philsoft.metrotripper.app.ui.view.StopListView
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSearched
-import com.philsoft.metrotripper.app.ui.view.StopListView.StopListUiEvent.StopSelectedFromDrawer
+import com.philsoft.metrotripper.app.state.MapUiEvent.CameraIdle
+import com.philsoft.metrotripper.app.state.MapUiEvent.MarkerClicked
+import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.SaveStopButtonClicked
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSearched
+import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.model.Stop
 import io.reactivex.Observable
@@ -23,7 +22,9 @@ class AppStateTransformer(private val dataProvider: DataProvider, private val se
     private val initialState = setupInitialState()
 
     override fun apply(observable: Observable<AppUiEvent>): ObservableSource<AppState> {
-        return observable.scan(initialState, { previousState, appUiEvent -> updateState(appUiEvent, previousState) })
+        return observable.scan(initialState) { previousState, appUiEvent ->
+            updateState(appUiEvent, previousState)
+        }
     }
 
     private fun updateState(uiEvent: AppUiEvent, previousState: AppState): AppState {

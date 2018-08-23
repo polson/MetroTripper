@@ -1,10 +1,9 @@
 package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppState
-import com.philsoft.metrotripper.app.state.AppUiEvent
+import com.philsoft.metrotripper.app.state.NexTripApiEvent.GetTripsComplete
+import com.philsoft.metrotripper.app.state.NexTripApiEvent.GetTripsFailed
 import com.philsoft.metrotripper.app.state.TripListAction
-import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper.NexTripApiEvent.GetTripsComplete
-import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper.NexTripApiEvent.GetTripsFailed
 import com.philsoft.metrotripper.model.Trip
 
 class TripListTransformer : ViewActionTransformer<TripListAction>() {

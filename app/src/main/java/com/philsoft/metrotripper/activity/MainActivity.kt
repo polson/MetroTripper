@@ -39,10 +39,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
 
-    sealed class LocationUiEvent : AppUiEvent() {
-        class InitialLocationUpdate(val locationResult: LocationResult) : AppUiEvent()
-    }
-
     private val locationEvents by lazy {
         val client = LocationServices.getFusedLocationProviderClient(this)
         RxLocation.locationEvents(client).map { locationResult ->
