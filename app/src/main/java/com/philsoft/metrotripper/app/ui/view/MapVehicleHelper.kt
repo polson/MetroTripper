@@ -16,7 +16,11 @@ import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
 import kotlinx.android.synthetic.main.vehicle.view.*
 
 class MapVehicleHelper(private val activity: Activity, private val map: GoogleMap) {
-    private val vehicleMarkers = HashSet<VehicleMarker>()
+    private val vehicleMarkers = HashSet<Marker>()
+
+    companion object {
+        private const val FADE_DURATION = 1000
+    }
 
     fun render(action: VehicleAction) {
         when (action) {
@@ -27,15 +31,15 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
     private fun displayVehicleMarkers(trips: List<Trip>) {
         // Fade out existing vehicles
         for (vehicleMarker in vehicleMarkers) {
-            vehicleMarker.marker.fadeOutAndRemove(FADE_DURATION)
+            vehicleMarker.fadeOutAndRemove(FADE_DURATION)
         }
         vehicleMarkers.clear()
 
         // Fade in new vehicles
         for (trip in trips) {
-            val vehicleMarker = VehicleMarker(trip, createVehicleMarker(trip))
+            val vehicleMarker = createVehicleMarker(trip)
             vehicleMarkers.add(vehicleMarker)
-            vehicleMarker.marker.fadeIn(FADE_DURATION)
+            vehicleMarker.fadeIn(FADE_DURATION)
         }
     }
 
@@ -52,12 +56,5 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
         val view = activity.layoutInflater.inflate(R.layout.vehicle, null)
         view.vehicleNumber.text = "${trip.route}${trip.terminal}"
         return view
-    }
-
-    private inner class VehicleMarker constructor(val trip: Trip, val marker: Marker)
-
-    companion object {
-        private val FADE_DURATION = 1000
-        val LOCATION_UPDATE_INTERVAL_MS = 31 * 1000 // ms
     }
 }

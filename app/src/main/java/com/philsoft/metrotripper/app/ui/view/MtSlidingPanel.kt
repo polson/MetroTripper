@@ -3,9 +3,7 @@ package com.philsoft.metrotripper.app.ui.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.SlidingPanelAction
-import com.philsoft.metrotripper.app.state.SlidingPanelUiEvent
 import com.philsoft.metrotripper.app.state.SlidingPanelUiEvent.SlidingPanelExpanded
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.utils.dpToPx
@@ -28,8 +26,8 @@ class MtSlidingPanel @JvmOverloads constructor(
     override fun onFinishInflate() {
         super.onFinishInflate()
         bottomOffset = context.dpToPx(176)
-        swipableViews.clear()
-        swipableViews.add(stopHeading)
+        swipeableViews.clear()
+        swipeableViews.add(stopHeading)
     }
 
     fun render(action: SlidingPanelAction) {

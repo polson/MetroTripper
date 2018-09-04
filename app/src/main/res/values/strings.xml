@@ -16,4 +16,5 @@
     <string name="licenses"><u>Open Source Licenses</u></string>
     <string name="about_version">Version %s</string>
     <string name="ok">OK</string>
+    <string name="enter_stop_number">Enter Stop Number</string>
 </resources>

@@ -2,7 +2,6 @@ package com.philsoft.metrotripper.app.state.transformer
 
 import com.philsoft.metrotripper.app.state.AppAction
 import com.philsoft.metrotripper.app.state.AppState
-import com.philsoft.metrotripper.app.state.AppUiEvent
 
 
 abstract class ViewActionTransformer<T : AppAction> {

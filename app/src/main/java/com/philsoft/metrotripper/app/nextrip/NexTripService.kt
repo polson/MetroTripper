@@ -11,7 +11,7 @@ import retrofit2.http.Path
 interface NexTripService {
 
     companion object {
-        private val NEXTRIP_URL = "http://svc.metrotransit.org/NexTrip/"
+        private const val NEXTRIP_URL = "http://svc.metrotransit.org/NexTrip/"
 
         fun create(): NexTripService {
             val retrofit = Retrofit.Builder()

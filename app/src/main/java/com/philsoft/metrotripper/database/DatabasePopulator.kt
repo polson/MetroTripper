@@ -10,12 +10,13 @@ import org.jetbrains.anko.db.insert
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.db.transaction
 import timber.log.Timber
-import java.io.IOException
 import java.io.InputStreamReader
 
 class DatabasePopulator(private val context: Context) {
 
-    private val STOPS_FILE = "stops.txt"
+    companion object {
+        private const val STOPS_FILE = "stops.txt"
+    }
     private val dbHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
     fun populateStopsFast() {
@@ -30,7 +31,7 @@ class DatabasePopulator(private val context: Context) {
         Timber.d("Inserted ${records.size} stops in $elapsed ms")
     }
 
-    fun insertStopsFast(records: List<CSVRecord>) {
+    private fun insertStopsFast(records: List<CSVRecord>) {
         dbHelper.use {
             transaction {
                 for (record in records) {

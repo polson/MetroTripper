@@ -2,7 +2,7 @@ package com.philsoft.metrotripper.app
 
 import com.philsoft.metrotripper.prefs.Prefs
 
-class SettingsProvider(val prefs: Prefs) {
+class SettingsProvider(private val prefs: Prefs) {
     private val savedStopIds = LinkedHashSet<Long>(prefs.getSavedStopIds())
 
     fun saveStop(stopId: Long) {

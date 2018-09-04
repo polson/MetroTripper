@@ -2,26 +2,15 @@ package com.philsoft.metrotripper.utils
 
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
-import android.text.format.DateUtils
+import android.content.pm.PackageManager.NameNotFoundException
 import android.view.inputmethod.InputMethodManager
-
 import com.google.android.gms.maps.model.LatLng
 import com.philsoft.metrotripper.app.nextrip.constants.Regex
-
-import java.util.Date
-import java.util.regex.Matcher
+import timber.log.Timber
 import java.util.regex.Pattern
 
-import timber.log.Timber
-
 object EZ {
-    private val METERS_PER_DEGREE = 110500 //Approximate number of meters in 1 degree of longitude
-
-    fun formatRelativeTime(timestamp: Date): String {
-        return DateUtils.getRelativeTimeSpanString(timestamp.time, Date().time, 0).toString()
-    }
+    private const val METERS_PER_DEGREE = 110500 //Approximate number of meters in 1 degree of longitude
 
     fun parseLocationTime(locationTime: String): Long {
         val p = Pattern.compile(Regex.LOCATION_TIME)
@@ -52,14 +41,11 @@ object EZ {
     fun getAppVersion(context: Context): String {
         val pm = context.packageManager
         val packageName = context.packageName
-        var versionName: String
-        try {
+        return try {
             val info = pm.getPackageInfo(packageName, 0)
-            versionName = info.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            versionName = "N/A"
+            info.versionName
+        } catch (e: NameNotFoundException) {
+            "N/A"
         }
-
-        return versionName
     }
 }

@@ -11,8 +11,8 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.philsoft.metrotripper"
-        minSdkVersion minSdkVersion
-        targetSdkVersion targetSdkVersion
+        minSdkVersion 19
+        targetSdkVersion 26
         versionCode 3
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -49,4 +49,5 @@ dependencies {
     implementation rxbinding
     implementation rxbindingRecyclerView
     implementation rxkotlin
+    implementation rxPermissions
 }
