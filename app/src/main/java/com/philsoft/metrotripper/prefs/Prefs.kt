@@ -9,9 +9,8 @@ class Prefs private constructor(context: Context) {
     private val prefs = context.getSharedPreferences(DEFAULT_PREFS_BUCKET, Context.MODE_PRIVATE)
 
     companion object {
-        private val DEFAULT_PREFS_BUCKET = "defaultBucket"
-        private val KEY_SAVED_STOPS = "KEY_SAVED_STOPS"
-        private val KEY_LAST_STOP_ID = "KEY_LAST_STOP_ID"
+        private const val DEFAULT_PREFS_BUCKET = "defaultBucket"
+        private const val KEY_SAVED_STOPS = "KEY_SAVED_STOPS"
 
         private var instance: Prefs? = null
         @Synchronized
@@ -28,11 +27,6 @@ class Prefs private constructor(context: Context) {
         get() = prefs.getString(KEY_SAVED_STOPS, "")
         set(stops) = prefs.edit().putString(KEY_SAVED_STOPS, stops).apply()
 
-    var lastStopId: Long
-        get() = prefs.getLong(KEY_LAST_STOP_ID, -1)
-        set(stopId) = prefs.edit().putLong(KEY_LAST_STOP_ID, stopId).apply()
-
-
     fun saveStopId(stopId: Long) {
         val stops = getSavedStopIds()
         stops.add(stopId)
@@ -40,7 +34,7 @@ class Prefs private constructor(context: Context) {
     }
 
     fun getSavedStopIds(): LinkedHashSet<Long> {
-        return savedStops.split(",").filterNot { it.isEmpty() }.mapTo(linkedSetOf(), { it?.toLong() })
+        return savedStops.split(",").filterNot { it.isEmpty() }.mapTo(linkedSetOf()) { it.toLong() }
     }
 
     fun removeStopId(stopId: Long) {

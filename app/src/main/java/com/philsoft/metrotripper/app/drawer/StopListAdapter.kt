@@ -6,10 +6,14 @@ import com.jakewharton.rxbinding2.view.RxView
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.inflate
-import io.reactivex.Observable
 
 
 class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    companion object {
+        private const val VIEW_TYPE_SEARCH = 0
+        private const val VIEW_TYPE_STOP = 1
+    }
 
     private val items = ArrayList<Stop>()
     var selectedStopId: Long = 0L
@@ -76,11 +80,6 @@ class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         items.clear()
         items.addAll(stops)
         notifyDataSetChanged()
-    }
-
-    companion object {
-        private val VIEW_TYPE_SEARCH = 0
-        private val VIEW_TYPE_STOP = 1
     }
 
 }

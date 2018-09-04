@@ -41,7 +41,7 @@ open class SlidingPanel @JvmOverloads constructor(
     /**
      * Views will slide up the panel when swiped
      */
-    val swipableViews: ArrayList<View> by lazy { arrayListOf(getChildAt(1)) }
+    val swipeableViews: ArrayList<View> by lazy { arrayListOf(getChildAt(1)) }
 
     /**
      * Listener that is called when the panel is being dragged or animated.   `scrollOffset` is a
@@ -115,8 +115,8 @@ open class SlidingPanel @JvmOverloads constructor(
             return super.onInterceptTouchEvent(ev)
         }
 
-        val isEventOnSwipableView = areAnyViewsUnder(swipableViews, ev.rawX.toInt(), ev.rawY.toInt())
-        if (!isEventOnSwipableView) {
+        val isEventOnSwipeableView = areAnyViewsUnder(swipeableViews, ev.rawX.toInt(), ev.rawY.toInt())
+        if (!isEventOnSwipeableView) {
             return super.onInterceptTouchEvent(ev)
         }
 

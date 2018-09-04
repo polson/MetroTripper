@@ -1,26 +1,31 @@
 package com.philsoft.metrotripper.app.ui.view
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.philsoft.metrotripper.app.state.AppStateTransformer
-import com.philsoft.metrotripper.app.state.AppUiEvent
 import com.philsoft.metrotripper.app.state.MapAction
 import com.philsoft.metrotripper.app.state.MapUiEvent
+import com.philsoft.metrotripper.app.state.MapUiEvent.CameraIdle
+import com.philsoft.metrotripper.app.state.MapUiEvent.MarkerClicked
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.map.RxGoogleMap
 import com.philsoft.metrotripper.utils.map.fadeIn
 import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
+import io.reactivex.Observable
 
 class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
 
-    val cameraIdleEvents = RxGoogleMap.cameraIdleEvents(map).map { cameraPosition ->
+    val cameraIdleEvents: Observable<CameraIdle> = RxGoogleMap.cameraIdleEvents(map).map { cameraPosition ->
         MapUiEvent.CameraIdle(cameraPosition)
     }.share()
 
-    val markerClicks = RxGoogleMap.markerClicks(map).map { marker ->
+    val markerClicks: Observable<MarkerClicked> = RxGoogleMap.markerClicks(map).map { marker ->
         MapUiEvent.MarkerClicked(marker.title.toLong())
     }.share()
 
@@ -30,6 +35,12 @@ class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitma
         is MapAction.MoveCameraToPosition -> moveCameraToPosition(action.latLng)
         is MapAction.ShowStopMarkers -> showStopMarkers(action.stops)
         is MapAction.SelectStopMarker -> selectStopMarker(action.stop)
+        is MapAction.EnableLocationButton -> enableLocationButton(action.enabled)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableLocationButton(enabled: Boolean) {
+        map.isMyLocationEnabled = enabled
     }
 
     private fun selectStopMarker(stop: Stop) {

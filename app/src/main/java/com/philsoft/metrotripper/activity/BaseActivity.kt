@@ -1,5 +1,20 @@
 package com.philsoft.metrotripper.activity
 
-import android.app.Activity
+import android.annotation.SuppressLint
+import android.support.v4.app.FragmentActivity
 
-open class BaseActivity : Activity()
+@SuppressLint("Registered")
+open class BaseActivity : FragmentActivity() {
+
+    var isPaused = false;
+
+    override fun onPause() {
+        isPaused = true
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isPaused = false
+    }
+}

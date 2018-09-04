@@ -9,8 +9,8 @@ import timber.log.Timber
 
 class DatabaseHelper private constructor(context: Context) : ManagedSQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
-        val DATABASE_NAME = "metrotripper.db"
-        val DATABASE_VERSION = 1
+        const val DATABASE_NAME = "metrotripper.db"
+        const val DATABASE_VERSION = 1
 
         private var instance: DatabaseHelper? = null
         @Synchronized
@@ -24,7 +24,7 @@ class DatabaseHelper private constructor(context: Context) : ManagedSQLiteOpenHe
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        Timber.d("Creating tables in database: " + DATABASE_NAME)
+        Timber.d("Creating tables in database: $DATABASE_NAME")
         db.createTable(StopContract.TABLE_NAME, true,
                 StopContract.STOP_ID to INTEGER + PRIMARY_KEY + NOT_NULL,
                 StopContract.STOP_NAME to TEXT,
@@ -34,7 +34,7 @@ class DatabaseHelper private constructor(context: Context) : ManagedSQLiteOpenHe
                 StopContract.WHEELCHAIR_BOARDING to INTEGER,
                 StopContract.STOP_URL to TEXT
         )
-        Timber.d("Creating indexes in database:" + DATABASE_NAME)
+        Timber.d("Creating indexes in database: $DATABASE_NAME")
         db.createIndex("S1", StopContract.TABLE_NAME, false, false, StopContract.STOP_ID)
     }
 
@@ -46,6 +46,3 @@ class DatabaseHelper private constructor(context: Context) : ManagedSQLiteOpenHe
     override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
     }
 }
-
-val Context.database: DatabaseHelper
-    get() = DatabaseHelper.getInstance(applicationContext)

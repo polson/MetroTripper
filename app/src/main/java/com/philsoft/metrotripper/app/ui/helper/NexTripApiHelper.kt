@@ -1,4 +1,4 @@
-package com.philsoft.metrotripper.app.ui.view
+package com.philsoft.metrotripper.app.ui.helper
 
 import com.philsoft.metrotripper.app.nextrip.NexTripService
 import com.philsoft.metrotripper.app.state.NexTripAction
@@ -6,6 +6,7 @@ import com.philsoft.metrotripper.app.state.NexTripApiEvent
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
 
 class NexTripApiHelper {
     private val nexTripService = NexTripService.create()

@@ -5,5 +5,5 @@ package com.philsoft.metrotripper.app.nextrip.constants
  */
 object Regex {
 
-    val LOCATION_TIME = "\\/Date\\(([^-]*).*\\)\\/"
+    const val LOCATION_TIME = "\\/Date\\(([^-]*).*\\)\\/"
 }

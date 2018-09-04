@@ -1,13 +1,12 @@
 package com.philsoft.metrotripper.activity
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.ActionBarDrawerToggle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -16,21 +15,21 @@ import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.state.*
+import com.philsoft.metrotripper.app.ui.helper.LocationHelper
+import com.philsoft.metrotripper.app.ui.helper.NexTripApiHelper
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
-import com.philsoft.metrotripper.app.ui.view.NexTripApiHelper
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.database.DatabasePopulator
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
-import com.philsoft.metrotripper.utils.map.RxLocation
 import com.philsoft.metrotripper.utils.ui.Ui
+import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.merge
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.concurrent.TimeUnit
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -38,13 +37,8 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private val drawerToggle by lazy { MtDrawerToggle() }
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
-
-    private val locationEvents by lazy {
-        val client = LocationServices.getFusedLocationProviderClient(this)
-        RxLocation.locationEvents(client).map { locationResult ->
-            LocationUiEvent.InitialLocationUpdate(locationResult)
-        }.share()
-    }
+    private val rxPermissions = RxPermissions(this)
+    private val locationHelper by lazy { LocationHelper(this, rxPermissions) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +48,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         setupDrawer()
         setupMapFragment()
         setupSlidingPanel()
+        locationHelper
     }
 
     private fun setupActionBar() {
@@ -88,9 +83,9 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         setupEventLoop()
     }
 
+    @SuppressLint("MissingPermission")
     private fun setupMap(map: GoogleMap) {
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
-        map.isMyLocationEnabled = true // show location button
     }
 
     private fun setupMapViewHelper(map: GoogleMap) {
@@ -133,12 +128,9 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 stopList.stopSelectedEvent,
                 mapHelper.cameraIdleEvents,
                 mapHelper.markerClicks,
-                locationEvents,
+                locationHelper.locationEvents,
                 slidingPanel.slidingPanelEvents,
-
-                //This delay prevents UI hiccups from occurring when the trip list is refreshed
-                nexTripApiHelper.apiResultEvents.delay(500, TimeUnit.MILLISECONDS),
-
+                nexTripApiHelper.apiResultEvents,
                 Observable.just(AppUiEvent.Initialize).share()
         ).merge()
     }

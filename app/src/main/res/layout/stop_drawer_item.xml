@@ -3,6 +3,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/sidebar_bg"
     android:padding="20dip">
 
@@ -19,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/icon"
-        android:text="15562"
+        tools:text="15562"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -32,7 +33,7 @@
         android:layout_toRightOf="@+id/icon"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="2nd St NE &amp; 1st Ave NE"
+        tools:text="2nd St NE &amp; 1st Ave NE"
         android:textColor="@color/white"
         android:textSize="13sp" />
 </RelativeLayout>

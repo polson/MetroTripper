@@ -48,6 +48,7 @@ class MapTransformer : ViewActionTransformer<MapAction>() {
         if (lastLocation != null) {
             val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
             send(MapAction.MoveCameraToPosition(latLng))
+            send(MapAction.EnableLocationButton(true))
         } else {
             send(MapAction.MoveCameraToPosition(MINNEAPOLIS_LATLNG))
         }

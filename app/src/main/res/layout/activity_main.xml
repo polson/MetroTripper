@@ -43,7 +43,6 @@
         </LinearLayout>
     </com.philsoft.metrotripper.app.ui.view.MtSlidingPanel>
 
-    <!-- The navigatstop_list_recycler_viewawer -->
     <com.philsoft.metrotripper.app.ui.view.StopListView
         android:id="@+id/stopList"
         android:layout_width="330dip"

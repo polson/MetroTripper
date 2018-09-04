@@ -26,12 +26,12 @@ class TripViewHolder(override val containerView: View) : RecyclerView.ViewHolder
 
     private fun getTripDirectionResource(trip: Trip): Int {
         val direction = Direction.valueOf(trip.routeDirection)
-        when (direction) {
-            Direction.NORTHBOUND -> return R.drawable.ic_up_arrow
-            Direction.SOUTHBOUND -> return R.drawable.ic_down_arrow
-            Direction.EASTBOUND -> return R.drawable.ic_right_arrow
-            Direction.WESTBOUND -> return R.drawable.ic_left_arrow
-            else -> return 0
+        return when (direction) {
+            Direction.NORTHBOUND -> R.drawable.ic_up_arrow
+            Direction.SOUTHBOUND -> R.drawable.ic_down_arrow
+            Direction.EASTBOUND -> R.drawable.ic_right_arrow
+            Direction.WESTBOUND -> R.drawable.ic_left_arrow
+            else -> 0
         }
     }
 
