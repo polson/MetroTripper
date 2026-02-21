@@ -80,7 +80,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private fun setupActionBar() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
     }
 
     private fun populateStops() {
@@ -88,8 +88,13 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
             try {
                 withContext(Dispatchers.IO) {
                     val populator = DatabasePopulator(this@MainActivity)
-                    if (populator.isTableEmpty()) {
+                    val prefs = Prefs.getInstance(this@MainActivity)
+                    val currentVersion = 2 // Update this version when stops.txt is updated
+                    if (populator.isTableEmpty() || prefs.stopsVersion < currentVersion) {
+                        Timber.d("Populating stops... current version: ${prefs.stopsVersion}, target version: $currentVersion")
+                        populator.clearStops()
                         populator.populateStopsFast()
+                        prefs.stopsVersion = currentVersion
                     }
                 }
             } catch (e: Exception) {
@@ -241,7 +246,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.main_activity, menu)
-        return super.onCreateOptionsMenu(menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

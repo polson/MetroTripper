@@ -22,4 +22,7 @@ interface StopDao {
 
     @Query("SELECT count(*) == 0 FROM t_stops")
     fun isTableEmpty(): Boolean
+
+    @Query("DELETE FROM t_stops")
+    fun deleteAll()
 }

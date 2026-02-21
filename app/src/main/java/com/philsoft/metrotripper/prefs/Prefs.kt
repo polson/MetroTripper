@@ -10,6 +10,7 @@ class Prefs private constructor(context: Context) {
     companion object {
         private const val DEFAULT_PREFS_BUCKET = "defaultBucket"
         private const val KEY_SAVED_STOPS = "KEY_SAVED_STOPS"
+        private const val KEY_STOPS_VERSION = "KEY_STOPS_VERSION"
 
         private var instance: Prefs? = null
         @Synchronized
@@ -25,6 +26,10 @@ class Prefs private constructor(context: Context) {
     private var savedStops: String
         get() = prefs.getString(KEY_SAVED_STOPS, "") ?: ""
         set(stops) = prefs.edit().putString(KEY_SAVED_STOPS, stops).apply()
+
+    var stopsVersion: Int
+        get() = prefs.getInt(KEY_STOPS_VERSION, 0)
+        set(version) = prefs.edit().putInt(KEY_STOPS_VERSION, version).apply()
 
     fun saveStopId(stopId: Long) {
         val stops = getSavedStopIds()

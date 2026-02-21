@@ -54,4 +54,8 @@ class DatabasePopulator(private val context: Context) {
     fun isTableEmpty(): Boolean {
         return stopDao.isTableEmpty()
     }
+
+    fun clearStops() {
+        stopDao.deleteAll()
+    }
 }

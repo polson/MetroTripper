@@ -9,8 +9,8 @@ class NexTripRepository(private val nexTripService: NexTripService) {
 
     suspend fun getTrips(stopId: Long): Result<List<Trip>> = withContext(Dispatchers.IO) {
         try {
-            val trips = nexTripService.getTrips(stopId)
-            Result.success(trips)
+            val result = nexTripService.getTrips(stopId)
+            Result.success(result.departures)
         } catch (e: Exception) {
             Result.failure(e)
         }

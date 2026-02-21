@@ -2,31 +2,58 @@ package com.philsoft.metrotripper.app.nextrip
 
 import com.google.gson.*
 import com.philsoft.metrotripper.model.Trip
-import com.philsoft.metrotripper.utils.EZ
 import java.lang.reflect.Type
-
 
 object NexTripGsonFactory {
     fun getGson(): Gson {
         return GsonBuilder()
                 .registerTypeAdapter(Trip::class.java, deserializer)
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .create()
     }
 
     private var deserializer = object : JsonDeserializer<Trip> {
-        val gson = GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .create()
+        val gson = Gson()
 
         override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Trip {
-            if (json.asJsonObject.get("DepartureTime") != null) {
-                val date = EZ.parseLocationTime(json.asJsonObject.get("DepartureTime").asString)
-                json.asJsonObject.add("DepartureTime", JsonPrimitive(date))
+            val jsonObject = json.asJsonObject
+
+            // Convert departure_time from seconds to milliseconds
+            if (jsonObject.has("departure_time") && !jsonObject.get("departure_time").isJsonNull) {
+                val seconds = jsonObject.get("departure_time").asLong
+                jsonObject.add("departure_time", JsonPrimitive(seconds * 1000))
+            } else {
+                jsonObject.add("departure_time", JsonPrimitive(0L))
             }
-            return gson.fromJson(json.asJsonObject, Trip::class.java)
+
+            // Map direction_text to old API format
+            if (jsonObject.has("direction_text") && !jsonObject.get("direction_text").isJsonNull) {
+                val directionText = jsonObject.get("direction_text").asString
+                val mappedDirection = when (directionText) {
+                    "NB" -> "NORTHBOUND"
+                    "SB" -> "SOUTHBOUND"
+                    "EB" -> "EASTBOUND"
+                    "WB" -> "WESTBOUND"
+                    else -> "UNKNOWN"
+                }
+                jsonObject.add("direction_text", JsonPrimitive(mappedDirection))
+            } else {
+                jsonObject.add("direction_text", JsonPrimitive("UNKNOWN"))
+            }
+
+            // Handle potential nulls for strings that should be non-null in Trip model
+            val stringFields = arrayOf("terminal", "gate", "description", "departure_text", "route_id")
+            for (field in stringFields) {
+                if (!jsonObject.has(field) || jsonObject.get(field).isJsonNull) {
+                    jsonObject.add(field, JsonPrimitive(""))
+                }
+            }
+
+            // Handle boolean
+            if (!jsonObject.has("actual") || jsonObject.get("actual").isJsonNull) {
+                jsonObject.add("actual", JsonPrimitive(false))
+            }
+
+            return gson.fromJson(jsonObject, Trip::class.java)
         }
     }
-
-
 }
