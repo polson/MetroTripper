@@ -43,7 +43,7 @@ object EZ {
         val packageName = context.packageName
         return try {
             val info = pm.getPackageInfo(packageName, 0)
-            info.versionName
+            info.versionName ?: "N/A"
         } catch (e: NameNotFoundException) {
             "N/A"
         }

@@ -4,7 +4,7 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Rect
-import android.support.v4.math.MathUtils
+import androidx.core.math.MathUtils
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -170,6 +170,7 @@ open class SlidingPanel @JvmOverloads constructor(
             PanelState.COLLAPSED -> collapsePanel()
             PanelState.EXPANDED -> expandPanel()
             PanelState.HIDDEN -> hidePanel()
+            else -> {}
         }
     }
 

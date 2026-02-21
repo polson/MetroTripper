@@ -14,20 +14,24 @@ import com.philsoft.metrotripper.app.state.MapUiEvent
 import com.philsoft.metrotripper.app.state.MapUiEvent.CameraIdle
 import com.philsoft.metrotripper.app.state.MapUiEvent.MarkerClicked
 import com.philsoft.metrotripper.model.Stop
-import com.philsoft.metrotripper.utils.map.RxGoogleMap
+import com.philsoft.metrotripper.utils.map.FlowGoogleMap
 import com.philsoft.metrotripper.utils.map.fadeIn
 import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
-import io.reactivex.Observable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 
 class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
 
-    val cameraIdleEvents: Observable<CameraIdle> = RxGoogleMap.cameraIdleEvents(map).map { cameraPosition ->
+    val cameraIdleEvents: Flow<CameraIdle> = FlowGoogleMap.cameraIdleEvents(map).map { cameraPosition ->
         MapUiEvent.CameraIdle(cameraPosition)
-    }.share()
+    }
 
-    val markerClicks: Observable<MarkerClicked> = RxGoogleMap.markerClicks(map).map { marker ->
-        MapUiEvent.MarkerClicked(marker.title.toLong())
-    }.share()
+    val markerClicks: Flow<MarkerClicked> = FlowGoogleMap.markerClicks(map)
+        .filter { it.title?.all { char -> char.isDigit() } ?: false }
+        .map { marker ->
+            MapUiEvent.MarkerClicked(marker.title!!.toLong())
+        }
 
     private val stopMarkersMap = hashMapOf<Long, Marker>()
 
@@ -87,7 +91,7 @@ class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitma
         return map.addMarker(MarkerOptions()
                 .title(stop.stopId.toString())
                 .position(LatLng(stop.stopLat, stop.stopLon))
-                .icon(BitmapDescriptorFactory.fromBitmap(stopBitmap)))
+                .icon(BitmapDescriptorFactory.fromBitmap(stopBitmap)))!!
     }
 }
 

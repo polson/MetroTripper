@@ -18,6 +18,7 @@ class StopListTransformer : ViewActionTransformer<StopListAction>() {
             is StopSelectedFromDrawer -> handleStopSelected(stop)
             is StopSearched -> handleStopSearched(state)
             is MarkerClicked -> handleMarkerClicked(state)
+            else -> {}
         }
     }
 

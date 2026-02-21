@@ -1,12 +1,11 @@
 package com.philsoft.metrotripper.app.state
 
 import com.philsoft.metrotripper.app.state.transformer.*
-import io.reactivex.Observable
-import io.reactivex.ObservableSource
-import io.reactivex.ObservableTransformer
-import io.reactivex.rxkotlin.toObservable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapConcat
 
-class AppActionTransformer : ObservableTransformer<AppState, AppAction> {
+class AppActionTransformer {
     private val transformers = listOf(
             MapTransformer(),
             StopHeadingTransformer(),
@@ -18,11 +17,9 @@ class AppActionTransformer : ObservableTransformer<AppState, AppAction> {
             VehicleTransformer()
     )
 
-    // Build a list of actions and convert it to an observable.
-    override fun apply(upstream: Observable<AppState>): ObservableSource<AppAction> {
-        return upstream.flatMap { appState ->
-            // This is the kotlin collections flatmap, not the rx flatmap!
-            transformers.flatMap { it.buildActions(appState) }.toObservable()
+    fun transform(appState: Flow<AppState>): Flow<AppAction> {
+        return appState.flatMapConcat { state ->
+            transformers.flatMap { it.buildActions(state) }.asFlow()
         }
     }
 }

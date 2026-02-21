@@ -12,6 +12,7 @@ class DrawerActionTransformer : ViewActionTransformer<DrawerAction>() {
         when (state.appUiEvent) {
             is StopSearched -> handleStopSearched(state.selectedStop)
             is StopSelectedFromDrawer -> handleStopSelected()
+            else -> {}
         }
     }
 

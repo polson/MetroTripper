@@ -21,17 +21,14 @@ class DatabasePopulator(private val context: Context) {
         val assetManager = context.assets
         val inputStream = assetManager.open(STOPS_FILE)
         val parser = CSVParser(InputStreamReader(inputStream), CSVFormat.RFC4180.withHeader())
-        val records = parser.records
-
+        
         val startTime = System.currentTimeMillis()
-        insertStopsFast(records)
-        val elapsed = System.currentTimeMillis() - startTime
-        Timber.d("Inserted ${records.size} stops in $elapsed ms")
-    }
-
-    private fun insertStopsFast(records: List<CSVRecord>) {
-        val stops = records.map { record ->
-            Stop(
+        val records = parser.iterator()
+        val batch = mutableListOf<Stop>()
+        var count = 0
+        while (records.hasNext()) {
+            val record = records.next()
+            batch.add(Stop(
                 stopId = record.get("stop_id").toLong(),
                 stopName = record.get("stop_name"),
                 stopDesc = record.get("stop_desc"),
@@ -39,9 +36,19 @@ class DatabasePopulator(private val context: Context) {
                 stopLon = record.get("stop_lon").toDouble(),
                 wheelchairBoarding = record.get("wheelchair_boarding").toInt(),
                 stopUrl = record.get("stop_url")
-            )
+            ))
+            if (batch.size >= 1000) {
+                stopDao.insertAll(batch)
+                count += batch.size
+                batch.clear()
+            }
         }
-        stopDao.insertAll(stops)
+        if (batch.isNotEmpty()) {
+            stopDao.insertAll(batch)
+            count += batch.size
+        }
+        val elapsed = System.currentTimeMillis() - startTime
+        Timber.d("Inserted $count stops in $elapsed ms")
     }
 
     fun isTableEmpty(): Boolean {

@@ -17,6 +17,7 @@ class SlidingPanelTransformer : ViewActionTransformer<SlidingPanelAction>() {
             is ScheduleButtonClicked -> handleScheduleButtonClicked()
             is LocationButtonClicked -> handleLocationButtonClicked()
             is MarkerClicked -> handleMarkerClicked()
+            else -> {}
         }
     }
 

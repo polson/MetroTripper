@@ -11,6 +11,7 @@ kotlin = "2.0.21"
 
 # AndroidX / Core
 coreKtx = "1.13.1"
+fragmentKtx = "1.8.4"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.3"
 appCompat = "1.7.0"
@@ -27,16 +28,15 @@ gson = "2.11.0"
 
 # Async / Reactive
 coroutines = "1.9.0"
+kotlinxCoroutinesRx2 = "1.9.0"
 rxjava = "2.2.21"
 rxandroid = "2.1.1"
 rxkotlin = "2.4.0"
 rxbinding = "2.2.0"
-rxPermissions = "0.12"
 
 # Utils
 timber = "5.0.1"
 commonsCsv = "1.12.0"
-commonsLang = "3.17.0"
 commonsIo = "2.17.0"
 
 # Testing
@@ -56,6 +56,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-rxjava2 = { group = "androidx.room", name = "room-rxjava2", version.ref = "room" }
 # AndroidX
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appCompat" }
@@ -84,17 +85,16 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 # Async / Reactive
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-rx2 = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-rx2", version.ref = "kotlinxCoroutinesRx2" }
 rxjava = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rxjava" }
 rxandroid = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid" }
 rxkotlin = { group = "io.reactivex.rxjava2", name = "rxkotlin", version.ref = "rxkotlin" }
 rxbinding = { group = "com.jakewharton.rxbinding2", name = "rxbinding-kotlin", version.ref = "rxbinding" }
 rxbinding-recyclerview = { group = "com.jakewharton.rxbinding2", name = "rxbinding-recyclerview-v7-kotlin", version.ref = "rxbinding" }
-rxpermissions = { group = "com.github.tbruyelle", name = "rxpermissions", version.ref = "rxPermissions" }
 
 # Utils
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 commons-csv = { group = "org.apache.commons", name = "commons-csv", version.ref = "commonsCsv" }
-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commonsLang" }
 commons-io = { group = "commons-io", name = "commons-io", version.ref = "commonsIo" }
 
 # Testing

@@ -13,6 +13,7 @@ class TripListTransformer : ViewActionTransformer<TripListAction>() {
             is GetTripsComplete -> handleGetTripsComplete(trips)
             is GetTripsFailed -> handleGetTripsFailed()
             is MarkerClicked -> handleMarkerClicked()
+            else -> {}
         }
     }
 

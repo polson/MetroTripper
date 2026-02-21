@@ -1,21 +1,24 @@
 package com.philsoft.metrotripper.app.ui.helper
 
 import android.content.Context
-import com.google.android.gms.location.LocationServices
 import com.philsoft.metrotripper.app.state.LocationUiEvent.InitialLocationUpdate
-import com.philsoft.metrotripper.utils.map.RxLocation
-import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.Observable
+import com.philsoft.metrotripper.utils.map.LocationClient
+import kotlinx.coroutines.flow.*
 
 /**
- * Provides an observable for location update events.  Must be initialized in onCreate of an activity
+ * Provides a flow for location update events.  Must be initialized in onCreate of an activity
  */
-class LocationHelper(val context: Context, val rxPermissions: RxPermissions) {
+class LocationHelper(val context: Context, private val permissionGranted: Flow<Boolean>) {
 
-    val locationEvents = setupLocationEvents()
+    val locationEvents: Flow<InitialLocationUpdate> = setupLocationEvents()
 
-    private fun setupLocationEvents(): Observable<InitialLocationUpdate> {
-        val client = LocationServices.getFusedLocationProviderClient(context)
-        return RxLocation.locationEvents(client, rxPermissions).map { locationResult -> InitialLocationUpdate(locationResult) }.share()
+    private fun setupLocationEvents(): Flow<InitialLocationUpdate> {
+        return permissionGranted.flatMapLatest { granted ->
+            if (granted) {
+                LocationClient.locationUpdates(context)
+            } else {
+                emptyFlow()
+            }
+        }.map { locationResult -> InitialLocationUpdate(locationResult) }
     }
 }

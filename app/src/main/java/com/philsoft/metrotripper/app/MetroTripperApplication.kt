@@ -1,6 +1,6 @@
 package com.philsoft.metrotripper.app
 
-import android.support.multidex.MultiDexApplication
+import androidx.multidex.MultiDexApplication
 
 import timber.log.Timber
 

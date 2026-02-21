@@ -1,14 +1,18 @@
 package com.philsoft.metrotripper.activity
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v7.app.ActionBarDrawerToggle
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.content.ContextCompat
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapFragment
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.philsoft.metrotripper.R
@@ -26,20 +30,25 @@ import com.philsoft.metrotripper.databinding.ActivityMainBinding
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.utils.ui.Ui
-import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.merge
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
-    private val nexTripApiHelper = NexTripApiHelper()
+    private val nexTripApiHelper by lazy { NexTripApiHelper(lifecycleScope) }
     private val drawerToggle by lazy { MtDrawerToggle() }
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
-    private val rxPermissions = RxPermissions(this)
-    private val locationHelper by lazy { LocationHelper(this, rxPermissions) }
+    private val permissionGranted = MutableStateFlow(false)
+    private val locationHelper by lazy { LocationHelper(this, permissionGranted) }
     private lateinit var binding: ActivityMainBinding
+
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        permissionGranted.value = isGranted
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,28 +59,36 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         setupDrawer()
         setupMapFragment()
         setupSlidingPanel()
-        locationHelper
+        checkLocationPermission()
+    }
+
+    private fun checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            permissionGranted.value = true
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
     }
 
     private fun setupActionBar() {
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        actionBar.setHomeButtonEnabled(true)
-        actionBar.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
     private fun populateStops() {
-        io.reactivex.Completable.fromAction {
-            val populator = DatabasePopulator(this)
-            if (populator.isTableEmpty()) {
-                populator.populateStopsFast()
+        lifecycleScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val populator = DatabasePopulator(this@MainActivity)
+                    if (populator.isTableEmpty()) {
+                        populator.populateStopsFast()
+                    }
+                }
+            } catch (e: Exception) {
+                timber.log.Timber.e(e, "Error populating stops")
             }
-        }.subscribeOn(io.reactivex.schedulers.Schedulers.io())
-         .observeOn(AndroidSchedulers.mainThread())
-         .subscribe({
-             // Done
-         }, { t ->
-             timber.log.Timber.e(t, "Error populating stops")
-         })
+        }
     }
 
     private fun setupDrawer() {
@@ -80,7 +97,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun setupMapFragment() {
-        val mapFragment = fragmentManager.findFragmentById(R.id.map) as MapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
@@ -113,26 +130,27 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         val appStateTransformer = AppStateTransformer(dataProvider, settingsProvider)
         val appActionTransformer = AppActionTransformer()
         val uiEvents = buildUiEvents()
-        uiEvents.observeOn(io.reactivex.schedulers.Schedulers.io())
-                .compose(appStateTransformer)
-                .compose(appActionTransformer)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { appAction ->
-                    when (appAction) {
-                        is MapAction -> mapHelper.render(appAction)
-                        is StopHeadingAction -> binding.stopHeading.render(appAction)
-                        is TripListAction -> binding.tripList.render(appAction)
-                        is NexTripAction -> nexTripApiHelper.render(appAction)
-                        is DrawerAction -> binding.drawerLayout.render(appAction)
-                        is SlidingPanelAction -> binding.slidingPanel.render(appAction)
-                        is StopListAction -> binding.stopList.render(appAction)
-                        is VehicleAction -> mapVehicleHelper.render(appAction)
-                    }
+        
+        lifecycleScope.launch {
+            appActionTransformer.transform(
+                appStateTransformer.transform(uiEvents).flowOn(Dispatchers.IO)
+            ).collect { appAction ->
+                when (appAction) {
+                    is MapAction -> mapHelper.render(appAction)
+                    is StopHeadingAction -> binding.stopHeading.render(appAction)
+                    is TripListAction -> binding.tripList.render(appAction)
+                    is NexTripAction -> nexTripApiHelper.render(appAction)
+                    is DrawerAction -> binding.drawerLayout.render(appAction)
+                    is SlidingPanelAction -> binding.slidingPanel.render(appAction)
+                    is StopListAction -> binding.stopList.render(appAction)
+                    is VehicleAction -> mapVehicleHelper.render(appAction)
                 }
+            }
+        }
     }
 
-    private fun buildUiEvents(): Observable<AppUiEvent> {
-        return listOf(
+    private fun buildUiEvents(): Flow<AppUiEvent> {
+        return merge(
                 binding.stopHeading.scheduleButtonClicks,
                 binding.stopHeading.locationButtonClicks,
                 binding.stopHeading.saveStopButtonClicks,
@@ -142,9 +160,8 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 mapHelper.markerClicks,
                 locationHelper.locationEvents,
                 binding.slidingPanel.slidingPanelEvents,
-                nexTripApiHelper.apiResultEvents,
-                Observable.just(AppUiEvent.Initialize).share()
-        ).merge()
+                nexTripApiHelper.apiResultEvents
+        )
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

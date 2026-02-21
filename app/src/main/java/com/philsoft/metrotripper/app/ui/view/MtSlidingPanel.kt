@@ -8,19 +8,21 @@ import com.philsoft.metrotripper.app.state.SlidingPanelAction
 import com.philsoft.metrotripper.app.state.SlidingPanelUiEvent.SlidingPanelExpanded
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.utils.dpToPx
-import io.reactivex.Observable
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 class MtSlidingPanel @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SlidingPanel(context, attrs, defStyleAttr) {
 
-    val slidingPanelEvents: Observable<SlidingPanelExpanded> = Observable.create<SlidingPanelExpanded> { emitter ->
+    val slidingPanelEvents: Flow<SlidingPanelExpanded> = callbackFlow {
         panelStateChangeListener = { panelState: PanelState ->
             if (panelState == SlidingPanel.PanelState.EXPANDED) {
-                emitter.onNext(SlidingPanelExpanded)
+                trySend(SlidingPanelExpanded)
             }
-            emitter.setCancellable { panelStateChangeListener = {} }
         }
-    }.share()
+        awaitClose { panelStateChangeListener = {} }
+    }
 
     @SuppressLint("NewApi")
     override fun onFinishInflate() {

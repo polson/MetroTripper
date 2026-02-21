@@ -9,23 +9,22 @@ import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSearched
 import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.model.Stop
-import io.reactivex.Observable
-import io.reactivex.ObservableSource
-import io.reactivex.ObservableTransformer
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.scan
 
-class AppStateTransformer(private val dataProvider: DataProvider, private val settingsProvider: SettingsProvider) : ObservableTransformer<AppUiEvent, AppState> {
+class AppStateTransformer(private val dataProvider: DataProvider, private val settingsProvider: SettingsProvider) {
     companion object {
         private const val MAX_STOPS = 20
         const val MIN_ZOOM_LEVEL = 16f
     }
 
-    override fun apply(observable: Observable<AppUiEvent>): ObservableSource<AppState> {
-        return Observable.defer {
-            val initialState = setupInitialState()
-            observable.scan(initialState) { previousState, appUiEvent ->
-                updateState(appUiEvent, previousState)
-            }
-        }
+    fun transform(uiEvents: Flow<AppUiEvent>): Flow<AppState> {
+        val initialState = setupInitialState()
+        return uiEvents.onStart { emit(AppUiEvent.Initialize) }
+                .scan(initialState) { previousState, appUiEvent ->
+                    updateState(appUiEvent, previousState)
+                }
     }
 
     private fun updateState(uiEvent: AppUiEvent, previousState: AppState): AppState {

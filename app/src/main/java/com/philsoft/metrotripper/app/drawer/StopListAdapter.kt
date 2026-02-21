@@ -2,7 +2,7 @@ package com.philsoft.metrotripper.app.drawer
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.jakewharton.rxbinding2.view.RxView
+import androidx.recyclerview.widget.RecyclerView
 import com.philsoft.metrotripper.databinding.SearchDrawerItemBinding
 import com.philsoft.metrotripper.databinding.StopDrawerItemBinding
 import com.philsoft.metrotripper.model.Stop
@@ -30,21 +30,17 @@ class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             VIEW_TYPE_SEARCH -> {
                 val binding = SearchDrawerItemBinding.inflate(layoutInflater, parent, false)
                 val viewHolder = SearchViewHolder(binding)
-                viewHolder.searchEvent
-                        .takeUntil(RxView.detaches(parent))
-                        .subscribe { stopId -> stopSearchedListener(stopId) }
+                viewHolder.onSearchListener = { stopId -> stopSearchedListener(stopId) }
                 viewHolder
 
             }
             else -> {
                 val binding = StopDrawerItemBinding.inflate(layoutInflater, parent, false)
                 val viewHolder = StopViewHolder(binding)
-                viewHolder.clickEvent
-                        .takeUntil(RxView.detaches(parent))
-                        .subscribe { adapterPosition ->
-                            val stop = items[adapterPosition - 1]
-                            stopSelectedListener(stop)
-                        }
+                viewHolder.onClickListener = { adapterPosition ->
+                    val stop = items[adapterPosition - 1]
+                    stopSelectedListener(stop)
+                }
                 viewHolder
             }
         }

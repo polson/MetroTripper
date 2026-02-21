@@ -10,6 +10,7 @@ class VehicleTransformer : ViewActionTransformer<VehicleAction>() {
     override fun handleEvent(state: AppState) = state.appUiEvent.run {
         when (this) {
             is GetTripsComplete -> handleGetTripsComplete(trips)
+            else -> {}
         }
     }
 

@@ -1,10 +1,8 @@
 package com.philsoft.metrotripper.activity
 
-import android.annotation.SuppressLint
-import android.support.v4.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
 
-@SuppressLint("Registered")
-open class BaseActivity : FragmentActivity() {
+open class BaseActivity : AppCompatActivity() {
 
     var isPaused = false;
 

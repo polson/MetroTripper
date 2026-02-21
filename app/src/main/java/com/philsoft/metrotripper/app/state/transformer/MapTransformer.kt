@@ -24,6 +24,7 @@ class MapTransformer : ViewActionTransformer<MapAction>() {
             is StopSearched -> handleStopSearched(state.selectedStop)
             is StopSelectedFromDrawer -> handleStopSelected(stop)
             is CameraIdle -> handleCameraIdle(state.visibleStops)
+            else -> {}
         }
     }
 

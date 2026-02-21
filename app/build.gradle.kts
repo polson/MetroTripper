@@ -51,6 +51,7 @@ dependencies {
 
     // AndroidX
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -59,7 +60,6 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.rxjava2)
     kapt(libs.androidx.room.compiler)
 
     // Compose
@@ -79,21 +79,13 @@ dependencies {
     // Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
-    implementation(libs.retrofit.adapter.rxjava2)
 
-    // Async / Reactive
-    implementation(libs.rxjava)
-    implementation(libs.rxandroid)
-    implementation(libs.rxkotlin)
-    implementation(libs.rxbinding)
-    implementation(libs.rxbinding.recyclerview)
-    implementation(libs.rxpermissions)
+    // Async / Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
     // Utils
     implementation(libs.timber)
     implementation(libs.commons.csv)
-    implementation(libs.commons.lang)
     implementation(libs.commons.io)
 
     // Testing

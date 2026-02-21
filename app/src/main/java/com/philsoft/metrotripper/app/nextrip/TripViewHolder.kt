@@ -1,6 +1,6 @@
 package com.philsoft.metrotripper.app.nextrip
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.nextrip.constants.Direction

@@ -18,6 +18,7 @@ class NexTripApiActionTransformer : ViewActionTransformer<NexTripAction>() {
             is StopSearched -> handleStopSearched(appUiEvent.stopId)
             is StopSelectedFromDrawer -> handleStopSelected(appUiEvent.stop)
             is SlidingPanelExpanded -> handlePanelExpanded(selectedStop)
+            else -> {}
         }
         Unit
     }

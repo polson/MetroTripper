@@ -1,7 +1,7 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import android.content.Context
-import android.support.v4.widget.DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout
 import android.util.AttributeSet
 import com.philsoft.metrotripper.app.state.DrawerAction
 

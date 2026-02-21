@@ -1,7 +1,6 @@
 package com.philsoft.metrotripper.prefs
 
 import android.content.Context
-import org.apache.commons.lang.StringUtils
 import java.util.*
 
 
@@ -24,13 +23,13 @@ class Prefs private constructor(context: Context) {
     }
 
     private var savedStops: String
-        get() = prefs.getString(KEY_SAVED_STOPS, "")
+        get() = prefs.getString(KEY_SAVED_STOPS, "") ?: ""
         set(stops) = prefs.edit().putString(KEY_SAVED_STOPS, stops).apply()
 
     fun saveStopId(stopId: Long) {
         val stops = getSavedStopIds()
         stops.add(stopId)
-        savedStops = StringUtils.join(stops, ",")
+        savedStops = stops.joinToString(",")
     }
 
     fun getSavedStopIds(): LinkedHashSet<Long> {

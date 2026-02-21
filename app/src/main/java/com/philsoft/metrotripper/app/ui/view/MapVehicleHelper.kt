@@ -49,7 +49,7 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
                 MarkerOptions().anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                         .title(activity.getString(R.string.vehicle) + " " + trip.route + trip.terminal)
                         .position(LatLng(trip.vehicleLatitude.toDouble(), trip.vehicleLongitude.toDouble()))
-                        .icon(BitmapDescriptorFactory.fromBitmap(vehicleView.createBitmap())))
+                        .icon(BitmapDescriptorFactory.fromBitmap(vehicleView.createBitmap())))!!
     }
 
     private fun buildVehicleView(trip: Trip): View {

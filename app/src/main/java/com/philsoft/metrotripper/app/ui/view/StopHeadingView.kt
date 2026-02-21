@@ -6,39 +6,37 @@ import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
-import com.jakewharton.rxbinding2.view.clicks
 import com.philsoft.metrotripper.app.state.StopHeadingAction
 import com.philsoft.metrotripper.app.state.StopHeadingUiEvent
 import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.*
 import com.philsoft.metrotripper.databinding.StopHeadingBinding
 import com.philsoft.metrotripper.model.Stop
+import com.philsoft.metrotripper.utils.clicks
 import com.philsoft.metrotripper.utils.gone
+import com.philsoft.metrotripper.utils.throttleFirst
 import com.philsoft.metrotripper.utils.visible
-import io.reactivex.Observable
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class StopHeadingView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
 
-    private val binding = StopHeadingBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = StopHeadingBinding.inflate(LayoutInflater.from(context), this)
 
-    val scheduleButtonClicks: Observable<ScheduleButtonClicked> by lazy {
+    val scheduleButtonClicks: Flow<ScheduleButtonClicked> by lazy {
         binding.scheduleButtonWrapper.clicks()
-                .throttleFirst(500, TimeUnit.MILLISECONDS)
+                .throttleFirst(500)
                 .map { StopHeadingUiEvent.ScheduleButtonClicked }
-                .share()
     }
 
-    val locationButtonClicks: Observable<LocationButtonClicked> by lazy {
+    val locationButtonClicks: Flow<LocationButtonClicked> by lazy {
         binding.locationButton.clicks()
                 .map { StopHeadingUiEvent.LocationButtonClicked }
-                .share()
     }
 
-    val saveStopButtonClicks: Observable<SaveStopButtonClicked> by lazy {
+    val saveStopButtonClicks: Flow<SaveStopButtonClicked> by lazy {
         binding.saveButton.clicks()
                 .map { StopHeadingUiEvent.SaveStopButtonClicked }
-                .share()
     }
 
     fun render(action: StopHeadingAction) {
