@@ -22,6 +22,7 @@ import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
 import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.database.DatabasePopulator
+import com.philsoft.metrotripper.databinding.ActivityMainBinding
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.utils.ui.Ui
@@ -29,7 +30,6 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.merge
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -39,10 +39,12 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var mapVehicleHelper: MapVehicleHelper
     private val rxPermissions = RxPermissions(this)
     private val locationHelper by lazy { LocationHelper(this, rxPermissions) }
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupActionBar()
         populateStops()
         setupDrawer()
@@ -64,7 +66,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun setupDrawer() {
-        drawerLayout.addDrawerListener(drawerToggle)
+        binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
     }
 
@@ -74,7 +76,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun setupSlidingPanel() {
-        slidingPanel.setPanelState(SlidingPanel.PanelState.HIDDEN)
+        binding.slidingPanel.setPanelState(SlidingPanel.PanelState.HIDDEN)
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -108,12 +110,12 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 .subscribe { appAction ->
                     when (appAction) {
                         is MapAction -> mapHelper.render(appAction)
-                        is StopHeadingAction -> stopHeading.render(appAction)
-                        is TripListAction -> tripList.render(appAction)
+                        is StopHeadingAction -> binding.stopHeading.render(appAction)
+                        is TripListAction -> binding.tripList.render(appAction)
                         is NexTripAction -> nexTripApiHelper.render(appAction)
-                        is DrawerAction -> drawerLayout.render(appAction)
-                        is SlidingPanelAction -> slidingPanel.render(appAction)
-                        is StopListAction -> stopList.render(appAction)
+                        is DrawerAction -> binding.drawerLayout.render(appAction)
+                        is SlidingPanelAction -> binding.slidingPanel.render(appAction)
+                        is StopListAction -> binding.stopList.render(appAction)
                         is VehicleAction -> mapVehicleHelper.render(appAction)
                     }
                 }
@@ -121,15 +123,15 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun buildUiEvents(): Observable<AppUiEvent> {
         return listOf(
-                stopHeading.scheduleButtonClicks,
-                stopHeading.locationButtonClicks,
-                stopHeading.saveStopButtonClicks,
-                stopList.stopSearchedEvent,
-                stopList.stopSelectedEvent,
+                binding.stopHeading.scheduleButtonClicks,
+                binding.stopHeading.locationButtonClicks,
+                binding.stopHeading.saveStopButtonClicks,
+                binding.stopList.stopSearchedEvent,
+                binding.stopList.stopSelectedEvent,
                 mapHelper.cameraIdleEvents,
                 mapHelper.markerClicks,
                 locationHelper.locationEvents,
-                slidingPanel.slidingPanelEvents,
+                binding.slidingPanel.slidingPanelEvents,
                 nexTripApiHelper.apiResultEvents,
                 Observable.just(AppUiEvent.Initialize).share()
         ).merge()
@@ -159,10 +161,11 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
-    private inner class MtDrawerToggle : ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
+    private inner class MtDrawerToggle : ActionBarDrawerToggle(this, binding.drawerLayout, R.string.drawer_open, R.string.drawer_close) {
         override fun onDrawerClosed(drawerView: View) {
             super.onDrawerClosed(drawerView)
             EZ.hideKeyboard(this@MainActivity)
         }
     }
 }
+

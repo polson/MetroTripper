@@ -3,12 +3,12 @@ package com.philsoft.metrotripper.app.ui.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.state.SlidingPanelAction
 import com.philsoft.metrotripper.app.state.SlidingPanelUiEvent.SlidingPanelExpanded
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.utils.dpToPx
 import io.reactivex.Observable
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 class MtSlidingPanel @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : SlidingPanel(context, attrs, defStyleAttr) {
@@ -27,6 +27,7 @@ class MtSlidingPanel @JvmOverloads constructor(
         super.onFinishInflate()
         bottomOffset = context.dpToPx(176)
         swipeableViews.clear()
+        val stopHeading = findViewById<StopHeadingView>(R.id.stopHeading)
         swipeableViews.add(stopHeading)
     }
 

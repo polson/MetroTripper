@@ -23,33 +23,31 @@ import android.os.Build
 import android.text.Html
 import android.text.Spanned
 import android.webkit.WebView
-import android.widget.ScrollView
 import com.philsoft.metrotripper.R
+import com.philsoft.metrotripper.databinding.DialogAboutBinding
 import com.philsoft.metrotripper.utils.EZ
-import kotlinx.android.synthetic.main.dialog_about.view.*
 import org.apache.commons.io.IOUtils
 import java.io.IOException
-
 
 class AboutDialog {
 
     companion object {
         fun show(activity: Activity) {
             val versionName = EZ.getAppVersion(activity)
-            val aboutLayout = activity.layoutInflater.inflate(R.layout.dialog_about, null) as ScrollView
-            aboutLayout.versionNumber.text = activity.getString(R.string.about_version, versionName)
-            aboutLayout.licenses.setOnClickListener { showOpenSourceLicenses(activity) }
+            val binding = DialogAboutBinding.inflate(activity.layoutInflater)
+            binding.versionNumber.text = activity.getString(R.string.about_version, versionName)
+            binding.licenses.setOnClickListener { showOpenSourceLicenses(activity) }
             try {
                 val inputStream = activity.resources.assets.open("description.html")
                 val html = IOUtils.toString(inputStream)
-                aboutLayout.description.text = fromHtml(html)
+                binding.description.text = fromHtml(html)
             } catch (exception: IOException) {
-                aboutLayout.description.text = ""
+                binding.description.text = ""
             }
 
             AlertDialog.Builder(activity)
                     .setInverseBackgroundForced(true)
-                    .setView(aboutLayout)
+                    .setView(binding.root)
                     .setPositiveButton(R.string.ok) { dialog, _ -> dialog.dismiss() }
                     .create().show()
         }

@@ -5,15 +5,14 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding2.widget.editorActionEvents
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.search_drawer_item.*
+import com.philsoft.metrotripper.databinding.SearchDrawerItemBinding
 
-class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-    private val searchAction = entry.editorActionEvents()
+class SearchViewHolder(val binding: SearchDrawerItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    private val searchAction = binding.entry.editorActionEvents()
             .filter { event ->
                 event.actionId() == EditorInfo.IME_ACTION_GO
             }
-    val searchEvent = RxView.clicks(searchButton)
+    val searchEvent = RxView.clicks(binding.searchButton)
             .mergeWith(searchAction)
-            .map { entry.text.toString().toLong() }!!
+            .map { binding.entry.text.toString().toLong() }!!
 }

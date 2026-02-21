@@ -1,12 +1,11 @@
 package com.philsoft.metrotripper.app.drawer
 
-import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.jakewharton.rxbinding2.view.RxView
-import com.philsoft.metrotripper.R
+import com.philsoft.metrotripper.databinding.SearchDrawerItemBinding
+import com.philsoft.metrotripper.databinding.StopDrawerItemBinding
 import com.philsoft.metrotripper.model.Stop
-import com.philsoft.metrotripper.utils.inflate
-
 
 class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -25,11 +24,12 @@ class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var stopSearchedListener: (Long) -> Unit = {}
     var stopSelectedListener: (Stop) -> Unit = {}
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             VIEW_TYPE_SEARCH -> {
-                val searchView = parent.inflate(R.layout.search_drawer_item, false)
-                val viewHolder = SearchViewHolder(searchView)
+                val binding = SearchDrawerItemBinding.inflate(layoutInflater, parent, false)
+                val viewHolder = SearchViewHolder(binding)
                 viewHolder.searchEvent
                         .takeUntil(RxView.detaches(parent))
                         .subscribe { stopId -> stopSearchedListener(stopId) }
@@ -37,12 +37,14 @@ class StopListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
             }
             else -> {
-                val drawerItemView = parent.inflate(R.layout.stop_drawer_item, false)
-                val viewHolder = StopViewHolder(drawerItemView)
+                val binding = StopDrawerItemBinding.inflate(layoutInflater, parent, false)
+                val viewHolder = StopViewHolder(binding)
                 viewHolder.clickEvent
                         .takeUntil(RxView.detaches(parent))
-                        .map { adapterPosition -> items[adapterPosition - 1] }
-                        .subscribe { stop -> stopSelectedListener(stop) }
+                        .subscribe { adapterPosition ->
+                            val stop = items[adapterPosition - 1]
+                            stopSelectedListener(stop)
+                        }
                 viewHolder
             }
         }
