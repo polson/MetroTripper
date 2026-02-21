@@ -8,7 +8,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.app.state.VehicleAction
 import com.philsoft.metrotripper.databinding.VehicleBinding
 import com.philsoft.metrotripper.model.Trip
 import com.philsoft.metrotripper.utils.createBitmap
@@ -22,13 +21,7 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
         private const val FADE_DURATION = 1000
     }
 
-    fun render(action: VehicleAction) {
-        when (action) {
-            is VehicleAction.ShowVehicles -> displayVehicleMarkers(action.trips)
-        }
-    }
-
-    private fun displayVehicleMarkers(trips: List<Trip>) {
+    fun displayVehicleMarkers(trips: List<Trip>) {
         // Fade out existing vehicles
         for (vehicleMarker in vehicleMarkers) {
             vehicleMarker.fadeOutAndRemove(FADE_DURATION)

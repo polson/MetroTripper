@@ -16,15 +16,11 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.app.SettingsProvider
 import com.philsoft.metrotripper.app.about.AboutDialog
-import com.philsoft.metrotripper.app.state.*
 import com.philsoft.metrotripper.app.ui.helper.LocationHelper
-import com.philsoft.metrotripper.app.ui.helper.NexTripApiHelper
 import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
-import com.philsoft.metrotripper.database.DataProvider
 import com.philsoft.metrotripper.database.DatabasePopulator
 import com.philsoft.metrotripper.databinding.ActivityMainBinding
 import com.philsoft.metrotripper.prefs.Prefs
@@ -36,9 +32,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 
+import com.philsoft.metrotripper.viewmodel.MainViewModel
+import com.philsoft.metrotripper.viewmodel.MainViewModelFactory
+import com.philsoft.metrotripper.viewmodel.MainUiState
+import com.philsoft.metrotripper.viewmodel.MainUiEffect
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import timber.log.Timber
+
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
-    private val nexTripApiHelper by lazy { NexTripApiHelper(lifecycleScope) }
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
+    }
     private val drawerToggle by lazy { MtDrawerToggle() }
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
@@ -86,7 +93,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                     }
                 }
             } catch (e: Exception) {
-                timber.log.Timber.e(e, "Error populating stops")
+                Timber.e(e, "Error populating stops")
             }
         }
     }
@@ -108,7 +115,110 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
         setupMap(map)
         setupMapViewHelper(map)
-        setupEventLoop()
+        collectViewModelState()
+        collectViewModelEffects()
+        setupListeners()
+    }
+
+    private fun collectViewModelState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    render(state)
+                }
+            }
+        }
+    }
+
+    private fun collectViewModelEffects() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiEffect.collect { effect ->
+                    handleEffect(effect)
+                }
+            }
+        }
+    }
+
+    private fun render(state: MainUiState) {
+        // Map markers
+        mapHelper.showStopMarkers(state.visibleStops)
+        
+        // Selected stop
+        if (state.selectedStop != null) {
+            binding.stopHeading.showStop(state.selectedStop, state.isSelectedStopSaved)
+            mapVehicleHelper.displayVehicleMarkers(state.trips)
+            binding.tripList.showTrips(state.trips)
+        }
+        
+        // Trips loading
+        if (state.isLoadingTrips) {
+            binding.stopHeading.showProgressSpinner()
+        } else {
+            binding.stopHeading.hideProgressSpinner()
+        }
+        
+        // Saved stops list in drawer
+        binding.stopList.showStops(state.savedStops.values.toList())
+        
+        // Enable/disable location button based on state
+        mapHelper.enableLocationButton(state.isLocationButtonEnabled)
+    }
+
+    private fun handleEffect(effect: MainUiEffect) {
+        when (effect) {
+            is MainUiEffect.MoveCamera -> mapHelper.moveCameraToPosition(effect.latLng)
+            is MainUiEffect.SelectMarker -> mapHelper.selectStopMarker(effect.stop)
+            is MainUiEffect.ShowError -> EZ.showSnackbar(binding.root, effect.message)
+            is MainUiEffect.CloseDrawer -> binding.drawerLayout.closeDrawer()
+            is MainUiEffect.ExpandPanel -> binding.slidingPanel.expand()
+            is MainUiEffect.CollapsePanel -> binding.slidingPanel.collapse()
+            is MainUiEffect.HidePanel -> binding.slidingPanel.hide()
+        }
+    }
+
+    private fun setupListeners() {
+        // Stop searched
+        binding.stopList.stopSearchedEvent
+            .onEach { viewModel.onStopSearched(it) }
+            .launchIn(lifecycleScope)
+
+        // Stop selected from drawer
+        binding.stopList.stopSelectedEvent
+            .onEach { viewModel.onStopSelectedFromDrawer(it) }
+            .launchIn(lifecycleScope)
+
+        // Marker clicked
+        mapHelper.markerClicks
+            .onEach { viewModel.onMarkerClicked(it) }
+            .launchIn(lifecycleScope)
+
+        // Camera idle
+        mapHelper.cameraIdleEvents
+            .onEach { viewModel.onCameraIdle(it) }
+            .launchIn(lifecycleScope)
+
+        // Location updates
+        locationHelper.locationEvents
+            .onEach { viewModel.onLocationUpdate(it) }
+            .launchIn(lifecycleScope)
+
+        // Button clicks
+        binding.stopHeading.saveStopButtonClicks
+            .onEach { viewModel.onSaveStopClicked() }
+            .launchIn(lifecycleScope)
+
+        binding.stopHeading.locationButtonClicks
+            .onEach { viewModel.onLocationButtonClicked() }
+            .launchIn(lifecycleScope)
+
+        binding.stopHeading.scheduleButtonClicks
+            .onEach { viewModel.onScheduleButtonClicked() }
+            .launchIn(lifecycleScope)
+
+        binding.slidingPanel.slidingPanelEvents
+            .onEach { viewModel.onPanelExpanded() }
+            .launchIn(lifecycleScope)
     }
 
     @SuppressLint("MissingPermission")
@@ -117,51 +227,10 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun setupMapViewHelper(map: GoogleMap) {
-        val stopBitmap = Ui.createBitmapFromDrawableResource(this, -30, -30, R.drawable.ic_bus_stop)
-        val starredBitmap = Ui.createBitmapFromLayoutResource(this, R.layout.starred_stop)
+        val stopBitmap = Ui.createBitmapFromDrawableResource(this, 0, 0, R.drawable.ic_bus_stop_2)
+        val starredBitmap = Ui.createBitmapFromDrawableResource(this, 0, 0, R.drawable.ic_star_yellow)
         mapHelper = MapHelper(stopBitmap, starredBitmap, map)
         mapVehicleHelper = MapVehicleHelper(this, map)
-    }
-
-    private fun setupEventLoop() {
-        val prefs = Prefs.getInstance(this)
-        val settingsProvider = SettingsProvider(prefs)
-        val dataProvider = DataProvider(this)
-        val appStateTransformer = AppStateTransformer(dataProvider, settingsProvider)
-        val appActionTransformer = AppActionTransformer()
-        val uiEvents = buildUiEvents()
-        
-        lifecycleScope.launch {
-            appActionTransformer.transform(
-                appStateTransformer.transform(uiEvents).flowOn(Dispatchers.IO)
-            ).collect { appAction ->
-                when (appAction) {
-                    is MapAction -> mapHelper.render(appAction)
-                    is StopHeadingAction -> binding.stopHeading.render(appAction)
-                    is TripListAction -> binding.tripList.render(appAction)
-                    is NexTripAction -> nexTripApiHelper.render(appAction)
-                    is DrawerAction -> binding.drawerLayout.render(appAction)
-                    is SlidingPanelAction -> binding.slidingPanel.render(appAction)
-                    is StopListAction -> binding.stopList.render(appAction)
-                    is VehicleAction -> mapVehicleHelper.render(appAction)
-                }
-            }
-        }
-    }
-
-    private fun buildUiEvents(): Flow<AppUiEvent> {
-        return merge(
-                binding.stopHeading.scheduleButtonClicks,
-                binding.stopHeading.locationButtonClicks,
-                binding.stopHeading.saveStopButtonClicks,
-                binding.stopList.stopSearchedEvent,
-                binding.stopList.stopSelectedEvent,
-                mapHelper.cameraIdleEvents,
-                mapHelper.markerClicks,
-                locationHelper.locationEvents,
-                binding.slidingPanel.slidingPanelEvents,
-                nexTripApiHelper.apiResultEvents
-        )
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -191,7 +260,13 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private inner class MtDrawerToggle : ActionBarDrawerToggle(this, binding.drawerLayout, R.string.drawer_open, R.string.drawer_close) {
         override fun onDrawerClosed(drawerView: View) {
             super.onDrawerClosed(drawerView)
+            viewModel.onDrawerClosed()
             EZ.hideKeyboard(this@MainActivity)
+        }
+
+        override fun onDrawerOpened(drawerView: View) {
+            super.onDrawerOpened(drawerView)
+            viewModel.onDrawerOpened()
         }
     }
 }

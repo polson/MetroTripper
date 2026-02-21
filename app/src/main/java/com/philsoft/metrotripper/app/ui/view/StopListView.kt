@@ -5,10 +5,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.util.AttributeSet
 import com.philsoft.metrotripper.app.drawer.StopListAdapter
-import com.philsoft.metrotripper.app.state.StopListAction
-import com.philsoft.metrotripper.app.state.StopListUiEvent
-import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSearched
-import com.philsoft.metrotripper.app.state.StopListUiEvent.StopSelectedFromDrawer
 import com.philsoft.metrotripper.model.Stop
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -19,16 +15,16 @@ class StopListView @JvmOverloads constructor(
 
     private val stopListAdapter = StopListAdapter()
 
-    val stopSearchedEvent: Flow<StopSearched> = callbackFlow {
+    val stopSearchedEvent: Flow<Long> = callbackFlow {
         stopListAdapter.stopSearchedListener = { stopId ->
-            trySend(StopListUiEvent.StopSearched(stopId))
+            trySend(stopId)
         }
         awaitClose { stopListAdapter.stopSearchedListener = {} }
     }
 
-    val stopSelectedEvent: Flow<StopSelectedFromDrawer> = callbackFlow {
+    val stopSelectedEvent: Flow<Stop> = callbackFlow {
         stopListAdapter.stopSelectedListener = { stop ->
-            trySend(StopListUiEvent.StopSelectedFromDrawer(stop))
+            trySend(stop)
         }
         awaitClose { stopListAdapter.stopSelectedListener = {} }
     }
@@ -38,16 +34,11 @@ class StopListView @JvmOverloads constructor(
         adapter = stopListAdapter
     }
 
-    fun render(action: StopListAction) = when (action) {
-        is StopListAction.ShowStops -> showStops(action.stops)
-        is StopListAction.SetStopSelected -> selectStop(action.stopId)
-    }
-
-    private fun selectStop(stopId: Long) {
-        stopListAdapter.selectedStopId = stopId
-    }
-
-    private fun showStops(stops: List<Stop>) {
+    fun showStops(stops: List<Stop>) {
         stopListAdapter.showStops(stops)
+    }
+
+    fun selectStop(stopId: Long) {
+        stopListAdapter.selectedStopId = stopId
     }
 }

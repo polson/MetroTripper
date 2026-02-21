@@ -18,7 +18,7 @@
 package com.philsoft.metrotripper.app.about
 
 import android.app.Activity
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.os.Build
 import android.text.Html
 import android.text.Spanned
@@ -46,7 +46,6 @@ class AboutDialog {
             }
 
             AlertDialog.Builder(activity)
-                    .setInverseBackgroundForced(true)
                     .setView(binding.root)
                     .setPositiveButton(R.string.ok) { dialog, _ -> dialog.dismiss() }
                     .create().show()
@@ -57,7 +56,6 @@ class AboutDialog {
             webView.loadUrl("file:///android_asset/licenses.html")
 
             AlertDialog.Builder(activity)
-                    .setInverseBackgroundForced(true)
                     .setTitle(R.string.licenses)
                     .setView(webView)
                     .setPositiveButton(R.string.ok) { dialog, whichButton -> dialog.dismiss() }

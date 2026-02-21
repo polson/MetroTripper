@@ -4,13 +4,19 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager.NameNotFoundException
 import android.view.inputmethod.InputMethodManager
+import android.view.View
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.snackbar.Snackbar
 import com.philsoft.metrotripper.app.nextrip.constants.Regex
 import timber.log.Timber
 import java.util.regex.Pattern
 
 object EZ {
     private const val METERS_PER_DEGREE = 110500 //Approximate number of meters in 1 degree of longitude
+
+    fun showSnackbar(view: View, message: String) {
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG).show()
+    }
 
     fun parseLocationTime(locationTime: String): Long {
         val p = Pattern.compile(Regex.LOCATION_TIME)

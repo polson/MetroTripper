@@ -1,9 +1,9 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBarOverlay">true</item>
+        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
     </style>
 
     <style name="horizontal_line">
@@ -11,7 +11,7 @@
         <item name="android:layout_height">1dip</item>
     </style>
 
-    <style name="Widget.Styled.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+    <style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.ActionBar">
         <item name="android:displayOptions">showHome|useLogo</item>
         <item name="displayOptions">showHome|useLogo</item>
     </style>

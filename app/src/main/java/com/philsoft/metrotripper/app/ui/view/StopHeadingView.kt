@@ -6,9 +6,6 @@ import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
-import com.philsoft.metrotripper.app.state.StopHeadingAction
-import com.philsoft.metrotripper.app.state.StopHeadingUiEvent
-import com.philsoft.metrotripper.app.state.StopHeadingUiEvent.*
 import com.philsoft.metrotripper.databinding.StopHeadingBinding
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.utils.clicks
@@ -23,42 +20,23 @@ class StopHeadingView @JvmOverloads constructor(
 
     private val binding = StopHeadingBinding.inflate(LayoutInflater.from(context), this)
 
-    val scheduleButtonClicks: Flow<ScheduleButtonClicked> by lazy {
+    val scheduleButtonClicks: Flow<Unit> by lazy {
         binding.scheduleButtonWrapper.clicks()
                 .throttleFirst(500)
-                .map { StopHeadingUiEvent.ScheduleButtonClicked }
+                .map { Unit }
     }
 
-    val locationButtonClicks: Flow<LocationButtonClicked> by lazy {
+    val locationButtonClicks: Flow<Unit> by lazy {
         binding.locationButton.clicks()
-                .map { StopHeadingUiEvent.LocationButtonClicked }
+                .map { Unit }
     }
 
-    val saveStopButtonClicks: Flow<SaveStopButtonClicked> by lazy {
+    val saveStopButtonClicks: Flow<Unit> by lazy {
         binding.saveButton.clicks()
-                .map { StopHeadingUiEvent.SaveStopButtonClicked }
+                .map { Unit }
     }
 
-    fun render(action: StopHeadingAction) {
-        when (action) {
-            is StopHeadingAction.ShowStop -> showStop(action.stop, action.isSaved)
-            StopHeadingAction.LoadingTrips -> showProgressSpinner()
-            is StopHeadingAction.LoadTripsComplete -> hideProgressSpinner()
-            is StopHeadingAction.LoadTripsError -> hideProgressSpinner()
-        }
-    }
-
-    private fun hideProgressSpinner() {
-        binding.progressSpinner.gone()
-        binding.scheduleButton.visible()
-    }
-
-    private fun showProgressSpinner() {
-        binding.progressSpinner.visible()
-        binding.scheduleButton.gone()
-    }
-
-    private fun showStop(stop: Stop, isSaved: Boolean) {
+    fun showStop(stop: Stop, isSaved: Boolean) {
         stop.apply {
             binding.route.text = "Stop $stopId"
             binding.description.text = stopName
@@ -68,6 +46,16 @@ class StopHeadingView @JvmOverloads constructor(
                 showAsUnsaved()
             }
         }
+    }
+
+    fun showProgressSpinner() {
+        binding.progressSpinner.visible()
+        binding.scheduleButton.gone()
+    }
+
+    fun hideProgressSpinner() {
+        binding.progressSpinner.gone()
+        binding.scheduleButton.visible()
     }
 
     private fun showAsSaved() = binding.saveButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY)
