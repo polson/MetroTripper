@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -55,6 +56,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.multidex)
 
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.rxjava2)
+    kapt(libs.androidx.room.compiler)
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -88,8 +95,6 @@ dependencies {
     implementation(libs.commons.csv)
     implementation(libs.commons.lang)
     implementation(libs.commons.io)
-    implementation(libs.anko.sqlite)
-    implementation(libs.anko.commons)
 
     // Testing
     testImplementation(libs.junit)

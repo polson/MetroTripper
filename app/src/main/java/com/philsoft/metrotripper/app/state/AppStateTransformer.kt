@@ -19,11 +19,12 @@ class AppStateTransformer(private val dataProvider: DataProvider, private val se
         const val MIN_ZOOM_LEVEL = 16f
     }
 
-    private val initialState = setupInitialState()
-
     override fun apply(observable: Observable<AppUiEvent>): ObservableSource<AppState> {
-        return observable.scan(initialState) { previousState, appUiEvent ->
-            updateState(appUiEvent, previousState)
+        return Observable.defer {
+            val initialState = setupInitialState()
+            observable.scan(initialState) { previousState, appUiEvent ->
+                updateState(appUiEvent, previousState)
+            }
         }
     }
 

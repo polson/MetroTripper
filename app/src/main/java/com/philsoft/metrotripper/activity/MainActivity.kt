@@ -59,10 +59,19 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         actionBar.setDisplayShowTitleEnabled(false)
     }
 
-    private fun populateStops() = DatabasePopulator(this).apply {
-        if (isTableEmpty()) {
-            populateStopsFast()
-        }
+    private fun populateStops() {
+        io.reactivex.Completable.fromAction {
+            val populator = DatabasePopulator(this)
+            if (populator.isTableEmpty()) {
+                populator.populateStopsFast()
+            }
+        }.subscribeOn(io.reactivex.schedulers.Schedulers.io())
+         .observeOn(AndroidSchedulers.mainThread())
+         .subscribe({
+             // Done
+         }, { t ->
+             timber.log.Timber.e(t, "Error populating stops")
+         })
     }
 
     private fun setupDrawer() {
@@ -104,9 +113,10 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         val appStateTransformer = AppStateTransformer(dataProvider, settingsProvider)
         val appActionTransformer = AppActionTransformer()
         val uiEvents = buildUiEvents()
-        uiEvents.observeOn(AndroidSchedulers.mainThread())
+        uiEvents.observeOn(io.reactivex.schedulers.Schedulers.io())
                 .compose(appStateTransformer)
                 .compose(appActionTransformer)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { appAction ->
                     when (appAction) {
                         is MapAction -> mapHelper.render(appAction)
