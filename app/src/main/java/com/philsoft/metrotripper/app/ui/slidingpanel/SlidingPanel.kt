@@ -75,7 +75,8 @@ open class SlidingPanel @JvmOverloads constructor(
         }
     }, dragVelocityThreshold)
 
-    private var panelState: PanelState = PanelState.COLLAPSED
+    var panelState: PanelState = PanelState.COLLAPSED
+        private set
     private var expandAnimator: ObjectAnimator? = null
     private var collapseAnimator: ObjectAnimator? = null
 

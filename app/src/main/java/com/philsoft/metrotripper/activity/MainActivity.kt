@@ -8,6 +8,8 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -70,6 +72,13 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         setupMapFragment()
         setupSlidingPanel()
         checkLocationPermission()
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.slidingPanel) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, systemBars.bottom)
+            binding.slidingPanel.applyBottomInset(systemBars.bottom)
+            insets
+        }
     }
 
     private fun checkLocationPermission() {

@@ -58,8 +58,8 @@
 
         <RelativeLayout
             android:id="@+id/scheduleButtonWrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/gray_button_selector"
             android:paddingBottom="8dip"
@@ -76,15 +76,15 @@
             <ImageView
                 android:id="@+id/scheduleButton"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:src="@drawable/ic_clock" />
         </RelativeLayout>
 
         <ImageView
             android:id="@+id/locationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/gray_button_selector"
             android:paddingBottom="8dip"
@@ -93,7 +93,7 @@
 
         <ImageView
             android:id="@+id/saveButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/gray_button_selector"
