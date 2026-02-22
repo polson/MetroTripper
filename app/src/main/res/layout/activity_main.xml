@@ -1,67 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.philsoft.metrotripper.app.ui.view.MtDrawerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/drawerLayout"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.philsoft.metrotripper.app.ui.view.MtSlidingPanel
-        android:id="@+id/slidingPanel"
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/blue" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.philsoft.metrotripper.app.ui.view.MtDrawerView
+        android:id="@+id/drawerLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:gravity="bottom">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- The main content view -->
-        <RelativeLayout
-            android:id="@+id/content_frame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/map"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.google.android.material.appbar.AppBarLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="@color/blue" />
-
-            </com.google.android.material.appbar.AppBarLayout>
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/sliding_frame"
+        <com.philsoft.metrotripper.app.ui.view.MtSlidingPanel
+            android:id="@+id/slidingPanel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:gravity="bottom">
 
-            <com.philsoft.metrotripper.app.ui.view.StopHeadingView
-                android:id="@+id/stopHeading"
+            <!-- The main content view -->
+            <RelativeLayout
+                android:id="@+id/content_frame"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent">
 
-            <com.philsoft.metrotripper.app.ui.view.TripListView
-                android:id="@+id/tripList"
+                <fragment
+                    android:id="@+id/map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/sliding_frame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/blue" />
-        </LinearLayout>
-    </com.philsoft.metrotripper.app.ui.view.MtSlidingPanel>
+                android:orientation="vertical">
 
-    <com.philsoft.metrotripper.app.ui.view.StopListView
-        android:id="@+id/stopList"
-        android:layout_width="330dip"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/sidebar_bg"
-        android:fitsSystemWindows="true"
-        android:scrollbars="vertical" />
-</com.philsoft.metrotripper.app.ui.view.MtDrawerView>
+                <com.philsoft.metrotripper.app.ui.view.StopHeadingView
+                    android:id="@+id/stopHeading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.philsoft.metrotripper.app.ui.view.TripListView
+                    android:id="@+id/tripList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/blue" />
+            </LinearLayout>
+        </com.philsoft.metrotripper.app.ui.view.MtSlidingPanel>
+
+        <com.philsoft.metrotripper.app.ui.view.StopListView
+            android:id="@+id/stopList"
+            android:layout_width="330dip"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="@color/sidebar_bg"
+            android:scrollbars="vertical" />
+    </com.philsoft.metrotripper.app.ui.view.MtDrawerView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
