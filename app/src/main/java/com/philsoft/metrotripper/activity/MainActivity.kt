@@ -61,6 +61,9 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        setSupportActionBar(binding.toolbar)
+        
         setupActionBar()
         populateStops()
         setupDrawer()
@@ -262,7 +265,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
-    private inner class MtDrawerToggle : ActionBarDrawerToggle(this, binding.drawerLayout, R.string.drawer_open, R.string.drawer_close) {
+    private inner class MtDrawerToggle : ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.drawer_open, R.string.drawer_close) {
         override fun onDrawerClosed(drawerView: View) {
             super.onDrawerClosed(drawerView)
             viewModel.onDrawerClosed()

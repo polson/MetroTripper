@@ -1,12 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/dark_blue</item>
         <item name="colorAccent">@color/kelly_green</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
     </style>
 
     <style name="horizontal_line">
