@@ -5,22 +5,26 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.ui.helper.LocationHelper
-import com.philsoft.metrotripper.app.ui.slidingpanel.SlidingPanel
+import com.philsoft.metrotripper.app.ui.view.MainScreen
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
 import com.philsoft.metrotripper.database.DatabasePopulator
@@ -28,19 +32,14 @@ import com.philsoft.metrotripper.databinding.ActivityMainBinding
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.utils.ui.Ui
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import androidx.lifecycle.lifecycleScope
-
+import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import com.philsoft.metrotripper.viewmodel.MainViewModelFactory
-import com.philsoft.metrotripper.viewmodel.MainUiState
-import com.philsoft.metrotripper.viewmodel.MainUiEffect
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class MainActivity : BaseActivity(), OnMapReadyCallback {
@@ -55,34 +54,54 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private val locationHelper by lazy { LocationHelper(this, permissionGranted) }
     private lateinit var binding: ActivityMainBinding
 
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        permissionGranted.value = isGranted
-    }
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            permissionGranted.value = isGranted
+        }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         setSupportActionBar(binding.toolbar)
-        
+
         setupActionBar()
         populateStops()
         setupDrawer()
-        setupMapFragment()
-        setupSlidingPanel()
         checkLocationPermission()
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.slidingPanel) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, systemBars.bottom)
-            binding.slidingPanel.applyBottomInset(systemBars.bottom)
-            insets
+        binding.mainComposeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                MainScreen(
+                    viewModel = viewModel,
+                    supportFragmentManager = supportFragmentManager,
+                    mapReadyCallback = this@MainActivity,
+                    onEffect = ::handleEffect
+                )
+            }
+        }
+
+        // Listen to stop selections from the drawer
+        lifecycleScope.launch {
+            binding.stopList.stopSearchedEvent.collect { viewModel.onStopSearched(it) }
+        }
+        lifecycleScope.launch {
+            binding.stopList.stopSelectedEvent.collect { viewModel.onStopSelectedFromDrawer(it) }
+        }
+        lifecycleScope.launch {
+            locationHelper.locationEvents.collect { viewModel.onLocationUpdate(it) }
         }
     }
 
     private fun checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             permissionGranted.value = true
         } else {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -120,122 +139,57 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         drawerToggle.syncState()
     }
 
-    private fun setupMapFragment() {
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-    }
-
-    private fun setupSlidingPanel() {
-        binding.slidingPanel.setPanelState(SlidingPanel.PanelState.HIDDEN)
-    }
-
     override fun onMapReady(map: GoogleMap) {
         setupMap(map)
         setupMapViewHelper(map)
-        collectViewModelState()
-        collectViewModelEffects()
-        setupListeners()
-    }
 
-    private fun collectViewModelState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    render(state)
+                    // Map markers
+                    mapHelper.showStopMarkers(state.visibleStops)
+
+                    if (state.selectedStop != null) {
+                        mapVehicleHelper.displayVehicleMarkers(state.trips)
+                    }
+
+                    // Saved stops list in drawer
+                    binding.stopList.showStops(state.savedStops.values.toList())
+
+                    // Enable/disable location button based on state
+                    mapHelper.enableLocationButton(state.isLocationButtonEnabled)
                 }
             }
         }
+        setupMapListeners()
     }
 
-    private fun collectViewModelEffects() {
+    private fun setupMapListeners() {
+        // Marker clicked
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiEffect.collect { effect ->
-                    handleEffect(effect)
-                }
-            }
+            mapHelper.markerClicks.collect { viewModel.onMarkerClicked(it) }
+        }
+        // Camera idle
+        lifecycleScope.launch {
+            mapHelper.cameraIdleEvents.collect { viewModel.onCameraIdle(it) }
         }
     }
 
-    private fun render(state: MainUiState) {
-        // Map markers
-        mapHelper.showStopMarkers(state.visibleStops)
-        
-        // Selected stop
-        if (state.selectedStop != null) {
-            binding.stopHeading.showStop(state.selectedStop, state.isSelectedStopSaved)
-            mapVehicleHelper.displayVehicleMarkers(state.trips)
-            binding.tripList.showTrips(state.trips)
-        }
-        
-        // Trips loading
-        if (state.isLoadingTrips) {
-            binding.stopHeading.showProgressSpinner()
-        } else {
-            binding.stopHeading.hideProgressSpinner()
-        }
-        
-        // Saved stops list in drawer
-        binding.stopList.showStops(state.savedStops.values.toList())
-        
-        // Enable/disable location button based on state
-        mapHelper.enableLocationButton(state.isLocationButtonEnabled)
-    }
-
-    private fun handleEffect(effect: MainUiEffect) {
+    @OptIn(ExperimentalMaterial3Api::class)
+    private fun handleEffect(
+        effect: MainUiEffect,
+        scaffoldState: BottomSheetScaffoldState,
+        scope: CoroutineScope
+    ) {
         when (effect) {
             is MainUiEffect.MoveCamera -> mapHelper.moveCameraToPosition(effect.latLng)
             is MainUiEffect.SelectMarker -> mapHelper.selectStopMarker(effect.stop)
             is MainUiEffect.ShowError -> EZ.showSnackbar(binding.root, effect.message)
             is MainUiEffect.CloseDrawer -> binding.drawerLayout.closeDrawer()
-            is MainUiEffect.ExpandPanel -> binding.slidingPanel.expand()
-            is MainUiEffect.CollapsePanel -> binding.slidingPanel.collapse()
-            is MainUiEffect.HidePanel -> binding.slidingPanel.hide()
+            is MainUiEffect.ExpandPanel -> scope.launch { scaffoldState.bottomSheetState.expand() }
+            is MainUiEffect.CollapsePanel -> scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+            is MainUiEffect.HidePanel -> scope.launch { scaffoldState.bottomSheetState.hide() }
         }
-    }
-
-    private fun setupListeners() {
-        // Stop searched
-        binding.stopList.stopSearchedEvent
-            .onEach { viewModel.onStopSearched(it) }
-            .launchIn(lifecycleScope)
-
-        // Stop selected from drawer
-        binding.stopList.stopSelectedEvent
-            .onEach { viewModel.onStopSelectedFromDrawer(it) }
-            .launchIn(lifecycleScope)
-
-        // Marker clicked
-        mapHelper.markerClicks
-            .onEach { viewModel.onMarkerClicked(it) }
-            .launchIn(lifecycleScope)
-
-        // Camera idle
-        mapHelper.cameraIdleEvents
-            .onEach { viewModel.onCameraIdle(it) }
-            .launchIn(lifecycleScope)
-
-        // Location updates
-        locationHelper.locationEvents
-            .onEach { viewModel.onLocationUpdate(it) }
-            .launchIn(lifecycleScope)
-
-        // Button clicks
-        binding.stopHeading.saveStopButtonClicks
-            .onEach { viewModel.onSaveStopClicked() }
-            .launchIn(lifecycleScope)
-
-        binding.stopHeading.locationButtonClicks
-            .onEach { viewModel.onLocationButtonClicked() }
-            .launchIn(lifecycleScope)
-
-        binding.stopHeading.scheduleButtonClicks
-            .onEach { viewModel.onScheduleButtonClicked() }
-            .launchIn(lifecycleScope)
-
-        binding.slidingPanel.slidingPanelEvents
-            .onEach { viewModel.onPanelExpanded() }
-            .launchIn(lifecycleScope)
     }
 
     @SuppressLint("MissingPermission")
@@ -245,7 +199,8 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun setupMapViewHelper(map: GoogleMap) {
         val stopBitmap = Ui.createBitmapFromDrawableResource(this, 0, 0, R.drawable.ic_bus_stop_2)
-        val starredBitmap = Ui.createBitmapFromDrawableResource(this, 0, 0, R.drawable.ic_star_yellow)
+        val starredBitmap =
+            Ui.createBitmapFromDrawableResource(this, 0, 0, R.drawable.ic_star_yellow)
         mapHelper = MapHelper(stopBitmap, starredBitmap, map)
         mapVehicleHelper = MapVehicleHelper(this, map)
     }
@@ -270,11 +225,18 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 AboutDialog.show(this)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private inner class MtDrawerToggle : ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.drawer_open, R.string.drawer_close) {
+    private inner class MtDrawerToggle : ActionBarDrawerToggle(
+        this,
+        binding.drawerLayout,
+        binding.toolbar,
+        R.string.drawer_open,
+        R.string.drawer_close
+    ) {
         override fun onDrawerClosed(drawerView: View) {
             super.onDrawerClosed(drawerView)
             viewModel.onDrawerClosed()
