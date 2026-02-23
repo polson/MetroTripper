@@ -3,6 +3,7 @@ package com.philsoft.metrotripper.app.ui.view
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
@@ -17,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.FragmentManager
@@ -31,6 +33,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+    modifier: Modifier = Modifier,
     viewModel: MainViewModel,
     supportFragmentManager: FragmentManager,
     mapReadyCallback: OnMapReadyCallback,
@@ -52,9 +55,11 @@ fun MainScreen(
     }
 
     BottomSheetScaffold(
+        modifier = modifier,
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
         sheetShape = RoundedCornerShape(0.dp),
+        sheetContainerColor = Color.Transparent,
         sheetPeekHeight = if (uiState.selectedStop != null) 130.dp else 0.dp,
         sheetContent = {
             Column {

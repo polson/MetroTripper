@@ -1,0 +1,121 @@
+package com.philsoft.metrotripper.app.ui.view
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.fragment.app.FragmentManager
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.philsoft.metrotripper.R
+import com.philsoft.metrotripper.app.about.AboutDialog
+import com.philsoft.metrotripper.app.ui.theme.DarkBlue
+import com.philsoft.metrotripper.utils.EZ
+import com.philsoft.metrotripper.viewmodel.MainUiEffect
+import com.philsoft.metrotripper.viewmodel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MetroTripperApp(
+    viewModel: MainViewModel,
+    supportFragmentManager: FragmentManager,
+    mapReadyCallback: OnMapReadyCallback,
+    onEffect: (MainUiEffect, BottomSheetScaffoldState, CoroutineScope) -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    // Notify ViewModel of drawer state changes
+    LaunchedEffect(drawerState.isOpen) {
+        if (drawerState.isOpen) {
+            viewModel.onDrawerOpened()
+        } else {
+            viewModel.onDrawerClosed()
+            if (context is android.app.Activity) {
+                EZ.hideKeyboard(context)
+            }
+        }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.fillMaxWidth(0.85f), // Matches approx 330dip
+                drawerShape = RectangleShape,
+                drawerContainerColor = Color(0xFF333333)
+            ) {
+                StopList(
+                    stops = uiState.savedStops.values.toList(),
+                    selectedStopId = uiState.selectedStop?.stopId ?: 0L,
+                    onStopSearched = { viewModel.onStopSearched(it) },
+                    onStopSelected = { viewModel.onStopSelectedFromDrawer(it) }
+                )
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = stringResource(R.string.app_name), color = Color.White) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = DarkBlue,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White,
+                        actionIconContentColor = Color.White
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.drawer_open))
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { if (context is android.app.Activity) AboutDialog.show(context) }) {
+                            Icon(Icons.Default.Info, contentDescription = "About")
+                        }
+                    }
+                )
+            }
+        ) { innerPadding ->
+            MainScreen(
+                modifier = Modifier.padding(innerPadding),
+                viewModel = viewModel,
+                supportFragmentManager = supportFragmentManager,
+                mapReadyCallback = mapReadyCallback,
+                onEffect = { effect, scaffoldState, scaffoldScope ->
+                    if (effect is MainUiEffect.CloseDrawer) {
+                        scope.launch { drawerState.close() }
+                    } else {
+                        onEffect(effect, scaffoldState, scaffoldScope)
+                    }
+                }
+            )
+        }
+    }
+}
