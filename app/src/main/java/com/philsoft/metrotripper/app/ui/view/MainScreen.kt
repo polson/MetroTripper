@@ -1,10 +1,16 @@
 package com.philsoft.metrotripper.app.ui.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -19,12 +25,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.FragmentManager
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.databinding.LayoutMapBinding
+import com.philsoft.metrotripper.app.ui.theme.DarkGray
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -33,10 +42,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    modifier: Modifier = Modifier,
     viewModel: MainViewModel,
     supportFragmentManager: FragmentManager,
     mapReadyCallback: OnMapReadyCallback,
+    topBar: @Composable () -> Unit = {},
     onEffect: (MainUiEffect, BottomSheetScaffoldState, CoroutineScope) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,14 +64,18 @@ fun MainScreen(
     }
 
     BottomSheetScaffold(
-        modifier = modifier,
         scaffoldState = scaffoldState,
+        topBar = topBar,
         sheetDragHandle = null,
-        sheetShape = RoundedCornerShape(0.dp),
-        sheetContainerColor = Color.Transparent,
-        sheetPeekHeight = if (uiState.selectedStop != null) 130.dp else 0.dp,
+        sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        sheetContainerColor = DarkGray,
+        sheetPeekHeight = 155.dp,
         sheetContent = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+            ) {
                 StopHeading(
                     stop = uiState.selectedStop,
                     isSaved = uiState.isSelectedStopSaved,
@@ -84,10 +97,10 @@ fun MainScreen(
                 TripList(trips = uiState.trips)
             }
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(paddingValues)
+                .padding(top = innerPadding.calculateTopPadding())
                 .fillMaxSize()
         ) {
             AndroidViewBinding(LayoutMapBinding::inflate) {
