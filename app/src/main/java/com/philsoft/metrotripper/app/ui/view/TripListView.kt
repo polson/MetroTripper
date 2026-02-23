@@ -1,22 +1,35 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import android.content.Context
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.util.AttributeSet
-import com.philsoft.metrotripper.app.nextrip.TripAdapter
+import android.widget.FrameLayout
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.philsoft.metrotripper.model.Trip
 
-class TripListView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
+class TripListView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private val tripAdapter = TripAdapter()
+    private var currentTrips: List<Trip> = emptyList()
+
+    private val composeView = ComposeView(context).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    }
 
     init {
-        layoutManager = LinearLayoutManager(context)
-        adapter = tripAdapter
+        addView(composeView)
+        updateComposeView()
     }
 
     fun showTrips(trips: List<Trip>) {
-        tripAdapter.setTrips(trips)
+        currentTrips = trips
+        updateComposeView()
+    }
+
+    private fun updateComposeView() {
+        composeView.setContent {
+            TripList(trips = currentTrips)
+        }
     }
 }
