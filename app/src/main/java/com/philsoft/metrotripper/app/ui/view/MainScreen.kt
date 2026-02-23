@@ -26,6 +26,7 @@ import com.philsoft.metrotripper.databinding.LayoutMapBinding
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +64,17 @@ fun MainScreen(
                     isLoading = uiState.isLoadingTrips,
                     onScheduleClick = { viewModel.onScheduleButtonClicked() },
                     onLocationClick = { viewModel.onLocationButtonClicked() },
-                    onSaveClick = { viewModel.onSaveStopClicked() }
+                    onSaveClick = { viewModel.onSaveStopClicked() },
+                    onHeaderClick = {
+                        coroutineScope.launch {
+                            val sheetState = scaffoldState.bottomSheetState
+                            if (sheetState.currentValue == SheetValue.Expanded) {
+                                sheetState.partialExpand()
+                            } else {
+                                sheetState.expand()
+                            }
+                        }
+                    }
                 )
                 TripList(trips = uiState.trips)
             }

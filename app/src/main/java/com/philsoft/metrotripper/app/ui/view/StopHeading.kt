@@ -1,6 +1,7 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,11 +37,12 @@ fun StopHeading(
     onScheduleClick: () -> Unit,
     onLocationClick: () -> Unit,
     onSaveClick: () -> Unit,
+    onHeaderClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (stop == null) return
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth().clickable { onHeaderClick() }) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -131,6 +133,7 @@ fun StopHeadingPreview() {
         isLoading = false,
         onScheduleClick = {},
         onLocationClick = {},
-        onSaveClick = {}
+        onSaveClick = {},
+        onHeaderClick = {}
     )
 }
