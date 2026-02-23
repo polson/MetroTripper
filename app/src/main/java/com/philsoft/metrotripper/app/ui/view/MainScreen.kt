@@ -55,7 +55,7 @@ fun MainScreen(
         scaffoldState = scaffoldState,
         sheetDragHandle = null,
         sheetShape = RoundedCornerShape(0.dp),
-        sheetPeekHeight = if (uiState.selectedStop != null) 100.dp else 0.dp,
+        sheetPeekHeight = if (uiState.selectedStop != null) 130.dp else 0.dp,
         sheetContent = {
             Column {
                 StopHeading(
