@@ -1,44 +1,52 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import android.content.Context
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.util.AttributeSet
-import com.philsoft.metrotripper.app.drawer.StopListAdapter
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.platform.AbstractComposeView
 import com.philsoft.metrotripper.model.Stop
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 class StopListView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RecyclerView(context, attrs, defStyleAttr) {
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    private val stopListAdapter = StopListAdapter()
+    private val stopsState = mutableStateListOf<Stop>()
+    private var selectedStopIdState = mutableLongStateOf(0L)
+
+    private var onStopSearchedListener: (Long) -> Unit = {}
+    private var onStopSelectedListener: (Stop) -> Unit = {}
 
     val stopSearchedEvent: Flow<Long> = callbackFlow {
-        stopListAdapter.stopSearchedListener = { stopId ->
-            trySend(stopId)
-        }
-        awaitClose { stopListAdapter.stopSearchedListener = {} }
+        onStopSearchedListener = { stopId -> trySend(stopId) }
+        awaitClose { onStopSearchedListener = {} }
     }
 
     val stopSelectedEvent: Flow<Stop> = callbackFlow {
-        stopListAdapter.stopSelectedListener = { stop ->
-            trySend(stop)
-        }
-        awaitClose { stopListAdapter.stopSelectedListener = {} }
+        onStopSelectedListener = { stop -> trySend(stop) }
+        awaitClose { onStopSelectedListener = {} }
     }
 
-    init {
-        layoutManager = LinearLayoutManager(context)
-        adapter = stopListAdapter
+    @Composable
+    override fun Content() {
+        StopList(
+            stops = stopsState,
+            selectedStopId = selectedStopIdState.longValue,
+            onStopSearched = onStopSearchedListener,
+            onStopSelected = onStopSelectedListener
+        )
     }
 
     fun showStops(stops: List<Stop>) {
-        stopListAdapter.showStops(stops)
+        stopsState.clear()
+        stopsState.addAll(stops)
     }
 
     fun selectStop(stopId: Long) {
-        stopListAdapter.selectedStopId = stopId
+        selectedStopIdState.longValue = stopId
     }
 }
