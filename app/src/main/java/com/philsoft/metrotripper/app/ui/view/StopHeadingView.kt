@@ -1,67 +1,66 @@
 package com.philsoft.metrotripper.app.ui.view
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.widget.RelativeLayout
-import com.philsoft.metrotripper.databinding.StopHeadingBinding
+import android.widget.FrameLayout
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.philsoft.metrotripper.model.Stop
-import com.philsoft.metrotripper.utils.clicks
-import com.philsoft.metrotripper.utils.gone
-import com.philsoft.metrotripper.utils.throttleFirst
-import com.philsoft.metrotripper.utils.visible
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class StopHeadingView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private val binding = StopHeadingBinding.inflate(LayoutInflater.from(context), this)
+    private val _scheduleButtonClicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val _locationButtonClicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val _saveStopButtonClicks = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val scheduleButtonClicks: Flow<Unit> by lazy {
-        binding.scheduleButtonWrapper.clicks()
-                .throttleFirst(500)
-                .map { Unit }
+    val scheduleButtonClicks: Flow<Unit> = _scheduleButtonClicks
+    val locationButtonClicks: Flow<Unit> = _locationButtonClicks
+    val saveStopButtonClicks: Flow<Unit> = _saveStopButtonClicks
+
+    private var currentStop: Stop? = null
+    private var isStopSaved: Boolean = false
+    private var isSpinning: Boolean = false
+
+    private val composeView = ComposeView(context).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
     }
 
-    val locationButtonClicks: Flow<Unit> by lazy {
-        binding.locationButton.clicks()
-                .map { Unit }
-    }
-
-    val saveStopButtonClicks: Flow<Unit> by lazy {
-        binding.saveButton.clicks()
-                .map { Unit }
+    init {
+        addView(composeView)
+        updateComposeView()
     }
 
     fun showStop(stop: Stop, isSaved: Boolean) {
-        stop.apply {
-            binding.route.text = "Stop $stopId"
-            binding.description.text = stopName
-            if (isSaved) {
-                showAsSaved()
-            } else {
-                showAsUnsaved()
-            }
-        }
+        currentStop = stop
+        isStopSaved = isSaved
+        updateComposeView()
     }
 
     fun showProgressSpinner() {
-        binding.progressSpinner.visible()
-        binding.scheduleButton.gone()
+        isSpinning = true
+        updateComposeView()
     }
 
     fun hideProgressSpinner() {
-        binding.progressSpinner.gone()
-        binding.scheduleButton.visible()
+        isSpinning = false
+        updateComposeView()
     }
 
-    private fun showAsSaved() = binding.saveButton.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY)
-
-    private fun showAsUnsaved() {
-        binding.saveButton.colorFilter = null
+    private fun updateComposeView() {
+        composeView.setContent {
+            StopHeading(
+                stop = currentStop,
+                isSaved = isStopSaved,
+                isLoading = isSpinning,
+                onScheduleClick = { _scheduleButtonClicks.tryEmit(Unit) },
+                onLocationClick = { _locationButtonClicks.tryEmit(Unit) },
+                onSaveClick = { _saveStopButtonClicks.tryEmit(Unit) }
+            )
+        }
     }
 }
-
