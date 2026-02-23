@@ -1,6 +1,14 @@
 package com.philsoft.metrotripper.app.ui.view
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,7 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +36,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.ui.theme.DarkBlue
+import com.philsoft.metrotripper.app.ui.theme.LightBlueStatusBar
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
@@ -60,55 +68,73 @@ fun MetroTripperApp(
         }
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.fillMaxWidth(0.85f), // Matches approx 330dip
-                drawerShape = RectangleShape,
-                drawerContainerColor = Color(0xFF333333)
+    Box(Modifier.fillMaxSize()) {
+        // Light blue strip behind the status bar
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .windowInsetsTopHeight(WindowInsets.statusBars)
+                .background(LightBlueStatusBar)
+        )
+        // Main content padded below the status bar
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(WindowInsets.statusBars.asPaddingValues())
+        ) {
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet(
+                        modifier = Modifier.fillMaxWidth(0.85f),
+                        drawerShape = RectangleShape,
+                        drawerContainerColor = Color(0xFF333333)
+                    ) {
+                        StopList(
+                            stops = uiState.savedStops.values.toList(),
+                            selectedStopId = uiState.selectedStop?.stopId ?: 0L,
+                            onStopSearched = { viewModel.onStopSearched(it) },
+                            onStopSelected = { viewModel.onStopSelectedFromDrawer(it) }
+                        )
+                    }
+                }
             ) {
-                StopList(
-                    stops = uiState.savedStops.values.toList(),
-                    selectedStopId = uiState.selectedStop?.stopId ?: 0L,
-                    onStopSearched = { viewModel.onStopSearched(it) },
-                    onStopSelected = { viewModel.onStopSelectedFromDrawer(it) }
-                )
-            }
-        }
-    ) {
-        MainScreen(
-            viewModel = viewModel,
-            supportFragmentManager = supportFragmentManager,
-            mapReadyCallback = mapReadyCallback,
-            topBar = {
-                TopAppBar(
-                    title = { Text(text = stringResource(R.string.app_name), color = Color.White) },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = DarkBlue,
-                        titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White,
-                        actionIconContentColor = Color.White
-                    ),
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(painterResource(id = R.drawable.ic_menu), contentDescription = stringResource(R.string.drawer_open))
-                        }
+                MainScreen(
+                    viewModel = viewModel,
+                    supportFragmentManager = supportFragmentManager,
+                    mapReadyCallback = mapReadyCallback,
+                    topBar = {
+                        TopAppBar(
+                            windowInsets = WindowInsets(0, 0, 0, 0),
+                            title = { Text(text = stringResource(R.string.app_name), color = Color.White) },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = DarkBlue,
+                                titleContentColor = Color.White,
+                                navigationIconContentColor = Color.White,
+                                actionIconContentColor = Color.White
+                            ),
+                            navigationIcon = {
+                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                    Icon(painterResource(id = R.drawable.ic_menu), contentDescription = stringResource(R.string.drawer_open))
+                                }
+                            },
+                            actions = {
+                                IconButton(onClick = { if (context is android.app.Activity) AboutDialog.show(context) }) {
+                                    Icon(painterResource(id = R.drawable.ic_info), contentDescription = "About")
+                                }
+                            }
+                        )
                     },
-                    actions = {
-                        IconButton(onClick = { if (context is android.app.Activity) AboutDialog.show(context) }) {
-                            Icon(painterResource(id = R.drawable.ic_info), contentDescription = "About")
+                    onEffect = { effect, scaffoldState, scaffoldScope ->
+                        if (effect is MainUiEffect.CloseDrawer) {
+                            scope.launch { drawerState.close() }
+                        } else {
+                            onEffect(effect, scaffoldState, scaffoldScope)
                         }
                     }
                 )
-            },
-            onEffect = { effect, scaffoldState, scaffoldScope ->
-                if (effect is MainUiEffect.CloseDrawer) {
-                    scope.launch { drawerState.close() }
-                } else {
-                    onEffect(effect, scaffoldState, scaffoldScope)
-                }
             }
-        )
+        }
     }
 }
+

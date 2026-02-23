@@ -1,16 +1,15 @@
 package com.philsoft.metrotripper.app.ui.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -25,15 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.FragmentManager
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.databinding.LayoutMapBinding
 import com.philsoft.metrotripper.app.ui.theme.DarkGray
+import com.philsoft.metrotripper.databinding.LayoutMapBinding
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -63,44 +60,61 @@ fun MainScreen(
         }
     }
 
+    // Show the sheet after recomposition has set the correct peek height
+    LaunchedEffect(uiState.selectedStop) {
+        if (uiState.selectedStop != null) {
+            scaffoldState.bottomSheetState.partialExpand()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+    val hasStop = uiState.selectedStop != null
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         topBar = topBar,
         sheetDragHandle = null,
         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-        sheetContainerColor = DarkGray,
-        sheetPeekHeight = 155.dp,
+        sheetContainerColor = if (hasStop) DarkGray else Color.Transparent,
+        sheetShadowElevation = if (hasStop) 8.dp else 0.dp,
+        sheetTonalElevation = if (hasStop) 0.dp else 0.dp,
+        sheetPeekHeight = if (hasStop) 155.dp else 0.dp,
         sheetContent = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
-            ) {
-                StopHeading(
-                    stop = uiState.selectedStop,
-                    isSaved = uiState.isSelectedStopSaved,
-                    isLoading = uiState.isLoadingTrips,
-                    onScheduleClick = { viewModel.onScheduleButtonClicked() },
-                    onLocationClick = { viewModel.onLocationButtonClicked() },
-                    onSaveClick = { viewModel.onSaveStopClicked() },
-                    onHeaderClick = {
-                        coroutineScope.launch {
-                            val sheetState = scaffoldState.bottomSheetState
-                            if (sheetState.currentValue == SheetValue.Expanded) {
-                                sheetState.partialExpand()
-                            } else {
-                                sheetState.expand()
+            if (hasStop) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
+                ) {
+                    StopHeading(
+                        stop = uiState.selectedStop,
+                        isSaved = uiState.isSelectedStopSaved,
+                        isLoading = uiState.isLoadingTrips,
+                        onScheduleClick = { viewModel.onScheduleButtonClicked() },
+                        onLocationClick = { viewModel.onLocationButtonClicked() },
+                        onSaveClick = { viewModel.onSaveStopClicked() },
+                        onHeaderClick = {
+                            coroutineScope.launch {
+                                val sheetState = scaffoldState.bottomSheetState
+                                if (sheetState.currentValue == SheetValue.Expanded) {
+                                    sheetState.partialExpand()
+                                } else {
+                                    sheetState.expand()
+                                }
                             }
                         }
-                    }
-                )
-                TripList(trips = uiState.trips)
+                    )
+                    TripList(trips = uiState.trips)
+                }
             }
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(top = innerPadding.calculateTopPadding())
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .fillMaxSize()
         ) {
             AndroidViewBinding(LayoutMapBinding::inflate) {
@@ -110,4 +124,5 @@ fun MainScreen(
             }
         }
     }
+    } // end Box
 }

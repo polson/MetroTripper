@@ -177,7 +177,6 @@ class MainViewModel(
         _uiState.update { it.copy(selectedStop = stop, isSelectedStopSaved = isSaved) }
         _uiEffect.emit(MainUiEffect.MoveCamera(stop.latLng))
         _uiEffect.emit(MainUiEffect.SelectMarker(stop))
-        _uiEffect.emit(MainUiEffect.CollapsePanel)
         loadTrips(stop.stopId, expandPanel = false)
     }
 }

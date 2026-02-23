@@ -1,27 +1,15 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- Base application theme (minimal — UI is driven by Compose) -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryDark">@color/light_blue</item>
-        <item name="android:statusBarColor">@color/light_blue</item>
-        <item name="android:navigationBarColor">@color/light_blue</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">false</item>
-        <item name="colorAccent">@color/kelly_green</item>
-        <item name="windowActionBarOverlay">true</item>
     </style>
 
+    <!-- Used by dialog_about.xml -->
     <style name="horizontal_line">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dip</item>
-    </style>
-
-    <style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.ActionBar">
-        <item name="android:displayOptions">showHome|useLogo|showTitle|homeAsUp</item>
-        <item name="displayOptions">showHome|useLogo|showTitle|homeAsUp</item>
-        <item name="android:background">@color/blue</item>
-        <item name="background">@color/blue</item>
     </style>
 
     <style name="hyperlink">
