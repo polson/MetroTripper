@@ -30,19 +30,20 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
 
         // Fade in new vehicles
         for (trip in trips) {
-            val vehicleMarker = createVehicleMarker(trip)
-            vehicleMarkers.add(vehicleMarker)
-            vehicleMarker.fadeIn(FADE_DURATION)
+            createVehicleMarker(trip)?.let { marker ->
+                vehicleMarkers.add(marker)
+                marker.fadeIn(FADE_DURATION)
+            }
         }
     }
 
-    private fun createVehicleMarker(trip: Trip): Marker {
+    private fun createVehicleMarker(trip: Trip): Marker? {
         val vehicleView = buildVehicleView(trip)
         return map.addMarker(
                 MarkerOptions().anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
                         .title(activity.getString(R.string.vehicle) + " " + trip.route + trip.terminal)
                         .position(LatLng(trip.vehicleLatitude.toDouble(), trip.vehicleLongitude.toDouble()))
-                        .icon(BitmapDescriptorFactory.fromBitmap(vehicleView.createBitmap())))!!
+                        .icon(BitmapDescriptorFactory.fromBitmap(vehicleView.createBitmap())))
     }
 
     private fun buildVehicleView(trip: Trip): View {

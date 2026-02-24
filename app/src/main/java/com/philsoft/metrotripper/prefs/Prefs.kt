@@ -16,10 +16,7 @@ class Prefs private constructor(context: Context) {
         @Synchronized
         @JvmStatic
         fun getInstance(ctx: Context): Prefs {
-            if (instance == null) {
-                instance = Prefs(ctx.applicationContext)
-            }
-            return instance!!
+            return instance ?: Prefs(ctx.applicationContext).also { instance = it }
         }
     }
 

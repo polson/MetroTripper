@@ -22,7 +22,7 @@ object EZ {
         val p = Pattern.compile(Regex.LOCATION_TIME)
         val m = p.matcher(locationTime)
         if (m.matches()) {
-            return m.group(1)!!.toLong()
+            return m.group(1)?.toLong() ?: 0
         }
         Timber.w("Unable to parse location time")
         return 0

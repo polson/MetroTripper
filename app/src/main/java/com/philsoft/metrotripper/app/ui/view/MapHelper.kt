@@ -15,16 +15,14 @@ import com.philsoft.metrotripper.utils.map.fadeIn
 import com.philsoft.metrotripper.utils.map.fadeOutAndRemove
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 
 class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitmap, private val map: GoogleMap) {
 
     val cameraIdleEvents: Flow<CameraPosition> = FlowGoogleMap.cameraIdleEvents(map)
 
     val markerClicks: Flow<Long> = FlowGoogleMap.markerClicks(map)
-        .filter { it.title?.all { char -> char.isDigit() } ?: false }
-        .map { it.title!!.toLong() }
+        .mapNotNull { it.title?.toLongOrNull() }
 
     private val stopMarkersMap = hashMapOf<Long, Marker>()
 
@@ -44,9 +42,10 @@ class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitma
         stops.forEach {
             val markerIsShown = stopMarkersMap.containsKey(it.stopId)
             if (!markerIsShown) {
-                val marker = addStopMarkerToMap(it)
-                marker.fadeIn(500)
-                stopMarkersMap[it.stopId] = marker
+                addStopMarkerToMap(it)?.let { marker ->
+                    marker.fadeIn(500)
+                    stopMarkersMap[it.stopId] = marker
+                }
             }
         }
     }
@@ -56,9 +55,10 @@ class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitma
         if (stopMarkersMap.containsKey(stopId)) {
             stopMarkersMap[stopId]?.showInfoWindow()
         } else {
-            val newMarker = addStopMarkerToMap(stop)
-            newMarker.showInfoWindow()
-            stopMarkersMap[stop.stopId] = newMarker
+            addStopMarkerToMap(stop)?.let { newMarker ->
+                newMarker.showInfoWindow()
+                stopMarkersMap[stop.stopId] = newMarker
+            }
         }
     }
 
@@ -72,11 +72,11 @@ class MapHelper(private val stopBitmap: Bitmap, private val starredBitmap: Bitma
         marker?.fadeOutAndRemove(500)
     }
 
-    private fun addStopMarkerToMap(stop: Stop): Marker {
+    private fun addStopMarkerToMap(stop: Stop): Marker? {
         return map.addMarker(MarkerOptions()
                 .title(stop.stopId.toString())
                 .position(LatLng(stop.stopLat, stop.stopLon))
-                .icon(BitmapDescriptorFactory.fromBitmap(stopBitmap)))!!
+                .icon(BitmapDescriptorFactory.fromBitmap(stopBitmap)))
     }
 }
 
