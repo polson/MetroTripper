@@ -2,13 +2,13 @@ package com.philsoft.metrotripper.app.ui.view
 
 import android.app.Activity
 import android.view.View
+import android.widget.TextView
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.philsoft.metrotripper.R
-import com.philsoft.metrotripper.databinding.VehicleBinding
 import com.philsoft.metrotripper.model.Trip
 import com.philsoft.metrotripper.utils.createBitmap
 import com.philsoft.metrotripper.utils.map.fadeIn
@@ -47,9 +47,8 @@ class MapVehicleHelper(private val activity: Activity, private val map: GoogleMa
     }
 
     private fun buildVehicleView(trip: Trip): View {
-        val binding = VehicleBinding.inflate(activity.layoutInflater, null, false)
-        binding.vehicleNumber.text = "${trip.route}${trip.terminal}"
-        return binding.root
+        val vehicleView = activity.layoutInflater.inflate(R.layout.vehicle, null, false)
+        vehicleView.findViewById<TextView>(R.id.vehicleNumber).text = "${trip.route}${trip.terminal}"
+        return vehicleView
     }
 }
-

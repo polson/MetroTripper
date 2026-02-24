@@ -42,7 +42,7 @@ configure<ApplicationExtension> {
 
     buildFeatures {
         compose = true
-        viewBinding = true
+        viewBinding = false
     }
 }
 
