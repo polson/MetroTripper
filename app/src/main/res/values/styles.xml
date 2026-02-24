@@ -6,13 +6,4 @@
         <item name="android:windowTranslucentStatus">false</item>
     </style>
 
-    <!-- Used by dialog_about.xml -->
-    <style name="horizontal_line">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dip</item>
-    </style>
-
-    <style name="hyperlink">
-        <item name="android:textColor">@color/hyperlink_blue</item>
-    </style>
 </resources>

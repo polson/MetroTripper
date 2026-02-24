@@ -24,7 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -55,6 +59,7 @@ fun MetroTripperApp(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var showAboutDialog by remember { mutableStateOf(false) }
 
     // Notify ViewModel of drawer state changes
     LaunchedEffect(drawerState.isOpen) {
@@ -82,6 +87,9 @@ fun MetroTripperApp(
                 .fillMaxSize()
                 .padding(WindowInsets.statusBars.asPaddingValues())
         ) {
+            if (showAboutDialog) {
+                AboutDialog(onDismiss = { showAboutDialog = false })
+            }
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
@@ -119,7 +127,7 @@ fun MetroTripperApp(
                                 }
                             },
                             actions = {
-                                IconButton(onClick = { if (context is android.app.Activity) AboutDialog.show(context) }) {
+                                IconButton(onClick = { showAboutDialog = true }) {
                                     Icon(painterResource(id = R.drawable.ic_info), contentDescription = "About")
                                 }
                             }
