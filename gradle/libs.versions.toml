@@ -6,8 +6,9 @@ targetSdk = "35"
 compileSdk = "35"
 
 # Build Tools
-agp = "8.6.0"
-kotlin = "2.0.21"
+agp = "9.0.1"
+kotlin = "2.2.10"
+ksp = "2.3.2"
 
 # AndroidX / Core
 coreKtx = "1.13.1"
@@ -105,7 +106,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "a
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso-core" }
 
 [plugins]
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }

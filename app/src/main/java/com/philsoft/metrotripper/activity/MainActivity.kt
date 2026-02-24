@@ -119,15 +119,12 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    // Map markers
                     mapHelper.showStopMarkers(state.visibleStops)
+                    mapHelper.enableLocationButton(state.isLocationButtonEnabled)
 
                     if (state.selectedStop != null) {
                         mapVehicleHelper.displayVehicleMarkers(state.trips)
                     }
-
-                    // Enable/disable location button based on state
-                    mapHelper.enableLocationButton(state.isLocationButtonEnabled)
                 }
             }
         }
@@ -135,11 +132,9 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun setupMapListeners() {
-        // Marker clicked
         lifecycleScope.launch {
             mapHelper.markerClicks.collect { viewModel.onMarkerClicked(it) }
         }
-        // Camera idle
         lifecycleScope.launch {
             mapHelper.cameraIdleEvents.collect { viewModel.onCameraIdle(it) }
         }
