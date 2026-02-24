@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
-import android.view.inputmethod.InputMethodManager
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.philsoft.metrotripper.app.nextrip.constants.Regex

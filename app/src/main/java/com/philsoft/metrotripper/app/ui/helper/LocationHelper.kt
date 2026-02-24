@@ -4,7 +4,9 @@ import android.content.Context
 import com.google.android.gms.location.LocationResult
 import com.philsoft.metrotripper.utils.map.LocationClient
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 
 /**
  * Provides a flow for location update events.  Must be initialized in onCreate of an activity

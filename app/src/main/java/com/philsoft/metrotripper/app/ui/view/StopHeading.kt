@@ -3,7 +3,6 @@ package com.philsoft.metrotripper.app.ui.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.ui.theme.DarkGray
 import com.philsoft.metrotripper.app.ui.theme.Gray
-import com.philsoft.metrotripper.app.ui.theme.LightGray
 import com.philsoft.metrotripper.app.ui.theme.YellowSaved
 import com.philsoft.metrotripper.model.Stop
 

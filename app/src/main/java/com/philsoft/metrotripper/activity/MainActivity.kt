@@ -6,10 +6,9 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -31,7 +30,6 @@ import com.philsoft.metrotripper.utils.ui.Ui
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import com.philsoft.metrotripper.viewmodel.MainViewModelFactory
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch

@@ -1,7 +1,10 @@
 package com.philsoft.metrotripper.app.ui.slidingpanel
 
 import android.view.MotionEvent
-import android.view.MotionEvent.*
+import android.view.MotionEvent.ACTION_CANCEL
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_UP
 import android.view.VelocityTracker
 
 /**

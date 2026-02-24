@@ -5,7 +5,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
 
 fun View.clicks(): Flow<Unit> = callbackFlow {
     setOnClickListener {

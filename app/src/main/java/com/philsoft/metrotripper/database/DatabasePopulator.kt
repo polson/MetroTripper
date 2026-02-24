@@ -5,7 +5,6 @@ import com.philsoft.metrotripper.database.dao.StopDao
 import com.philsoft.metrotripper.model.Stop
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import org.apache.commons.csv.CSVRecord
 import timber.log.Timber
 import java.io.InputStreamReader
 
