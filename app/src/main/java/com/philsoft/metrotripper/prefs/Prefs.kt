@@ -1,45 +1,64 @@
 package com.philsoft.metrotripper.prefs
 
 import android.content.Context
-import java.util.*
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.first
+import java.util.LinkedHashSet
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "defaultBucket")
 
-class Prefs private constructor(context: Context) {
-    private val prefs = context.getSharedPreferences(DEFAULT_PREFS_BUCKET, Context.MODE_PRIVATE)
+class Prefs(private val context: Context) {
 
     companion object {
-        private const val DEFAULT_PREFS_BUCKET = "defaultBucket"
-        private const val KEY_SAVED_STOPS = "KEY_SAVED_STOPS"
-        private const val KEY_STOPS_VERSION = "KEY_STOPS_VERSION"
-
+        private val KEY_SAVED_STOPS = stringPreferencesKey("KEY_SAVED_STOPS")
+        private val KEY_STOPS_VERSION = intPreferencesKey("KEY_STOPS_VERSION")
+        
+        @Volatile
         private var instance: Prefs? = null
-        @Synchronized
-        @JvmStatic
+        
         fun getInstance(ctx: Context): Prefs {
-            return instance ?: Prefs(ctx.applicationContext).also { instance = it }
+            return instance ?: synchronized(this) {
+                instance ?: Prefs(ctx.applicationContext).also { instance = it }
+            }
         }
     }
 
-    private var savedStops: String
-        get() = prefs.getString(KEY_SAVED_STOPS, "") ?: ""
-        set(stops) = prefs.edit().putString(KEY_SAVED_STOPS, stops).apply()
-
-    var stopsVersion: Int
-        get() = prefs.getInt(KEY_STOPS_VERSION, 0)
-        set(version) = prefs.edit().putInt(KEY_STOPS_VERSION, version).apply()
-
-    fun saveStopId(stopId: Long) {
-        val stops = getSavedStopIds()
-        stops.add(stopId)
-        savedStops = stops.joinToString(",")
+    suspend fun getStopsVersion(): Int {
+        val prefs = context.dataStore.data.first()
+        return prefs[KEY_STOPS_VERSION] ?: 0
     }
 
-    fun getSavedStopIds(): LinkedHashSet<Long> {
+    suspend fun setStopsVersion(version: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_STOPS_VERSION] = version
+        }
+    }
+
+    suspend fun getSavedStopIds(): LinkedHashSet<Long> {
+        val prefs = context.dataStore.data.first()
+        val savedStops = prefs[KEY_SAVED_STOPS] ?: ""
         return savedStops.split(",").filterNot { it.isEmpty() }.mapTo(linkedSetOf()) { it.toLong() }
     }
 
-    fun removeStopId(stopId: Long) {
-        val stops = getSavedStopIds().filterNot { it == stopId }.joinToString(",")
-        savedStops = stops
+    suspend fun saveStopId(stopId: Long) {
+        val stops = getSavedStopIds()
+        stops.add(stopId)
+        val newStopsStr = stops.joinToString(",")
+        context.dataStore.edit { prefs ->
+            prefs[KEY_SAVED_STOPS] = newStopsStr
+        }
+    }
+
+    suspend fun removeStopId(stopId: Long) {
+        val stops = getSavedStopIds()
+        val newStopsStr = stops.filterNot { it == stopId }.joinToString(",")
+        context.dataStore.edit { prefs ->
+            prefs[KEY_SAVED_STOPS] = newStopsStr
+        }
     }
 }

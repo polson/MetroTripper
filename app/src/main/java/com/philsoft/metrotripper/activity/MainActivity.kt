@@ -99,11 +99,12 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                     val populator = DatabasePopulator(this@MainActivity)
                     val prefs = Prefs.getInstance(this@MainActivity)
                     val currentVersion = 2 // Update this version when stops.txt is updated
-                    if (populator.isTableEmpty() || prefs.stopsVersion < currentVersion) {
-                        Timber.d("Populating stops... current version: ${prefs.stopsVersion}, target version: $currentVersion")
+                    val stopsVersion = prefs.getStopsVersion()
+                    if (populator.isTableEmpty() || stopsVersion < currentVersion) {
+                        Timber.d("Populating stops... current version: $stopsVersion, target version: $currentVersion")
                         populator.clearStops()
                         populator.populateStopsFast()
-                        prefs.stopsVersion = currentVersion
+                        prefs.setStopsVersion(currentVersion)
                     }
                 }
             } catch (e: Exception) {

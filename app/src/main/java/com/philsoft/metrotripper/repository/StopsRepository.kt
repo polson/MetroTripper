@@ -20,11 +20,11 @@ class StopsRepository(private val stopDao: StopDao, private val prefs: Prefs) {
         stopDao.getClosestStops(lat, lon, max)
     }
 
-    fun getSavedStopIds(): Set<Long> = prefs.getSavedStopIds()
+    suspend fun getSavedStopIds(): Set<Long> = prefs.getSavedStopIds()
 
-    fun isStopSaved(stopId: Long): Boolean = prefs.getSavedStopIds().contains(stopId)
+    suspend fun isStopSaved(stopId: Long): Boolean = prefs.getSavedStopIds().contains(stopId)
 
-    fun saveStop(stopId: Long) = prefs.saveStopId(stopId)
+    suspend fun saveStop(stopId: Long) = prefs.saveStopId(stopId)
 
-    fun unsaveStop(stopId: Long) = prefs.removeStopId(stopId)
+    suspend fun unsaveStop(stopId: Long) = prefs.removeStopId(stopId)
 }

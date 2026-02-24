@@ -85,21 +85,23 @@ class MainViewModel(
         val selectedStop = _uiState.value.selectedStop ?: return
         val isSaved = _uiState.value.isSelectedStopSaved
         
-        if (isSaved) {
-            stopsRepository.unsaveStop(selectedStop.stopId)
-            _uiState.update { state ->
-                state.copy(
-                    isSelectedStopSaved = false,
-                    savedStops = state.savedStops.filterKeys { it != selectedStop.stopId }
-                )
-            }
-        } else {
-            stopsRepository.saveStop(selectedStop.stopId)
-            _uiState.update { state ->
-                state.copy(
-                    isSelectedStopSaved = true,
-                    savedStops = state.savedStops + (selectedStop.stopId to selectedStop)
-                )
+        viewModelScope.launch {
+            if (isSaved) {
+                stopsRepository.unsaveStop(selectedStop.stopId)
+                _uiState.update { state ->
+                    state.copy(
+                        isSelectedStopSaved = false,
+                        savedStops = state.savedStops.filterKeys { it != selectedStop.stopId }
+                    )
+                }
+            } else {
+                stopsRepository.saveStop(selectedStop.stopId)
+                _uiState.update { state ->
+                    state.copy(
+                        isSelectedStopSaved = true,
+                        savedStops = state.savedStops + (selectedStop.stopId to selectedStop)
+                    )
+                }
             }
         }
     }
