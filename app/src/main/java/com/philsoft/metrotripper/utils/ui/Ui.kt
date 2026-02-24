@@ -1,12 +1,10 @@
 package com.philsoft.metrotripper.utils.ui
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
 import android.view.WindowManager
-import com.philsoft.metrotripper.utils.createBitmap
 
 
 object Ui {
@@ -15,11 +13,6 @@ object Ui {
         val bd = d.current as BitmapDrawable
         val b = bd.bitmap
         return Bitmap.createScaledBitmap(b, b.width + widthOffset, b.height + heightOffset, false)
-    }
-
-    fun createBitmapFromLayoutResource(activity: Activity, layoutResource: Int): Bitmap {
-        val view = activity.layoutInflater.inflate(layoutResource, null, false)
-        return view.createBitmap()
     }
 
     fun getCurrentScreenHeight(context: Context): Int {
