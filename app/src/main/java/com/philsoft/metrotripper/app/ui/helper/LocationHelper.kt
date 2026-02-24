@@ -3,6 +3,7 @@ package com.philsoft.metrotripper.app.ui.helper
 import android.content.Context
 import com.google.android.gms.location.LocationResult
 import com.philsoft.metrotripper.utils.map.LocationClient
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 /**
@@ -12,6 +13,7 @@ class LocationHelper(val context: Context, private val permissionGranted: Flow<B
 
     val locationEvents: Flow<LocationResult> = setupLocationEvents()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun setupLocationEvents(): Flow<LocationResult> {
         return permissionGranted.flatMapLatest { granted ->
             if (granted) {

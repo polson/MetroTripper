@@ -20,7 +20,7 @@ class DatabasePopulator(private val context: Context) {
     fun populateStopsFast() {
         val assetManager = context.assets
         val inputStream = assetManager.open(STOPS_FILE)
-        val parser = CSVParser(InputStreamReader(inputStream), CSVFormat.RFC4180.withHeader())
+        val parser = CSVParser(InputStreamReader(inputStream), CSVFormat.RFC4180.builder().setHeader().build())
         
         val startTime = System.currentTimeMillis()
         val records = parser.iterator()

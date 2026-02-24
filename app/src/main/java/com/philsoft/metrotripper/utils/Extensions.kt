@@ -1,6 +1,5 @@
 package com.philsoft.metrotripper.utils
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -28,21 +27,14 @@ fun View.visible() {
 }
 
 fun View.createBitmap(): Bitmap {
-    val displayMetrics = getDisplayMetrics(context as Activity)
+    val displayMetrics = context.resources.displayMetrics
     layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     measure(displayMetrics.widthPixels, displayMetrics.heightPixels)
     layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
-    buildDrawingCache()
     val bitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     draw(canvas)
     return bitmap
-}
-
-private fun getDisplayMetrics(activity: Activity): DisplayMetrics {
-    val displayMetrics = DisplayMetrics()
-    activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
-    return displayMetrics
 }
 
 fun Context.dpToPx(dp: Int): Int {

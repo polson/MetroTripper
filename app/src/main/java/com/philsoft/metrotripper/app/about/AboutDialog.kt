@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
@@ -27,14 +26,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkAnnotation.Url
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +48,6 @@ fun AboutDialog(onDismiss: () -> Unit) {
     var showLicenses by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val versionName = EZ.getAppVersion(context)
-    val uriHandler = LocalUriHandler.current
 
     if (showLicenses) {
         AlertDialog(
@@ -117,28 +117,23 @@ fun AboutDialog(onDismiss: () -> Unit) {
                 val annotatedString = buildAnnotatedString {
                     append("Copyright 2018 Phil Olson\n\n")
                     append("You can find me on GitHub at ")
-                    pushStringAnnotation(tag = "URL", annotation = "https://github.com/polson")
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
-                        append("https://github.com/polson")
+                    withLink(Url("https://github.com/polson")) {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
+                            append("https://github.com/polson")
+                        }
                     }
-                    pop()
                     append("\n\nTrip data provided by ")
-                    pushStringAnnotation(tag = "URL", annotation = "http://www.metrotransit.org/")
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
-                        append("Metro Transit")
+                    withLink(Url("http://www.metrotransit.org/")) {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
+                            append("Metro Transit")
+                        }
                     }
-                    pop()
                     append(" NexTrip API")
                 }
 
-                ClickableText(
+                Text(
                     text = annotatedString,
-                    style = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface),
-                    onClick = { offset ->
-                        annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset).firstOrNull()?.let { annotation ->
-                            uriHandler.openUri(annotation.item)
-                        }
-                    }
+                    style = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

@@ -27,13 +27,14 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
+import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.philsoft.metrotripper.app.ui.theme.DarkGray
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
