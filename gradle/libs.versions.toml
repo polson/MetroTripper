@@ -2,7 +2,7 @@
 room = "2.8.4"
 
 # SDK
-minSdk = "24"
+minSdk = "26"
 targetSdk = "36"
 compileSdk = "36"
 
@@ -28,6 +28,7 @@ retrofit = "3.0.0"
 
 # Async / Reactive
 coroutines = "1.10.2"
+kotlinxSerialization = "1.6.3"
 
 # Utils
 timber = "5.0.1"
@@ -75,10 +76,11 @@ maps-compose = { group = "com.google.maps.android", name = "maps-compose", versi
 
 # Networking
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+retrofit-converter-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
 
 # Async / Reactive
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
 # Utils
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
@@ -96,3 +98,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

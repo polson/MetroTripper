@@ -1,7 +1,9 @@
 package com.philsoft.metrotripper.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class NexTripResult(
-    @SerializedName("departures") val departures: List<Trip> = emptyList()
+    @SerialName("departures") val departures: List<Trip> = emptyList()
 )
