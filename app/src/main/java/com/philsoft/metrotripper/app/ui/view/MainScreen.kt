@@ -18,9 +18,12 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -42,7 +45,7 @@ fun MainScreen(
     topBar: @Composable () -> Unit = {},
     onEffect: (MainUiEffect, BottomSheetScaffoldState, CoroutineScope) -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
             initialValue = SheetValue.Hidden,
@@ -51,10 +54,13 @@ fun MainScreen(
     )
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.uiEffect.collect { effect ->
-            onEffect(effect, scaffoldState, coroutineScope)
-        }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(viewModel.uiEffect, lifecycleOwner.lifecycle) {
+        viewModel.uiEffect
+            .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .collect { effect ->
+                onEffect(effect, scaffoldState, coroutineScope)
+            }
     }
 
     // Show the sheet after recomposition has set the correct peek height

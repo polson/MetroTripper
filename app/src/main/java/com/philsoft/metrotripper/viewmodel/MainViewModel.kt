@@ -8,10 +8,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.repository.NexTripRepository
 import com.philsoft.metrotripper.repository.StopsRepository
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -30,8 +30,8 @@ class MainViewModel(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _uiEffect = MutableSharedFlow<MainUiEffect>()
-    val uiEffect = _uiEffect.asSharedFlow()
+    private val _uiEffect = Channel<MainUiEffect>(Channel.BUFFERED)
+    val uiEffect = _uiEffect.receiveAsFlow()
 
     init {
         loadInitialState()
@@ -52,7 +52,7 @@ class MainViewModel(
             if (stop != null) {
                 handleStopSelected(stop)
             } else {
-                _uiEffect.emit(MainUiEffect.ShowError("Stop not found"))
+                _uiEffect.send(MainUiEffect.ShowError("Stop not found"))
             }
         }
     }
@@ -110,7 +110,7 @@ class MainViewModel(
         viewModelScope.launch {
             handleStopSelected(stop)
             _uiState.update { it.copy(isDrawerOpen = false) }
-            _uiEffect.emit(MainUiEffect.CloseDrawer)
+            _uiEffect.send(MainUiEffect.CloseDrawer)
         }
     }
 
@@ -128,9 +128,9 @@ class MainViewModel(
             if (lastLocation != null) {
                 val latLng = LatLng(lastLocation.latitude, lastLocation.longitude)
                 _uiState.update { it.copy(isLocationButtonEnabled = true) }
-                _uiEffect.emit(MainUiEffect.MoveCamera(latLng))
+                _uiEffect.send(MainUiEffect.MoveCamera(latLng))
             } else {
-                _uiEffect.emit(MainUiEffect.MoveCamera(MINNEAPOLIS_LATLNG))
+                _uiEffect.send(MainUiEffect.MoveCamera(MINNEAPOLIS_LATLNG))
             }
         }
     }
@@ -139,9 +139,9 @@ class MainViewModel(
         val selectedStop = _uiState.value.selectedStop
         if (selectedStop != null) {
             viewModelScope.launch {
-                _uiEffect.emit(MainUiEffect.MoveCamera(selectedStop.latLng))
-                _uiEffect.emit(MainUiEffect.SelectMarker(selectedStop))
-                _uiEffect.emit(MainUiEffect.CollapsePanel)
+                _uiEffect.send(MainUiEffect.MoveCamera(selectedStop.latLng))
+                _uiEffect.send(MainUiEffect.SelectMarker(selectedStop))
+                _uiEffect.send(MainUiEffect.CollapsePanel)
             }
         }
     }
@@ -160,7 +160,7 @@ class MainViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingTrips = true) }
             if (expandPanel) {
-                _uiEffect.emit(MainUiEffect.ExpandPanel)
+                _uiEffect.send(MainUiEffect.ExpandPanel)
             }
             
             val result = nexTripRepository.getTrips(stopId)
@@ -169,7 +169,7 @@ class MainViewModel(
             }.onFailure { e ->
                 Timber.e(e, "Error loading trips")
                 _uiState.update { it.copy(isLoadingTrips = false) }
-                _uiEffect.emit(MainUiEffect.ShowError("Error loading trips"))
+                _uiEffect.send(MainUiEffect.ShowError("Error loading trips"))
             }
         }
     }
@@ -177,8 +177,8 @@ class MainViewModel(
     private suspend fun handleStopSelected(stop: Stop) {
         val isSaved = stopsRepository.isStopSaved(stop.stopId)
         _uiState.update { it.copy(selectedStop = stop, isSelectedStopSaved = isSaved) }
-        _uiEffect.emit(MainUiEffect.MoveCamera(stop.latLng))
-        _uiEffect.emit(MainUiEffect.SelectMarker(stop))
+        _uiEffect.send(MainUiEffect.MoveCamera(stop.latLng))
+        _uiEffect.send(MainUiEffect.SelectMarker(stop))
         loadTrips(stop.stopId, expandPanel = false)
     }
 }
