@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 fun MetroTripperApp(
     viewModel: MainViewModel,
     mapReadyCallback: OnMapReadyCallback,
-    onEffect: (MainUiEffect, BottomSheetScaffoldState, CoroutineScope) -> Unit
+    onEffect: (MainUiEffect) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -130,11 +130,11 @@ fun MetroTripperApp(
                             }
                         )
                     },
-                    onEffect = { effect, scaffoldState, scaffoldScope ->
+                    onEffect = { effect ->
                         if (effect is MainUiEffect.CloseDrawer) {
                             scope.launch { drawerState.close() }
                         } else {
-                            onEffect(effect, scaffoldState, scaffoldScope)
+                            onEffect(effect)
                         }
                     }
                 )

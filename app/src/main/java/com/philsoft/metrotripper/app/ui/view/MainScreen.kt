@@ -43,7 +43,7 @@ fun MainScreen(
     viewModel: MainViewModel,
     mapReadyCallback: OnMapReadyCallback,
     topBar: @Composable () -> Unit = {},
-    onEffect: (MainUiEffect, BottomSheetScaffoldState, CoroutineScope) -> Unit
+    onEffect: (MainUiEffect) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scaffoldState = rememberBottomSheetScaffoldState(
@@ -59,7 +59,7 @@ fun MainScreen(
         viewModel.uiEffect
             .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .collect { effect ->
-                onEffect(effect, scaffoldState, coroutineScope)
+                onEffect(effect)
             }
     }
 
@@ -95,8 +95,14 @@ fun MainScreen(
                         stop = uiState.selectedStop,
                         isSaved = uiState.isSelectedStopSaved,
                         isLoading = uiState.isLoadingTrips,
-                        onScheduleClick = { viewModel.onScheduleButtonClicked() },
-                        onLocationClick = { viewModel.onLocationButtonClicked() },
+                        onScheduleClick = {
+                            coroutineScope.launch { scaffoldState.bottomSheetState.expand() }
+                            viewModel.onScheduleButtonClicked()
+                        },
+                        onLocationClick = {
+                            coroutineScope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                            viewModel.onLocationButtonClicked()
+                        },
                         onSaveClick = { viewModel.onSaveStopClicked() },
                         onHeaderClick = {
                             coroutineScope.launch {

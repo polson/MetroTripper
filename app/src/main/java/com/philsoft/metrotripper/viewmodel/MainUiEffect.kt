@@ -8,7 +8,4 @@ sealed class MainUiEffect {
     data class SelectMarker(val stop: Stop) : MainUiEffect()
     data class ShowError(val message: String) : MainUiEffect()
     object CloseDrawer : MainUiEffect()
-    object ExpandPanel : MainUiEffect()
-    object CollapsePanel : MainUiEffect()
-    object HidePanel : MainUiEffect()
 }

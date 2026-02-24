@@ -141,27 +141,23 @@ class MainViewModel(
             viewModelScope.launch {
                 _uiEffect.send(MainUiEffect.MoveCamera(selectedStop.latLng))
                 _uiEffect.send(MainUiEffect.SelectMarker(selectedStop))
-                _uiEffect.send(MainUiEffect.CollapsePanel)
             }
         }
     }
 
     fun onPanelExpanded() {
         val selectedStop = _uiState.value.selectedStop ?: return
-        loadTrips(selectedStop.stopId, expandPanel = false)
+        loadTrips(selectedStop.stopId)
     }
 
     fun onScheduleButtonClicked() {
         val selectedStop = _uiState.value.selectedStop ?: return
-        loadTrips(selectedStop.stopId, expandPanel = true)
+        loadTrips(selectedStop.stopId)
     }
 
-    private fun loadTrips(stopId: Long, expandPanel: Boolean) {
+    private fun loadTrips(stopId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingTrips = true) }
-            if (expandPanel) {
-                _uiEffect.send(MainUiEffect.ExpandPanel)
-            }
             
             val result = nexTripRepository.getTrips(stopId)
             result.onSuccess { trips ->
@@ -179,6 +175,6 @@ class MainViewModel(
         _uiState.update { it.copy(selectedStop = stop, isSelectedStopSaved = isSaved) }
         _uiEffect.send(MainUiEffect.MoveCamera(stop.latLng))
         _uiEffect.send(MainUiEffect.SelectMarker(stop))
-        loadTrips(stop.stopId, expandPanel = false)
+        loadTrips(stop.stopId)
     }
 }

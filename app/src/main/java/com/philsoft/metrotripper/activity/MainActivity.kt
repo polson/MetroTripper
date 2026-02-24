@@ -141,18 +141,11 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun handleEffect(
-        effect: MainUiEffect,
-        scaffoldState: BottomSheetScaffoldState,
-        scope: CoroutineScope
-    ) {
+    private fun handleEffect(effect: MainUiEffect) {
         when (effect) {
             is MainUiEffect.MoveCamera -> mapHelper.moveCameraToPosition(effect.latLng)
             is MainUiEffect.SelectMarker -> mapHelper.selectStopMarker(effect.stop)
             is MainUiEffect.ShowError -> EZ.showSnackbar(findViewById(android.R.id.content), effect.message)
-            is MainUiEffect.ExpandPanel -> scope.launch { scaffoldState.bottomSheetState.expand() }
-            is MainUiEffect.CollapsePanel -> scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-            is MainUiEffect.HidePanel -> scope.launch { scaffoldState.bottomSheetState.hide() }
             else -> {}
         }
     }
