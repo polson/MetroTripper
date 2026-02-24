@@ -2,7 +2,9 @@ package com.philsoft.metrotripper.utils
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
+import android.os.Build
 import android.view.inputmethod.InputMethodManager
 import android.view.View
 import com.google.android.gms.maps.model.LatLng
@@ -48,7 +50,11 @@ object EZ {
         val pm = context.packageManager
         val packageName = context.packageName
         return try {
-            val info = pm.getPackageInfo(packageName, 0)
+            val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                pm.getPackageInfo(packageName, 0)
+            }
             info.versionName ?: "N/A"
         } catch (e: NameNotFoundException) {
             "N/A"

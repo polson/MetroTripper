@@ -115,7 +115,7 @@ fun AboutDialog(onDismiss: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 val annotatedString = buildAnnotatedString {
-                    append("Copyright 2018 Phil Olson\n\n")
+                    append("Copyright 2026 Phil Olson\n\n")
                     append("You can find me on GitHub at ")
                     withLink(Url("https://github.com/polson")) {
                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
