@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.fragment.app.FragmentManager
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.about.AboutDialog
@@ -51,7 +50,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun MetroTripperApp(
     viewModel: MainViewModel,
-    supportFragmentManager: FragmentManager,
     mapReadyCallback: OnMapReadyCallback,
     onEffect: (MainUiEffect, BottomSheetScaffoldState, CoroutineScope) -> Unit
 ) {
@@ -109,7 +107,6 @@ fun MetroTripperApp(
             ) {
                 MainScreen(
                     viewModel = viewModel,
-                    supportFragmentManager = supportFragmentManager,
                     mapReadyCallback = mapReadyCallback,
                     topBar = {
                         TopAppBar(

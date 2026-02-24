@@ -24,12 +24,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidViewBinding
-import androidx.fragment.app.FragmentManager
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.philsoft.metrotripper.R
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapEffect
 import com.philsoft.metrotripper.app.ui.theme.DarkGray
-import com.philsoft.metrotripper.databinding.LayoutMapBinding
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +37,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
-    supportFragmentManager: FragmentManager,
     mapReadyCallback: OnMapReadyCallback,
     topBar: @Composable () -> Unit = {},
     onEffect: (MainUiEffect, BottomSheetScaffoldState, CoroutineScope) -> Unit
@@ -116,10 +113,12 @@ fun MainScreen(
                 .consumeWindowInsets(innerPadding)
                 .fillMaxSize()
         ) {
-            AndroidViewBinding(LayoutMapBinding::inflate) {
-                val mapFragment =
-                    supportFragmentManager.findFragmentById(R.id.map) as? com.google.android.gms.maps.SupportMapFragment
-                mapFragment?.getMapAsync(mapReadyCallback)
+            GoogleMap(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                MapEffect { map ->
+                    mapReadyCallback.onMapReady(map)
+                }
             }
         }
     }

@@ -70,7 +70,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         setContent {
             MetroTripperApp(
                 viewModel = viewModel,
-                supportFragmentManager = supportFragmentManager,
                 mapReadyCallback = this@MainActivity,
                 onEffect = ::handleEffect
             )
