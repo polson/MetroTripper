@@ -16,15 +16,6 @@ class Prefs(private val context: Context) {
     companion object {
         private val KEY_SAVED_STOPS = stringPreferencesKey("KEY_SAVED_STOPS")
         private val KEY_STOPS_VERSION = intPreferencesKey("KEY_STOPS_VERSION")
-        
-        @Volatile
-        private var instance: Prefs? = null
-        
-        fun getInstance(ctx: Context): Prefs {
-            return instance ?: synchronized(this) {
-                instance ?: Prefs(ctx.applicationContext).also { instance = it }
-            }
-        }
     }
 
     suspend fun getStopsVersion(): Int {

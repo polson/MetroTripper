@@ -11,7 +11,7 @@ class DatabasePopulator(private val stopDao: StopDao) {
     val isTableEmpty: Boolean
         get() = stopDao.isTableEmpty()
 
-    fun populateStopsFast(inputStream: InputStream) {
+    fun populateStops(inputStream: InputStream) {
         stopDao.deleteAll()
 
         val parser = CSVFormat.RFC4180.builder().setHeader().build().parse(InputStreamReader(inputStream))
@@ -43,5 +43,9 @@ class DatabasePopulator(private val stopDao: StopDao) {
         }
         val elapsed = System.currentTimeMillis() - startTime
         Timber.d("Inserted $count stops in $elapsed ms")
+    }
+
+    companion object {
+        const val CURRENT_VERSION = 2
     }
 }

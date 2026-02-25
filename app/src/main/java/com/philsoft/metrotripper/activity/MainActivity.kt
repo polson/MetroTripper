@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.maps.GoogleMap
@@ -23,25 +22,26 @@ import com.philsoft.metrotripper.app.ui.helper.LocationHelper
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
 import com.philsoft.metrotripper.app.ui.view.MetroTripperApp
-import com.philsoft.metrotripper.database.AppDatabase
 import com.philsoft.metrotripper.database.DatabasePopulator
+import com.philsoft.metrotripper.database.dao.StopDao
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.utils.ui.Ui
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
-import com.philsoft.metrotripper.viewmodel.MainViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
-    private val viewModel: MainViewModel by lazy {
-        ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
-    }
+    private val viewModel: MainViewModel by viewModel()
+    private val prefs: Prefs by inject()
+    private val stopDao: StopDao by inject()
     
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
@@ -108,15 +108,14 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private fun populateStops() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val stopDao = AppDatabase.getInstance(this@MainActivity).stopDao()
-                val populator = DatabasePopulator(stopDao)
-                val prefs = Prefs.getInstance(this@MainActivity)
-                val currentVersion = 2 // Update this version when stops.txt is updated
+                val currentVersion = DatabasePopulator.CURRENT_VERSION
                 val stopsVersion = prefs.getStopsVersion()
+                val populator = DatabasePopulator(stopDao)
                 if (populator.isTableEmpty || stopsVersion < currentVersion) {
                     Timber.d("Populating stops... current version: $stopsVersion, target version: $currentVersion")
-                    assets.open("stops.txt").use { inputStream ->
-                        populator.populateStopsFast(inputStream)
+                    val stopData = assets.open("stops.txt")
+                    stopData.use { inputStream ->
+                        populator.populateStops(inputStream)
                     }
                     prefs.setStopsVersion(currentVersion)
                 }
