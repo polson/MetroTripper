@@ -1,16 +1,12 @@
 package com.philsoft.metrotripper.activity
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -30,7 +26,6 @@ import com.philsoft.metrotripper.utils.ui.Ui
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -42,18 +37,9 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private val viewModel: MainViewModel by viewModel()
     private val prefs: Prefs by inject()
     private val stopDao: StopDao by inject()
-    
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
-    private val permissionGranted = MutableStateFlow(false)
-    private val locationHelper by lazy { LocationHelper(this, permissionGranted) }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-            val fine = result[Manifest.permission.ACCESS_FINE_LOCATION] == true
-            val coarse = result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-            permissionGranted.value = fine || coarse
-        }
+    private val locationHelper by lazy { LocationHelper(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +51,7 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
             )
         )
         populateStops()
-        checkLocationPermission()
+        locationHelper.checkLocationPermission()
 
         setContent {
             MetroTripperApp(
@@ -79,29 +65,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
             locationHelper.locationEvents.collect {
                 viewModel.onLocationUpdate(it)
             }
-        }
-    }
-
-    private fun checkLocationPermission() {
-        val fineGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        val coarseGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (fineGranted || coarseGranted) {
-            permissionGranted.value = true
-        } else {
-            requestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            )
         }
     }
 
@@ -128,7 +91,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
         setupMap(map)
         setupMapViewHelper(map)
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
