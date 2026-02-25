@@ -1,25 +1,20 @@
 package com.philsoft.metrotripper.database
 
-import android.content.Context
 import com.philsoft.metrotripper.database.dao.StopDao
 import com.philsoft.metrotripper.model.Stop
 import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
 import timber.log.Timber
+import java.io.InputStream
 import java.io.InputStreamReader
 
-class DatabasePopulator(private val context: Context) {
+class DatabasePopulator(private val stopDao: StopDao) {
+    val isTableEmpty: Boolean
+        get() = stopDao.isTableEmpty()
 
-    companion object {
-        private const val STOPS_FILE = "stops.txt"
-    }
+    fun populateStopsFast(inputStream: InputStream) {
+        stopDao.deleteAll()
 
-    private val stopDao: StopDao = AppDatabase.getInstance(context).stopDao()
-
-    fun populateStopsFast() {
-        val assetManager = context.assets
-        val inputStream = assetManager.open(STOPS_FILE)
-        val parser = CSVParser(InputStreamReader(inputStream), CSVFormat.RFC4180.builder().setHeader().build())
+        val parser = CSVFormat.RFC4180.builder().setHeader().build().parse(InputStreamReader(inputStream))
         
         val startTime = System.currentTimeMillis()
         val records = parser.iterator()
@@ -48,13 +43,5 @@ class DatabasePopulator(private val context: Context) {
         }
         val elapsed = System.currentTimeMillis() - startTime
         Timber.d("Inserted $count stops in $elapsed ms")
-    }
-
-    fun isTableEmpty(): Boolean {
-        return stopDao.isTableEmpty()
-    }
-
-    fun clearStops() {
-        stopDao.deleteAll()
     }
 }

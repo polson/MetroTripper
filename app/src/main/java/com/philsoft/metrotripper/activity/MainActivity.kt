@@ -23,6 +23,7 @@ import com.philsoft.metrotripper.app.ui.helper.LocationHelper
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
 import com.philsoft.metrotripper.app.ui.view.MetroTripperApp
+import com.philsoft.metrotripper.database.AppDatabase
 import com.philsoft.metrotripper.database.DatabasePopulator
 import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
@@ -33,7 +34,6 @@ import com.philsoft.metrotripper.viewmodel.MainViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,8 +49,10 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
     private val locationHelper by lazy { LocationHelper(this, permissionGranted) }
 
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            permissionGranted.value = isGranted
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            val fine = result[Manifest.permission.ACCESS_FINE_LOCATION] == true
+            val coarse = result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            permissionGranted.value = fine || coarse
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,36 +76,49 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         }
 
         lifecycleScope.launch {
-            locationHelper.locationEvents.collect { viewModel.onLocationUpdate(it) }
+            locationHelper.locationEvents.collect {
+                viewModel.onLocationUpdate(it)
+            }
         }
     }
 
     private fun checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
             permissionGranted.value = true
         } else {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
         }
     }
 
     private fun populateStops() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                withContext(Dispatchers.IO) {
-                    val populator = DatabasePopulator(this@MainActivity)
-                    val prefs = Prefs.getInstance(this@MainActivity)
-                    val currentVersion = 2 // Update this version when stops.txt is updated
-                    val stopsVersion = prefs.getStopsVersion()
-                    if (populator.isTableEmpty() || stopsVersion < currentVersion) {
-                        Timber.d("Populating stops... current version: $stopsVersion, target version: $currentVersion")
-                        populator.clearStops()
-                        populator.populateStopsFast()
-                        prefs.setStopsVersion(currentVersion)
+                val stopDao = AppDatabase.getInstance(this@MainActivity).stopDao()
+                val populator = DatabasePopulator(stopDao)
+                val prefs = Prefs.getInstance(this@MainActivity)
+                val currentVersion = 2 // Update this version when stops.txt is updated
+                val stopsVersion = prefs.getStopsVersion()
+                if (populator.isTableEmpty || stopsVersion < currentVersion) {
+                    Timber.d("Populating stops... current version: $stopsVersion, target version: $currentVersion")
+                    assets.open("stops.txt").use { inputStream ->
+                        populator.populateStopsFast(inputStream)
                     }
+                    prefs.setStopsVersion(currentVersion)
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error populating stops")

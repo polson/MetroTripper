@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.callbackFlow
 object LocationClient {
 
     @SuppressLint("MissingPermission")
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
     fun locationUpdates(context: Context): Flow<LocationResult> = callbackFlow {
         val client = LocationServices.getFusedLocationProviderClient(context)
         val callback = object : LocationCallback() {
