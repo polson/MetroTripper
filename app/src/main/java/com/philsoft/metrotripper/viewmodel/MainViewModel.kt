@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.repository.NexTripRepository
 import com.philsoft.metrotripper.repository.StopsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,15 +34,14 @@ class MainViewModel(
     private val _uiEffect = Channel<MainUiEffect>(Channel.BUFFERED)
     val uiEffect = _uiEffect.receiveAsFlow()
 
-    init {
+    fun initialize() {
         loadInitialState()
     }
 
     private fun loadInitialState() {
         viewModelScope.launch {
-            val savedStopIds = stopsRepository.getSavedStopIds()
-            val savedStopsList = stopsRepository.getStopsById(savedStopIds)
-            val savedStopsMap = savedStopsList.associateBy { it.stopId }
+            stopsRepository.populateStopsIfNeeded()
+            val savedStopsMap = stopsRepository.getSavedStopsMap()
             _uiState.update { it.copy(savedStops = savedStopsMap) }
         }
     }

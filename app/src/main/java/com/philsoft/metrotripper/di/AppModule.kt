@@ -28,7 +28,7 @@ val appModule = module {
 
     single { NexTripService.create() }
 
-    single { StopsRepository(get(), get()) }
+    single { StopsRepository(androidContext(), get(), get()) }
 
     single { NexTripRepository(get()) }
 

@@ -18,25 +18,17 @@ import com.philsoft.metrotripper.app.ui.helper.LocationHelper
 import com.philsoft.metrotripper.app.ui.view.MapHelper
 import com.philsoft.metrotripper.app.ui.view.MapVehicleHelper
 import com.philsoft.metrotripper.app.ui.view.MetroTripperApp
-import com.philsoft.metrotripper.database.DatabasePopulator
-import com.philsoft.metrotripper.database.dao.StopDao
-import com.philsoft.metrotripper.prefs.Prefs
 import com.philsoft.metrotripper.utils.EZ
 import com.philsoft.metrotripper.utils.ui.Ui
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : BaseActivity(), OnMapReadyCallback {
 
     private val viewModel: MainViewModel by viewModel()
-    private val prefs: Prefs by inject()
-    private val stopDao: StopDao by inject()
     private lateinit var mapHelper: MapHelper
     private lateinit var mapVehicleHelper: MapVehicleHelper
     private val locationHelper by lazy { LocationHelper(this) }
@@ -50,8 +42,8 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
                 Color.TRANSPARENT
             )
         )
-        populateStops()
         locationHelper.checkLocationPermission()
+        viewModel.initialize()
 
         setContent {
             MetroTripperApp(
@@ -64,26 +56,6 @@ class MainActivity : BaseActivity(), OnMapReadyCallback {
         lifecycleScope.launch {
             locationHelper.locationEvents.collect {
                 viewModel.onLocationUpdate(it)
-            }
-        }
-    }
-
-    private fun populateStops() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val currentVersion = DatabasePopulator.CURRENT_VERSION
-                val stopsVersion = prefs.getStopsVersion()
-                val populator = DatabasePopulator(stopDao)
-                if (populator.isTableEmpty || stopsVersion < currentVersion) {
-                    Timber.d("Populating stops... current version: $stopsVersion, target version: $currentVersion")
-                    val stopData = assets.open("stops.txt")
-                    stopData.use { inputStream ->
-                        populator.populateStops(inputStream)
-                    }
-                    prefs.setStopsVersion(currentVersion)
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Error populating stops")
             }
         }
     }
