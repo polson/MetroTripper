@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.philsoft.metrotripper.R
 import com.philsoft.metrotripper.app.about.AboutDialog
 import com.philsoft.metrotripper.app.ui.theme.DarkBlue
@@ -47,7 +46,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun MetroTripperApp(
     viewModel: MainViewModel,
-    mapReadyCallback: OnMapReadyCallback,
     onEffect: (MainUiEffect) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -104,7 +102,6 @@ fun MetroTripperApp(
             ) {
                 MainScreen(
                     viewModel = viewModel,
-                    mapReadyCallback = mapReadyCallback,
                     topBar = {
                         TopAppBar(
                             windowInsets = WindowInsets(0, 0, 0, 0),
@@ -139,4 +136,3 @@ fun MetroTripperApp(
         }
     }
 }
-
