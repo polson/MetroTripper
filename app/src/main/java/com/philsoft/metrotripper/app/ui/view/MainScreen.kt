@@ -38,6 +38,9 @@ import com.philsoft.metrotripper.app.ui.theme.DarkGray
 import com.philsoft.metrotripper.model.Stop
 import com.philsoft.metrotripper.viewmodel.MainUiEffect
 import com.philsoft.metrotripper.viewmodel.MainViewModel
+import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,8 +113,8 @@ fun MainScreen(
             sheetDragHandle = null,
             sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
             sheetContainerColor = if (hasStop) DarkGray else Color.Transparent,
-            sheetShadowElevation = if (hasStop) 8.dp else 0.dp,
-            sheetTonalElevation = if (hasStop) 0.dp else 0.dp,
+            sheetShadowElevation = 0.dp,
+            sheetTonalElevation = 0.dp,
             sheetPeekHeight = if (hasStop) 155.dp else 0.dp,
             sheetContent = {
                 MainBottomSheetContent(
@@ -206,21 +209,15 @@ private fun HandleCameraIdleEvents(
     viewModel: MainViewModel,
     runtimeState: MainMapRuntimeState
 ) {
-    LaunchedEffect(runtimeState.mapLoaded, runtimeState.cameraPositionState) {
-        if (!runtimeState.mapLoaded) {
-            return@LaunchedEffect
-        }
+    val cameraPositionState = runtimeState.cameraPositionState
+    LaunchedEffect(runtimeState.mapLoaded, cameraPositionState) {
+        if (!runtimeState.mapLoaded) return@LaunchedEffect
 
-        var wasMoving = false
-        snapshotFlow { runtimeState.cameraPositionState.isMoving to runtimeState.cameraPositionState.position }
-            .collect { (isMoving, position) ->
-                if (isMoving) {
-                    wasMoving = true
-                } else if (wasMoving) {
-                    wasMoving = false
-                    viewModel.onCameraIdle(position)
-                }
-            }
+        snapshotFlow { cameraPositionState.isMoving to cameraPositionState.position }
+            .dropWhile { (isMoving, _) -> !isMoving }   // wait for first movement
+            .filter { (isMoving, _) -> !isMoving }       // only emit when stopped
+            .map { (_, position) -> position }
+            .collect { position -> viewModel.onCameraIdle(position) }
     }
 }
 
